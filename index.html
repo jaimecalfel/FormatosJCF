@@ -357,6 +357,13 @@ aside{box-shadow:0 1px 2px rgba(16,24,40,.05)}
 .sheet .c:not(.ed):not(.cb) > span{cursor:default}
 .sheet .c.pick > span{cursor:pointer}
 .dbg-ed .sheet .c.ed{background:rgba(60,110,255,.28) !important;outline:1px solid rgba(60,110,255,.6)}
+@media screen{
+  .sheet .c.summary-unified{z-index:4;overflow:hidden;white-space:pre-wrap;cursor:text;isolation:isolate;contain:paint}
+  .sheet .c.summary-unified > span{width:100%;height:100%;max-width:100%;max-height:100%;box-sizing:border-box;white-space:pre-wrap;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}
+  .sheet .c.summary-unified:hover,.sheet .c.summary-unified:focus-within{background:rgba(26,115,232,.07);outline:1px solid rgba(26,115,232,.35)}
+  .sheet .c.summary-line-underlay{pointer-events:none}
+  .sheet .c.summary-line-underlay > span{visibility:hidden!important;color:transparent!important;user-select:none}
+}
 @media screen{.sheet .c.pick > span{background:rgba(26,115,232,.08);border-radius:2px}.sheet .c.pick > span::after{content:" ▾";font-size:.85em;color:#1A73E8}}
 .pickmenu{position:fixed;z-index:60;min-width:220px;max-width:calc(100vw - 16px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.2);padding:5px;display:flex;flex-direction:column}
 .pickmenu button{border:0;background:transparent;text-align:left;padding:8px 12px;border-radius:7px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
@@ -537,6 +544,330 @@ aside{box-shadow:0 1px 2px rgba(16,24,40,.05)}
   .paper:last-child{break-after:auto;page-break-after:auto}
 }
 @media (prefers-reduced-motion: no-preference){.fmt,.btn{transition:background-color .15s,border-color .15s}}
+
+/* Ajustes solicitados: predeterminados compactos y campos pendientes */
+@media screen{
+  .rel.side[data-key="rx"] .gwrap,
+  .rel.side[data-key="receta"] .rcpre .gwrapx,
+  .rel.side[data-key="pase"] .rcpre .gwrapx{gap:7px}
+  .rel.side[data-key="rx"] .rgrp,
+  .rel.side[data-key="receta"] .rcpre .rgrp,
+  .rel.side[data-key="pase"] .rcpre .rgrp{padding-left:7px}
+  .rel.side[data-key="rx"] .rgrp .gl,
+  .rel.side[data-key="receta"] .rcpre .rgrp .gl,
+  .rel.side[data-key="pase"] .rcpre .rgrp .gl{padding-bottom:3px;font-size:11px}
+  .rel.side[data-key="rx"] .rgrp .gb,
+  .rel.side[data-key="receta"] .rcpre .rgrp .gb,
+  .rel.side[data-key="pase"] .rcpre .rgrp .gb{gap:3px}
+  .rel.side[data-key="rx"] .pre-txt,
+  .rel.side[data-key="receta"] .rcpre .pre-txt,
+  .rel.side[data-key="pase"] .pre-txt{padding:5px 8px;font-size:12px;min-height:28px}
+  .rel.side .rcpre{margin-top:4px}
+  .rel.side .rcpre .lbl{text-align:left;margin:8px 0 5px}
+
+  .f.has-empty > label{color:var(--muted)}
+  .f.has-empty > label::after{content:"";flex:none;width:9px;height:9px;margin-left:auto;border-radius:50%;background:#1976D2;box-shadow:0 0 0 3px rgba(25,118,210,.14)}
+  .f.has-empty > input,.f.has-empty > select,.f.has-empty > textarea{border-left:3px solid #1976D2;background:var(--fill)}
+  fieldset legend[data-progress]::after{content:attr(data-progress);float:right;margin-left:12px;border:1px solid rgba(255,255,255,.38);background:rgba(255,255,255,.12);border-radius:999px;padding:1px 8px;font-size:10.5px;font-weight:600;letter-spacing:0;line-height:1.5}
+  fieldset.complete legend[data-progress]::after{content:"Completo";background:#197A4A;border-color:#9ED1B8;color:#fff}
+}
+/* ---------- Interfaz fresca y simplificada (solo pantalla) ---------- */
+@media screen{
+  :root{
+    --bg:#F4F7FA;--surface:#FFFFFF;--ink:#142235;--muted:#68778B;--line:#DDE5EC;
+    --accent:#0B6F75;--accent-ink:#FFFFFF;--accent-soft:#E4F3F3;
+    --fill:#FFFFFF;--fill-line:#C9D5E2;--auto:#F1F4F7;--danger:#B42318;
+    --band:#173B5E;--band-ink:#FFFFFF;--navy:#173B5E;
+    --soft-blue:#F2F7FC;--input-pending:#F7FAFE;--shadow:0 10px 30px rgba(25,50,75,.07);
+  }
+  body{background:var(--bg);color:var(--ink);font-size:14px}
+
+  /* Encabezado compacto */
+  .top{position:relative;gap:14px;padding:10px max(18px,calc((100% - 1280px)/2));background:var(--surface);color:var(--ink);border:0;border-bottom:1px solid var(--line);box-shadow:none}
+  .top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:linear-gradient(90deg,#0B6F75 0 34%,#2F6FA3 34% 68%,#D45A42 68%)}
+  .top .brand{flex:1;text-align:left;display:flex;align-items:baseline;flex-wrap:wrap;column-gap:10px;row-gap:0}
+  .top h1{width:100%;font-size:23px;letter-spacing:-.01em;color:var(--navy)}
+  .top p{display:inline-flex;margin:1px 0 0;font-size:12px;color:var(--muted);opacity:1}
+  .top p.inst{font-size:13px;font-weight:700;color:var(--ink);margin-top:2px}
+  .top p:nth-of-type(2){display:none}
+  .top p:nth-of-type(3)::before{content:"·";margin-right:10px;color:#9AA8B7}
+  .seal{width:46px;height:46px;padding:2px;border:1px solid var(--line);box-shadow:0 3px 10px rgba(25,50,75,.10)}
+  .seal.crab{padding:7px}
+
+  /* Identidad visible del paciente */
+  .band{min-height:54px;padding:8px max(18px,calc((100% - 1280px)/2));background:var(--band);color:var(--band-ink);box-shadow:0 3px 12px rgba(23,59,94,.14)}
+  .band-id{padding-left:13px;position:relative}
+  .band-id::before{content:"";position:absolute;left:0;top:5px;bottom:5px;width:3px;border-radius:4px;background:#51C3C8}
+  .band-name{font-size:15px;font-weight:700}
+  .band-name.empty{font-style:normal;opacity:.82}
+  .band-meta{font-size:12px;opacity:.82;gap:3px 14px}
+  .band-btn{min-height:36px;border-color:rgba(255,255,255,.28);border-radius:10px;padding:7px 11px;background:rgba(255,255,255,.07)}
+  .band-btn:hover{background:rgba(255,255,255,.14)}
+
+  /* Composición general */
+  .wrap{max-width:1280px;grid-template-columns:minmax(0,1fr) 330px;gap:22px;padding:22px clamp(16px,3vw,30px) 64px}
+  .intro{align-items:center;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+  .intro h2{margin:0 0 3px;font-size:23px;letter-spacing:-.02em;color:var(--navy)}
+  .intro p{font-size:13px;color:var(--muted)}
+  .intro .actions{align-items:center;gap:9px 12px}
+  .acts{gap:7px}
+  .store{gap:8px}
+  .store-lbl{font-size:12px}
+  .seg{padding:3px;border-color:var(--line);border-radius:11px;box-shadow:none;background:var(--bg)}
+  .seg button{padding:7px 11px;border-radius:8px;font-size:12.5px}
+  .seg button[aria-checked="true"]{box-shadow:0 2px 5px rgba(25,50,75,.10)}
+
+  /* Botones */
+  .btn{min-height:38px;padding:8px 13px;border-color:var(--line);border-radius:10px;background:var(--surface);box-shadow:none;font-size:13px;transition:border-color .16s,background-color .16s,transform .16s,box-shadow .16s}
+  .btn:hover{border-color:#AEBECC;background:var(--soft-blue);box-shadow:0 4px 12px rgba(25,50,75,.08)}
+  .btn.primary,.btn.save{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 5px 14px rgba(11,111,117,.20)}
+  .btn.primary:hover,.btn.save:hover{background:#085E63;filter:none}
+  .btn.clear{background:#FFF7F6;border-color:#F1C7C2;color:var(--danger)}
+  .btn.clear:hover{background:#FDECEA;border-color:#E6A59D;color:#912018}
+  .btn.danger{background:#FFF7F6;border-color:#F1C7C2;color:var(--danger)}
+  .btn.small{min-height:31px;padding:5px 10px;font-size:12px}
+  .hoy{border-color:#B9D8DA;background:var(--accent-soft);color:var(--accent);padding:2px 10px}
+  .hoy:hover{background:#D5ECEC;border-color:var(--accent)}
+
+  /* Formulario limpio */
+  .lcol{gap:16px}
+  form{gap:14px}
+  fieldset{padding:17px 18px 19px;border-color:var(--line);border-radius:15px;background:var(--surface);box-shadow:0 5px 18px rgba(25,50,75,.045);overflow:hidden}
+  legend{float:none;width:100%;margin:0 0 16px;padding:0 0 12px;background:transparent;color:var(--navy);border-bottom:1px solid var(--line);font-size:14px;font-weight:750;letter-spacing:.01em}
+  legend + *{clear:none}
+  fieldset legend[data-progress]::after{float:right;margin:0 0 0 10px;padding:2px 9px;border:0;border-radius:999px;background:var(--soft-blue);color:var(--muted);font-size:10.5px;font-weight:700;line-height:1.55}
+  fieldset.complete{border-color:#BBD9CA}
+  fieldset.complete legend[data-progress]::after{background:#E7F5ED;color:#187247;border:0}
+  .grid{gap:11px 13px}
+  .f{gap:5px}
+  label{font-size:12.5px;font-weight:650;color:#526277}
+  label .cnt{font-size:11px;color:var(--muted)}
+  input,select,textarea{min-height:42px;padding:9px 11px;background-color:var(--fill);border:1px solid var(--fill-line);border-radius:10px;font-size:14px;box-shadow:inset 0 1px 1px rgba(20,34,53,.025);transition:border-color .16s,box-shadow .16s,background-color .16s}
+  textarea{min-height:88px;line-height:1.45}
+  input:hover,select:hover,textarea:hover{border-color:#9FB2C4}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(11,111,117,.13);background-color:var(--surface)}
+  .auto{min-height:42px;padding:9px 11px;border:1px dashed #B8C4D0;border-radius:10px;background:var(--auto);font-size:14px}
+  .hint{font-size:11.5px;line-height:1.35}
+  .subhead{margin:17px 0 11px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .subhead h3{font-size:13px;color:var(--navy)}
+  .sec-head{font-size:12px}
+
+  /* Punto azul dentro del campo vacío */
+  .f.has-empty{position:relative}
+  .f.has-empty > label::after{display:none !important;content:none !important}
+  .f.has-empty > input,.f.has-empty > select,.f.has-empty > textarea{
+    border-left-width:1px;background-color:var(--input-pending);padding-right:34px;
+    background-image:radial-gradient(circle,#1976D2 0 3.5px,rgba(25,118,210,.16) 4px 7px,transparent 7.5px);
+    background-repeat:no-repeat;background-size:15px 15px;background-position:calc(100% - 11px) center;
+  }
+  .f.has-empty > select{background-position:calc(100% - 28px) center}
+  .f.has-empty > textarea{background-position:calc(100% - 11px) 11px}
+  .f.has-empty > input:focus,.f.has-empty > select:focus,.f.has-empty > textarea:focus{background-color:var(--surface)}
+
+  /* Pacientes recientes */
+  .ppanel{border-color:var(--line);border-radius:15px;box-shadow:0 5px 18px rgba(25,50,75,.05)}
+  .pp-head{padding:10px 10px 10px 15px;background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line)}
+  .pp-head h2{font-size:14px;color:var(--navy)}
+  .pp-head #ppSearch{min-height:36px;padding:7px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+  .pp-actions button{color:var(--muted);border-radius:8px}
+  .pp-actions button:hover{background:var(--accent-soft);color:var(--accent)}
+  .pp-list{padding:9px}
+  .pp-list .dlg-item{border-color:var(--line);border-radius:11px;background:var(--surface)}
+  .dlg-item.cur{background:var(--accent-soft)!important;border-color:var(--accent)!important}
+
+  /* Índice de formatos simplificado */
+  aside{position:sticky;top:70px;max-height:calc(100vh - 88px);overflow:auto;border-color:var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);scrollbar-width:thin}
+  .idx-head{padding:15px 16px 12px;background:transparent;color:var(--ink);text-align:left;border-bottom:1px solid var(--line)}
+  .idx-head h2{font-size:15px;color:var(--navy)}
+  .idx-head p{font-size:11.5px;color:var(--muted);opacity:1}
+  #index{padding:12px;gap:11px}
+  .col{gap:11px}
+  .grp{border:0;border-left:3px solid var(--c);border-radius:0;background:transparent;overflow:visible}
+  .grp h3{padding:2px 8px 5px;background:transparent;color:var(--c);text-align:left;font-size:11px;letter-spacing:.055em;text-transform:uppercase}
+  .list{padding:0 0 0 6px;gap:3px}
+  .fmt{justify-content:flex-start;min-height:32px;padding:6px 8px;border:1px solid transparent;border-radius:8px;background:color-mix(in srgb,var(--c) 7%,var(--surface));color:var(--ink);font-size:12px;font-weight:600;text-align:left}
+  .fmt.ready{border-color:color-mix(in srgb,var(--c) 22%,var(--line));box-shadow:none}
+  .fmt.ready:hover{background:color-mix(in srgb,var(--c) 15%,var(--surface));border-color:var(--c);color:var(--ink)}
+  .fmt:disabled{background:transparent;opacity:.55}
+  .idx-foot{padding:2px 12px 13px;gap:7px}
+
+  /* Vista de cada formato; no modifica el documento */
+  .fbar{top:calc(env(safe-area-inset-top,0px) + 54px);padding-top:11px;padding-bottom:11px;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);box-shadow:0 4px 16px rgba(25,50,75,.05)}
+  .fcat{font-size:11.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.045em}
+  .fbar h1{font-size:20px;letter-spacing:-.015em;color:var(--navy)}
+  .fnote{padding-top:9px;padding-bottom:10px;font-size:12px}
+  .fbody{gap:18px}
+  .rel.side{padding:14px;border-color:var(--line);border-radius:16px;box-shadow:var(--shadow)}
+  .rel.side .lbl{font-size:13px;color:var(--navy);font-weight:700}
+  .rel.side > button[data-preset],.rel.side .pre-txt{border-radius:8px}
+  .rel.side .halfseg{border-color:var(--line);border-radius:11px;box-shadow:none;background:var(--bg)}
+  .stage{padding-bottom:64px}
+  .paper{box-shadow:0 2px 4px rgba(20,34,53,.10),0 16px 36px rgba(20,34,53,.13)}
+
+  /* Diálogos y avisos */
+  .dlg{border:1px solid var(--line);border-radius:16px;box-shadow:0 26px 70px rgba(20,34,53,.28)}
+  .dlg-head{padding:15px 18px;background:var(--soft-blue)}
+  .dlg-item{border-radius:10px}
+  .toast{border-radius:11px;background:var(--navy);box-shadow:0 12px 28px rgba(20,34,53,.22)}
+
+  @media (max-width:900px){
+    .wrap{grid-template-columns:minmax(0,1fr);padding-top:16px}
+    aside{position:static;max-height:none;overflow:visible}
+    .intro{padding:16px}
+  }
+  @media (max-width:700px){
+    .top{padding:9px 14px}.top h1{font-size:20px}.top p.inst{font-size:12px}.top p:nth-of-type(3){display:none}
+    .seal{width:40px;height:40px}.seal.crab{display:none}
+    .band{padding:8px 14px}
+    .intro{align-items:flex-start}.intro .actions{width:100%}.store{width:100%}.acts{width:100%;grid-template-columns:1fr 1fr}
+    .acts .btn{width:100%}
+    fieldset{padding:15px 14px 17px}
+    legend{margin-bottom:14px}
+    #index{grid-template-columns:1fr}
+    .grp.wide{grid-column:auto}.grp.wide .list{grid-template-columns:1fr}
+    .fbar{padding-left:14px;padding-right:14px}
+  }
+}
+@media screen and (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121A23;--surface:#19232D;--ink:#EDF2F6;--muted:#9AA9B8;--line:#2E3B49;
+    --accent:#62C5C9;--accent-ink:#0D2527;--accent-soft:#183B3E;--fill:#17212B;--fill-line:#3A4A5A;
+    --auto:#202C37;--band:#102D49;--band-ink:#F4F8FB;--navy:#AFCBE3;--soft-blue:#1D2A36;
+    --input-pending:#182634;--shadow:0 12px 32px rgba(0,0,0,.20);
+  }
+}
+
+/* Ajuste general: índice con desplazamiento natural y vistas de formato uniformes */
+@media screen{
+  /* El índice ya no crea una segunda barra de desplazamiento. */
+  aside{position:static!important;top:auto!important;max-height:none!important;overflow:visible!important;scrollbar-width:auto}
+
+  /* Cabecera común para todas las páginas de formatos. */
+  #view-format{padding-top:1px}
+  .fbar{
+    position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:15;
+    max-width:1280px;margin:14px auto 10px;padding:12px 14px;
+    background:color-mix(in srgb,var(--surface) 95%,transparent);
+    border:1px solid var(--line);border-radius:15px;
+    box-shadow:0 8px 24px rgba(25,50,75,.08);backdrop-filter:blur(14px)
+  }
+  .ftitle{padding-left:11px;position:relative}
+  .ftitle::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:4px;background:var(--accent)}
+  .fcat{line-height:1.25}
+  .fbar h1{margin-top:2px}
+  .fbar .actions{gap:6px}
+  .fbar .actions .btn{min-height:36px;padding:7px 11px}
+  .fbar .actions #btnHome{background:var(--soft-blue)}
+  .fbar .actions #btnPrint{background:var(--navy);border-color:var(--navy);color:#fff}
+  .fbar .actions #btnPrint:hover{filter:brightness(1.08)}
+  .fnote{max-width:1280px;padding:0 16px 11px;font-size:11.5px;line-height:1.45}
+
+  /* Marco de trabajo compartido por todos los documentos. */
+  .fbody{max-width:1320px;gap:18px 22px;padding:0 20px 68px}
+  .stage{min-width:0;padding:8px 10px 30px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--surface) 58%,var(--bg));overflow:hidden}
+  .pages{gap:20px}
+  .paper{border:1px solid rgba(20,34,53,.10);border-radius:2px;box-shadow:0 4px 8px rgba(20,34,53,.08),0 18px 42px rgba(20,34,53,.12)}
+
+  /* Paneles laterales: misma apariencia en recetas, pases, rayos X y demás páginas. */
+  .rel.side,.recpanel{border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 8px 24px rgba(25,50,75,.07)}
+  .rel.side{padding:14px}
+  .rel.side .lbl{margin-bottom:11px;padding-bottom:9px;color:var(--navy);border-bottom:1px solid var(--line)}
+  .rel.side .rgrp{padding-left:9px}
+  .rel.side > button[data-preset],.rel.side .pre-txt{min-height:31px;border-color:color-mix(in srgb,var(--c) 32%,var(--line));background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+  .rel.side > button[data-preset]:hover,.rel.side .pre-txt:hover{background:color-mix(in srgb,var(--c) 14%,var(--surface));color:var(--ink)}
+  .recpanel{padding:14px}
+  .rc-hd{color:var(--navy)}
+  .rcsec{border-top-color:var(--line)}
+  .rcsec .rc-list{background:transparent}
+  .rel:not(.side){max-width:1280px;margin-bottom:12px}
+
+  /* Estados y controles comunes. */
+  .fnote.warn{margin-top:0;padding-top:2px;color:var(--danger)}
+  .store-st,.fcat,.fnote{letter-spacing:.005em}
+
+  @media (max-width:1039px){
+    .fbar{margin:10px 14px 8px;top:calc(env(safe-area-inset-top,0px) + 58px)}
+    .fnote{padding-left:18px;padding-right:18px}
+    .fbody{padding-left:14px;padding-right:14px}
+    .stage{width:100%;padding-top:8px}
+    .rel.side,.recpanel{margin-left:0;margin-right:0;width:100%}
+  }
+  @media (max-width:700px){
+    .fbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 54px);margin:0 0 8px;padding:10px 12px;border-left:0;border-right:0;border-radius:0}
+    .fbar .actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .fbar .actions .btn{width:100%;font-size:12px}
+    .fnote{padding:0 14px 9px}
+    .fbody{padding:0 10px 52px;gap:12px}
+    .stage{padding:6px 4px 24px;border-left:0;border-right:0;border-radius:0}
+    .rel.side,.recpanel{border-radius:13px;box-shadow:none}
+  }
+}
+
+/* Firma del autor visible en el encabezado compacto. */
+@media screen{
+  .top p:nth-of-type(2){display:inline-flex;color:var(--muted);font-size:11.5px}
+  .top p:nth-of-type(2)::before{content:"·";margin-right:10px;color:#9AA8B7}
+}
+/* Predeterminados con el lenguaje visual de la hoja de datos. */
+@media screen{
+  .rel.side{padding:15px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+  .rel.side .lbl{margin:0 0 10px;padding:0 0 9px;border-bottom:1px solid var(--line);color:var(--navy);font-size:13px;font-weight:750;line-height:1.35;text-align:left}
+  .rel.side .lbl:not(:first-child){margin-top:16px}
+  .rel.side .gwrap,.rel.side .rcpre .gwrapx{gap:10px}
+  .rel.side .rgrp{padding:10px;border:1px solid color-mix(in srgb,var(--c) 20%,var(--line));border-left:3px solid var(--c);border-radius:10px;background:color-mix(in srgb,var(--c) 4%,var(--surface))}
+  .rel.side .rgrp .gl{margin:0 0 7px;padding:0;color:var(--c);font-size:11.5px;font-weight:750;letter-spacing:.035em;line-height:1.25;text-transform:uppercase}
+  .rel.side .rgrp .gb{gap:5px}
+  .rel button[data-preset],.rel .pre-txt{min-height:34px;border:1px solid color-mix(in srgb,var(--c) 24%,var(--line));border-radius:8px;background:color-mix(in srgb,var(--c) 7%,var(--surface));color:var(--ink);box-shadow:none;font-size:12px;font-weight:650;line-height:1.25;text-align:left;transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .15s ease}
+  .rel.side > button[data-preset],.rel.side .pre-txt{width:100%;margin-bottom:0;padding:7px 9px;justify-content:flex-start}
+  .rel button[data-preset]:hover,.rel .pre-txt:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--surface));color:var(--ink);transform:translateY(-1px)}
+  .rel button[data-preset].active,.rel .pre-txt.active{border-color:var(--c);background:var(--c);color:#fff}
+  .rel.side .halfseg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+  .rel.side .halfseg button{min-width:0;min-height:34px;padding:7px 8px;border:0;border-radius:7px;background:transparent;color:var(--muted);box-shadow:none;font-size:12px;justify-content:center}
+  .rel.side .halfseg button[aria-checked="true"]{background:var(--surface);color:var(--navy);box-shadow:0 1px 4px rgba(20,34,53,.12)}
+  .rel:not(.side) > button[data-preset],.rel:not(.side) > .pre-txt{padding:7px 11px;border-radius:8px}
+}
+@media screen and (max-width:700px){
+  .rel.side{margin-left:10px;margin-right:10px;padding:13px;border-radius:13px;box-shadow:none}
+  .rel.side .gwrap,.rel.side .rcpre .gwrapx{grid-template-columns:1fr}
+  .rel.side .rgrp{padding:9px}
+  .rel.side .halfseg{grid-template-columns:1fr}
+  .rel.side > button[data-preset],.rel.side .pre-txt{min-height:38px;padding:8px 10px}
+}
+
+/* Controles principales adaptados a laptop y celular. */
+@media screen{
+  #view-data .intro{display:grid;grid-template-columns:minmax(240px,1fr) auto;align-items:center;gap:16px 24px}
+  #view-data .intro .actions{display:grid;grid-template-columns:auto auto;grid-template-areas:"store buttons" "status status";align-items:center;justify-content:end;gap:8px 12px;margin-left:0}
+  #view-data .intro .store{grid-area:store;justify-content:flex-end;flex-wrap:nowrap}
+  #view-data .intro .acts{grid-area:buttons;display:grid;grid-template-columns:repeat(3,minmax(92px,auto));gap:7px}
+  #view-data .intro .acts .btn{width:100%;min-width:0;min-height:40px;padding:8px 11px;white-space:nowrap}
+  #view-data .intro .acts .clear{grid-column:auto}
+  #view-data .intro .store-st{grid-area:status;justify-self:end;margin:0}
+  #view-data .intro .seg{flex:none}
+  #view-data .intro .seg button{min-height:34px;white-space:nowrap}
+}
+@media screen and (max-width:1100px){
+  #view-data .intro{grid-template-columns:1fr}
+  #view-data .intro .actions{width:100%;grid-template-columns:minmax(0,1fr) auto;justify-content:stretch}
+  #view-data .intro .store{justify-content:flex-start}
+  #view-data .intro .store-st{justify-self:start}
+}
+@media screen and (max-width:700px){
+  #view-data .intro{display:grid;gap:14px}
+  #view-data .intro .actions{display:grid;grid-template-columns:1fr;grid-template-areas:"store" "buttons" "status";gap:10px}
+  #view-data .intro .store{display:grid;grid-template-columns:1fr;justify-items:stretch;gap:6px}
+  #view-data .intro .store-lbl{text-align:left}
+  #view-data .intro .seg{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  #view-data .intro .seg button{justify-content:center;width:100%}
+  #view-data .intro .acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  #view-data .intro .acts .clear{grid-column:auto}
+  #view-data .intro .acts .btn{padding:8px 6px;font-size:12px}
+  #view-data .intro .store-st{justify-self:start;text-align:left}
+}
+@media screen and (max-width:430px){
+  #view-data .intro .acts{grid-template-columns:1fr 1fr}
+  #view-data .intro .acts .clear{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
@@ -574,9 +905,9 @@ aside{box-shadow:0 1px 2px rgba(16,24,40,.05)}
           <div class="acct" id="acct"></div>
         </div>
         <div class="acts">
-        <button class="btn" type="button" id="btnOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13l3-9H7l-3 9"/></svg>Abrir Paciente</button>
-        <button class="btn primary" type="button" id="btnSave"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>Guardar Paciente</button>
-        <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 11.5 11.5"/><path d="M9.8 10.2c-2.6-.4-4.9 1.3-5.6 3.7L3 20.5c2.4.3 5.2-.1 7-1.3 2.2-1.5 3.3-3.7 2.8-6"/><path d="m8.5 11 4.5 4.5"/><path d="M6 20.2 7.5 17M9.3 19.6l1-2.6"/></svg>Limpiar datos</button>
+        <button class="btn" type="button" id="btnOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13l3-9H7l-3 9"/></svg>Abrir</button>
+        <button class="btn primary" type="button" id="btnSave"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>Guardar</button>
+        <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 11.5 11.5"/><path d="M9.8 10.2c-2.6-.4-4.9 1.3-5.6 3.7L3 20.5c2.4.3 5.2-.1 7-1.3 2.2-1.5 3.3-3.7 2.8-6"/><path d="m8.5 11 4.5 4.5"/><path d="M6 20.2 7.5 17M9.3 19.6l1-2.6"/></svg>Limpiar</button>
         <input type="file" id="fileOpen" accept=".html,.json,text/html,application/json" hidden>
         </div>
         <span class="store-st" id="storeStatus"></span>
@@ -866,7 +1197,7 @@ function edad(fnac,hoy){
 function data(){
   const d={}; inputs.forEach(i=>d[i.id]=(i.value||"").trim());
   d.nombreCompleto=[d.apPaterno,d.apMaterno,d.nombres].filter(Boolean).join(" ").toUpperCase();
-  d.edad=edad(d.fnac,d.fecha);
+  d.edad=edad(d.fnac,d.fecha||todayStr());
   const f=parts(d.fecha); d.mes=f?(MESES[+f.mm-1]||""):""; d.anio=f?"20"+f.yy:"";
   d.fechaCx=parts(d.fPlan)?d.fPlan:d.fecha; const fc=parts(d.fechaCx); d.mesCx=fc?(MESES[+fc.mm-1]||""):""; d.anioCx=fc?"20"+fc.yy:"";
   return d;
@@ -894,6 +1225,8 @@ function refresh(){
     const c=el.closest(".f").querySelector(".cnt"); if(!c) return;
     const n=el.value.length,m=+el.dataset.max; c.textContent=n?`${n}/${m}`:`máx. ${m}`; c.classList.toggle("over",n>m);
   });
+  inputs.forEach(el=>{ const empty=!String(el.value||"").trim(); el.classList.toggle("pending-empty",empty); const f=el.closest(".f"); if(f) f.classList.toggle("has-empty",empty); });
+  form.querySelectorAll("fieldset").forEach(fs=>{ const a=[...fs.querySelectorAll("input,select,textarea")], empty=a.filter(el=>!String(el.value||"").trim()).length, lg=fs.querySelector("legend"); fs.classList.toggle("complete",empty===0); if(lg) lg.dataset.progress=empty?`${empty} ${empty===1?"vacío":"vacíos"}`:"Completo"; });
   if(current) renderFormat(current);
 }
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -961,8 +1294,44 @@ function openPick(sp){
 document.addEventListener("click",e=>{ if(!e.target.closest(".pickmenu")&&!e.target.closest(".c.pick")) closePick(); });
 addEventListener("scroll",()=>{ if(Date.now()-_pickT>400) closePick(); },{passive:true});
 /* Pares Sí/No que se comportan como casillas excluyentes; el "No" viene marcado por defecto */
-const PAIRS={ ordenHosp:[["AD24","AH24"],["AD25","AH25"],["AD26","AH26"],["AD27","AH27"]], bj:[["P19","T19",1]] };
+const PAIRS={ ordenHosp:[["AD24","AH24"],["AD25","AH25"],["AD26","AH26"],["AD27","AH27"]], bj:[["P19","T19",1]], antibiotico:[["ANT9C","ANT9N",1]] };
 function pairOf(key,cell){ for(const [a,b,off] of (PAIRS[key]||[])){ if(cell===a) return {other:b,off:!!off}; if(cell===b) return {other:a,off:!!off}; } return null; }
+/* Un solo editor por resumen, conservando debajo las lineas y dimensiones del formato impreso. */
+function customizeSummaryAreas(key,wrap){
+  const n=(el,p)=>parseFloat(el&&el.style[p]||0), at=(root,top,left)=>[...root.querySelectorAll(":scope > .c")].find(el=>Math.abs(n(el,"top")-top)<.05&&(left===undefined||Math.abs(n(el,"left")-left)<.05));
+  const underlay=el=>{
+    if(!el) return;
+    el.classList.remove("ed"); el.classList.add("summary-line-underlay");
+    el.removeAttribute("data-x"); el.removeAttribute("data-sync"); el.removeAttribute("data-direct-sync"); el.removeAttribute("data-ov");
+    const sp=el.firstElementChild; if(sp){ sp.removeAttribute("contenteditable"); sp.textContent=""; }
+  };
+  const unify=cell=>{
+    if(!cell) return;
+    cell.dataset.x=cell.dataset.x||"_direct_resumen";
+    cell.dataset.sync="resumen";
+    cell.dataset.directSync="resumen";
+    cell.classList.add("w","big","fit","ed","summary-unified");
+    cell.style.justifyContent="flex-start"; cell.style.alignItems="stretch"; cell.style.textAlign="left"; cell.style.padding="2pt 3pt";
+  };
+  if(key==="rx"){
+    const cells=["B23","B24","B25","B26","B27"].map(ref=>wrap.querySelector(`[data-x="${ref}"]`)).filter(Boolean), box=cells[0];
+    if(box){ box.style.height="95.75pt"; unify(box); cells.slice(1).forEach(underlay); }
+  }
+  if(key==="antibiotico"){
+    const sheet=wrap.querySelector(".sheet"), old=[at(sheet,341.2,52.5),at(sheet,367.5,10.5),at(sheet,380.65,10.5),at(sheet,393.8,10.5)].filter(Boolean);
+    old.forEach(underlay);
+    if(sheet){ const box=document.createElement("div"); box.className="c w big fit ed summary-unified"; box.style.cssText="left:10.5pt;top:354.35pt;width:504pt;height:52.60pt;font-family:var(--f0);font-size:8pt;font-weight:700;justify-content:flex-start;align-items:stretch;text-align:left;padding:2pt 3pt"; box.dataset.x="_direct_resumen"; box.dataset.sync="resumen"; box.dataset.directSync="resumen"; box.dataset.addedControl="summary"; box.innerHTML="<span></span>"; sheet.appendChild(box); }
+    [[147,"ANT9C"],[252,"ANT9N"]].forEach(([left,id])=>{ const cell=at(sheet,211.2,left); if(!cell) return; cell.className="c e cb"; cell.dataset.cell=id; cell.removeAttribute("data-x"); cell.removeAttribute("data-sync"); cell.innerHTML='<span class="tg"></span>'; });
+    [[21,"ANT12P"],[115.5,"ANT12E"],[231,"ANT12C"]].forEach(([left,id])=>{ if(!sheet) return; const cell=document.createElement("div"); cell.className="c e cb"; cell.style.cssText=`left:${left}pt;top:418.95pt;width:10.5pt;height:11.1pt;font-family:var(--f0);font-size:8pt;font-weight:700;justify-content:center;align-items:center;text-align:center`; cell.dataset.cell=id; cell.dataset.checkGroup="ANT12"; cell.dataset.addedControl=id; cell.innerHTML='<span class="tg"></span>'; sheet.appendChild(cell); });
+  }
+  if(key==="alta"){
+    const sheet=wrap.querySelector(".sheet"), box=at(sheet,325.65,7.51); unify(box);
+  }
+  if(key==="referencia"){
+    const sheet=wrap.querySelectorAll(".sheet")[1], box=sheet&&at(sheet,335.2,10.5); unify(box);
+  }
+  wrap.querySelectorAll('[data-sync="resumen"]').forEach(unify);
+}
 function buildFormat(key){
   const F=FORMATS[key];
   const wrap=document.createElement("div"); wrap.className="pages";
@@ -976,18 +1345,25 @@ function buildFormat(key){
     sheet.innerHTML=pg.html; pos.appendChild(sheet); page.appendChild(pos); wrap.appendChild(page);
   });
   wrap.querySelectorAll("img[data-img]").forEach(im=>im.src=IMGS[im.dataset.img]);
-  wrap.querySelectorAll(".c > span").forEach((sp,i)=>{ if(!sp.classList.contains("tg")&&sp.parentElement.classList.contains("ed")) sp.setAttribute("contenteditable","true"); sp.dataset.i=i; if(!sp.parentElement.dataset.x) sp.dataset.o=sp.innerHTML; });
+  customizeSummaryAreas(key,wrap);
+  let cellIndex=0;
+  wrap.querySelectorAll(".c > span").forEach(sp=>{
+    const cell=sp.parentElement,id=cell.dataset.addedControl||cellIndex++;
+    if(cell.classList.contains("summary-line-underlay")){ sp.removeAttribute("contenteditable"); sp.removeAttribute("data-i"); sp.textContent=""; return; }
+    if(!sp.classList.contains("tg")&&cell.classList.contains("ed")) sp.setAttribute("contenteditable","true");
+    sp.dataset.i=id; if(!cell.dataset.x) sp.dataset.o=sp.innerHTML;
+  });
   (PAIRS[key]||[]).forEach(([a,n,off])=>{ if(off) return; const sp=wrap.querySelector(`.cb[data-cell="${n}"] > span`); if(sp){ sp.classList.add("on"); sp.dataset.defon="1"; } });
   const saved=SAVED_FMT[key]; if(saved&&saved.__half){ HALF[key]=saved.__half; HALF_AUTO[key]=!!saved.__auto; }
-  if(saved){ wrap.querySelectorAll(".c > span").forEach(sp=>{const v=saved[sp.dataset.i]; if(v!==undefined){ if(sp.parentElement.dataset.x){ if(typeof v==="string"){ sp.textContent=v; sp.parentElement.setAttribute("data-ov",""); } } else if(typeof v==="object"){ sp.innerHTML=v.h; sp.classList.toggle("on",!!v.on); } else sp.textContent=v; }}); }
+  if(saved){ wrap.querySelectorAll(".c > span[data-i]").forEach(sp=>{const v=saved[sp.dataset.i]; if(v!==undefined){ if(sp.parentElement.dataset.x){ if(typeof v==="string"){ sp.textContent=v; sp.parentElement.setAttribute("data-ov",""); } } else if(typeof v==="object"){ sp.innerHTML=v.h; sp.classList.toggle("on",!!v.on); } else sp.textContent=v; }}); }
   (PICKS[key]||[]).forEach(pk=>{ const sp=[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; sp.removeAttribute("contenteditable"); sp.parentElement.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); });
   return wrap;
 }
 /* ---------- Distribución de media hoja (Laboratorios Urgencias, Receta, Pase) ---------- */
 const HALF_OPTS={
   labsUrg:[["solo","Una copia"],["copia","Dos copias"]],
-  receta:[["solo","Solo receta"],["copia","Dos recetas"],["otro","Receta + Pase"]],
-  pase:[["solo","Solo pase"],["copia","Dos pases"],["otro","Pase + Receta"]],
+  receta:[["solo","Una Receta"],["copia","Dos Recetas"],["otro","Recetas + Pase"]],
+  pase:[["solo","Un Pase"],["copia","Dos Pases"],["otro","Pase + Receta"]],
 };
 const HALF_DEF={labsUrg:"solo",receta:"solo",pase:"solo"}, HALF_OTHER={receta:"pase",pase:"receta"};
 const HALF_COL={labsUrg:"#2E75B6",receta:"#0E7C86",pase:"#7C3AED"};
@@ -1051,11 +1427,11 @@ function renderFormat(key){
   const fillCells=(els,vals)=>els.forEach(el=>{
     const sp=el.firstElementChild;
     if(el.hasAttribute("data-ov")||sp===active) return;
-    const txt=X.s(vals[el.dataset.x]);
+    const txt=X.s(el.dataset.directSync?d[el.dataset.directSync]:vals[el.dataset.x]);
     if(sp.textContent!==txt){ if(txt.includes("\n")) sp.innerText=txt; else sp.textContent=txt; }
   });
-  fillCells([...BUILT[key].querySelectorAll("[data-x]")].filter(el=>!el.closest(".emb")),evalSheet(F,d));
-  BUILT[key].querySelectorAll(".emb").forEach(e=>fillCells(e.querySelectorAll("[data-x]"),evalSheet(FORMATS[e.dataset.fmt],d)));
+  fillCells([...BUILT[key].querySelectorAll("[data-x]:not(.summary-line-underlay)")].filter(el=>!el.closest(".emb")),evalSheet(F,d));
+  BUILT[key].querySelectorAll(".emb").forEach(e=>fillCells(e.querySelectorAll("[data-x]:not(.summary-line-underlay)"),evalSheet(FORMATS[e.dataset.fmt],d)));
   applyGender(BUILT[key],d);
   shrink(paper);
   refreshMirror(key);
@@ -1101,7 +1477,9 @@ function onSheetPaste(e){
 $("paper").addEventListener("click",e=>{ const pk=e.target.closest(".c.pick > span"); if(pk){ e.preventDefault(); openPick(pk); return; } const g=e.target.closest(".tg"); if(!g) return; e.preventDefault();
   const gd=g.dataset.gen||((g.closest(".c[data-gen]")||{dataset:{}}).dataset.gen);
   if(gd){ const sel=$("genero"); sel.value=sel.value===gd?"":gd; sel.dispatchEvent(new Event("input",{bubbles:true})); sel.dispatchEvent(new Event("change",{bubbles:true})); return; }
-  const ce=g.closest(".c[data-cell]"), pr=ce&&current?pairOf(current,ce.dataset.cell):null;
+  const ce=g.closest(".c[data-cell]"), group=ce&&ce.dataset.checkGroup;
+  if(group&&current){ const wasOn=g.classList.contains("on"); BUILT[current].querySelectorAll(`.cb[data-check-group="${group}"] > span`).forEach(sp=>sp.classList.remove("on")); if(!wasOn) g.classList.add("on"); refreshMirror(current); return; }
+  const pr=ce&&current?pairOf(current,ce.dataset.cell):null;
   if(pr){ if(!g.classList.contains("on")){ g.classList.add("on"); const o=BUILT[current].querySelector(`.cb[data-cell="${pr.other}"] > span`); if(o) o.classList.remove("on"); } else if(pr.off) g.classList.remove("on"); }
   else g.classList.toggle("on");
   if(current) refreshMirror(current); });
@@ -1292,6 +1670,7 @@ function applyText(key,i){
 const SIDE_KEYS=new Set(["labsUrg","folio","interconsulta","pase","receta"]);
 function renderRelBase(key){
   const nav=$("relNav"); const groups=RELATED.filter(r=>r.keys.includes(key)); const pre=PRESETS[key]||[], ho=HALF_OPTS[key];
+  nav.dataset.key=key;
   const tp=tpFor(key);
   const side=SIDE_KEYS.has(key)||!!(tp&&tp.items.some(it=>it.grp));
   nav.classList.toggle("side",side); document.body.classList.toggle("rel-side",side);
@@ -1311,14 +1690,19 @@ function renderRel(key){
   renderRelBase(key);
   const nav=$("relNav");
   if(key==="rx"){ nav.insertAdjacentHTML("beforeend",'<div class="rcsec rcbox" data-tipo="rx"></div>'); renderRecent("rx"); }
-  if(key==="receta") nav.insertAdjacentHTML("beforeend",recPresetsHTML());
+  if(key==="receta"){
+    const html=recPresetsHTML("receta"), paseLabel=[...nav.querySelectorAll(":scope > .lbl")].find(el=>el.textContent.includes("Servicio del pase"));
+    if(paseLabel) paseLabel.insertAdjacentHTML("beforebegin",html); else nav.insertAdjacentHTML("beforeend",html);
+  }
+  if(key==="pase"&&halfMode("pase")==="otro") nav.insertAdjacentHTML("beforeend",recPresetsHTML("pase"));
   if(key==="receta"||key==="interconsulta") setTimeout(()=>renderRecent(key),0);
 }
 $("relNav").addEventListener("click",e=>{const tg=e.target.closest("[data-tgt]"); if(tg){ PTARGET[current]=tg.dataset.tgt; renderRel(current); return; } const hf=e.target.closest("[data-half]"); if(hf){ if(halfMode(current)!==hf.dataset.half) setHalf(current,hf.dataset.half); return; } const pr=e.target.closest("[data-preset]"); if(pr){ applyPreset(current,+pr.dataset.preset); return; } const tx=e.target.closest("[data-text]"); if(tx){ applyText(current,+tx.dataset.text); return; } const b=e.target.closest("[data-go]"); if(b&&b.dataset.go!==current) openFormat(b.dataset.go);});
 function openFormat(key){
   current=key; $("btnPrintBlank").hidden=!BLANKS[key]; $("fmtTitle").textContent=(CAT[key]&&CAT[key].tt)||FORMATS[key].title; $("fmtCat").textContent=(CAT[key]&&CAT[key].g)||""; renderRel(key);
   document.body.classList.add("showing-format"); $("bandIdx").hidden=true; renderFormat(key);
-  document.body.classList.toggle("rec-side",key==="receta"||key==="interconsulta"); $("recPanel").hidden=!(key==="receta"||key==="interconsulta"); if(RECENT_CFG[key]) renderRecent(key);
+  const recentSide=!!RECENT_CFG[key]&&key!=="rx";
+  document.body.classList.toggle("rec-side",recentSide); $("recPanel").hidden=!recentSide; if(RECENT_CFG[key]) renderRecent(key);
   fitPaper(); window.scrollTo(0,0);
 }
 function back(){current=null;document.body.classList.remove("showing-format","rec-side");$("recPanel").hidden=true;$("bandBack").hidden=true;$("bandIdx").hidden=false;window.scrollTo(0,0);}
@@ -1413,7 +1797,7 @@ addEventListener("afterprint",cleanBlank);
 $("btnPrintBlank").onclick=printBlank;
 /* Al imprimir se guarda en segundo plano (solo con Drive): sin ventanas, solo un aviso */
 function autoSaveOnPrint(){
-  captureRecent(current);
+  captureCurrentRecent();
   if(STORE==="drive"&&CAN_DRIVE) driveSaveNow({silent:true}).catch(()=>{});
 }
 $("btnPrint").onclick=()=>{ document.activeElement&&document.activeElement.blur(); autoSaveOnPrint(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); };
@@ -1467,6 +1851,7 @@ function restore(obj){
   if(!obj||obj.app!=="solicitudes-hjm") return false;
   SAVED_FMT=obj.fmt||{}; HALF={}; HALF_AUTO={}; HIST=histFrom(obj.historial);
   inputs.forEach(i=>i.value=(obj.datos||{})[i.id]??"");
+  $("fecha").value=todayStr();
   for(const k in BUILT) delete BUILT[k];
   if(current){ const c=current; current=null; $("paper").replaceChildren(); openFormat(c); }
   refresh(); LOADED_EXP=((obj.datos||{}).expediente||"").trim(); NOTIFIED_EXP=LOADED_EXP; return true;
@@ -1565,8 +1950,8 @@ function friendly(e){
 function setStore(v){
   STORE=v; LS.set("hjm-store",v);
   document.querySelectorAll(".seg [data-store]").forEach(b=>b.setAttribute("aria-checked", b.dataset.store===v));
-  $("btnSave").lastChild.textContent = "Guardar Paciente";
-  $("btnOpen").lastChild.textContent = "Abrir Paciente";
+  $("btnSave").lastChild.textContent = "Guardar";
+  $("btnOpen").lastChild.textContent = "Abrir";
   $("btnOpen").hidden = (v==="drive"&&CAN_DRIVE);          // con Drive se abre desde el panel de pacientes
   updateSaveFmt();
   renderAcct();
@@ -1730,38 +2115,81 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&ppOn()&&
 /* ---------- Recientes: recetas, interconsultas y estudios de rayos X (se guardan al Guardar/Imprimir y se pueden volver a cargar) ---------- */
 const recNorm=s=>String(s).replace(/\s+/g," ").trim().toUpperCase();
 const recText=sp=>sp.innerText.replace(/\u00a0/g," ").replace(/\n{3,}/g,"\n\n").trim();
-function recFields(){                               // áreas de receta visibles: una, o dos con "Dos recetas"
+function recFields(owner=current){                  // receta principal o receta incrustada en Pase + Receta
+  if(owner==="pase"&&halfMode("pase")==="otro"){
+    const root=BUILT.pase, emb=root&&root.querySelector('.emb[data-fmt="receta"]');
+    return emb?[...emb.querySelectorAll(".c.big > span")].slice(0,1):[];
+  }
   const root=BUILT.receta; if(!root) return [];
   const all=[...root.querySelectorAll(".paper > .sheetpos:not(.emb) .c.big > span")];
   return halfMode("receta")==="copia"?all.slice(0,2):all.slice(0,1);
 }
 const cellSp=(fmt,sync)=>{ const r=BUILT[fmt]; return r&&r.querySelector(`[data-sync="${sync}"] > span`); };
 const cellVal=(fmt,sync)=>{ const s=cellSp(fmt,sync); return s?s.innerText.replace(/\u00a0/g," ").trim():""; };
+const cellRefVal=(fmt,ref)=>{ const r=BUILT[fmt],s=r&&r.querySelector(`[data-x="${ref}"] > span`); return s?recText(s):""; };
+function surgerySnapshot(fmt){
+  const root=BUILT[fmt]; if(!root) return null;
+  const fields={};
+  root.querySelectorAll(".c > span[data-i]").forEach(sp=>{
+    const cell=sp.parentElement;
+    if(cell.classList.contains("summary-line-underlay")||cell.dataset.gen||sp.querySelector("[data-gen]")) return;
+    if(!cell.classList.contains("ed")&&!cell.classList.contains("cb")&&!cell.classList.contains("pick")) return;
+    if(cell.dataset.sync&&cell.dataset.sync!=="cirugia") return;
+    fields[sp.dataset.i]={h:sp.innerHTML,on:sp.classList.contains("on"),ov:cell.hasAttribute("data-ov")};
+  });
+  return {fields,inputs:fmt==="solCx"?{cirugia:$("cirugia").value,tipoCx:$("tipoCx").value,fPlan:$("fPlan").value}:undefined};
+}
+function surgeryEntry(fmt){
+  const payload=surgerySnapshot(fmt); if(!payload) return null;
+  const procedure=fmt==="repCx"?cellRefVal("repCx","H28"):($("cirugia").value||cellRefVal("solCx","W40"));
+  const fallback=fmt==="repCx"?(cellRefVal("repCx","I27")||$("diagnostico").value):$("diagnostico").value;
+  return {text:procedure||fallback||(fmt==="solCx"?"SOLICITUD DE CIRUG\u00cdA":"REPORTE DE CIRUG\u00cdA"),payload};
+}
+function applySurgerySnapshot(fmt,payload){
+  const root=BUILT[fmt]; if(!root||!payload||!payload.fields){ notify("Este registro no contiene apartados reutilizables.","warn"); return false; }
+  if(payload.inputs) Object.entries(payload.inputs).forEach(([id,value])=>{ const input=$(id); if(input) input.value=value??""; });
+  Object.entries(payload.fields).forEach(([id,value])=>{
+    const sp=root.querySelector(`.c > span[data-i="${id}"]`); if(!sp) return;
+    const cell=sp.parentElement; sp.innerHTML=value&&typeof value.h==="string"?value.h:""; sp.classList.toggle("on",!!(value&&value.on));
+    cell.toggleAttribute("data-ov",!!(value&&value.ov));
+  });
+  refresh();
+  return true;
+}
 const RECENT_CFG={
   receta:{lib:"recetas",ls:"hjm-recetas",title:"Recetas recientes",empty:"Aquí aparecerán las recetas que escribas.",
-    capture:()=>recFields().map(recText).filter(Boolean), show:t=>({head:"",body:t})},
+    capture:(owner=current)=>recFields(owner).map(recText).filter(Boolean), show:t=>({head:"",body:t})},
   interconsulta:{lib:"interconsulta",ls:"hjm-rec-interconsulta",title:"Interconsultas recientes",empty:"Aquí aparecerán los servicios y motivos que escribas.",
     capture:()=>{ const s=cellVal("interconsulta","icServicio"), m=cellVal("interconsulta","icMotivo"); return (s||m)?[s+"\n"+m]:[]; },
     show:t=>{ const a=t.split("\n"); return {head:a[0]||"",body:a.slice(1).join(" ")}; }},
   rx:{lib:"rx",ls:"hjm-rec-rx",title:"Estudios recientes",empty:"Aquí aparecerán los estudios que escribas.",
-    capture:()=>{ const v=cellVal("rx","rx"); return v?[v]:[]; }, show:t=>({head:"",body:t})}
+    capture:()=>{ const v=cellVal("rx","rx"); return v?[v]:[]; }, show:t=>({head:"",body:t})},
+  solCx:{lib:"solCx",title:"Solicitudes Previas",empty:"Aqu\u00ed aparecer\u00e1n las solicitudes de cirug\u00eda guardadas para este paciente.",
+    capture:()=>{ const entry=surgeryEntry("solCx"); return entry?[entry]:[]; },show:t=>({head:"",body:t})},
+  repCx:{lib:"repCx",title:"Reportes Previos",empty:"Aqu\u00ed aparecer\u00e1n los reportes de cirug\u00eda guardados para este paciente.",
+    capture:()=>{ const entry=surgeryEntry("repCx"); return entry?[entry]:[]; },show:t=>({head:"",body:t})}
 };
 /* El historial va DENTRO del archivo del paciente (un solo JSON por paciente): recetas, interconsultas y estudios de rayos X */
 const HIST_MAX=40;
-const histEmpty=()=>({receta:[],interconsulta:[],rx:[]});
+const histEmpty=()=>({receta:[],interconsulta:[],rx:[],solCx:[],repCx:[]});
 let HIST=histEmpty();
 function histFrom(o){ const h=histEmpty(); if(o&&typeof o==="object") for(const k in h) if(Array.isArray(o[k])) h[k]=o[k].filter(r=>r&&r.id&&typeof r.t==="string"&&r.t.trim()).slice(0,HIST_MAX); return h; }
-function histAdd(tp,text){
-  const a=HIST[tp], i=a.findIndex(r=>recNorm(r.t)===recNorm(text)), ts=Math.max(Date.now(),a.reduce((m,x)=>Math.max(m,x.ts||0),0)+1);
-  let r; if(i>=0){ r=a.splice(i,1)[0]; r.ts=ts; r.t=text; } else r={id:"h"+ts.toString(36)+Math.random().toString(36).slice(2,5),t:text,ts};
+const histSig=(text,payload)=>recNorm(text)+"|"+(payload?JSON.stringify(payload):"");
+function histAdd(tp,text,payload){
+  const a=HIST[tp], sig=histSig(text,payload), i=a.findIndex(r=>histSig(r.t,r.p)===sig), ts=Math.max(Date.now(),a.reduce((m,x)=>Math.max(m,x.ts||0),0)+1);
+  let r; if(i>=0){ r=a.splice(i,1)[0]; r.ts=ts; r.t=text; r.p=payload; } else r={id:"h"+ts.toString(36)+Math.random().toString(36).slice(2,5),t:text,ts,p:payload};
   a.unshift(r); if(a.length>HIST_MAX) a.length=HIST_MAX; return r;
 }
-function captureRecent(tp){
-  if(!RECENT_CFG[tp]||current!==tp) return;
-  const texts=RECENT_CFG[tp].capture().filter(Boolean);
-  if(!texts.length) return;
-  let last=null; for(const tx of texts.slice().reverse()) last=histAdd(tp,tx);       // cada campo = una entrada
+function captureRecent(tp,owner=current){
+  if(!RECENT_CFG[tp]||owner!==current) return;
+  const entries=RECENT_CFG[tp].capture(owner).filter(Boolean).map(value=>typeof value==="string"?{text:value}:value).filter(value=>value&&value.text);
+  if(!entries.length) return;
+  let last=null; for(const entry of entries.slice().reverse()) last=histAdd(tp,entry.text,entry.payload);
   renderRecent(tp,last&&last.id);
+}
+function captureCurrentRecent(){
+  captureRecent(current,current);
+  if(current==="pase"&&halfMode("pase")==="otro") captureRecent("receta","pase");
 }
 function relTime(ts){ const m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora"; if(m<60) return "hace "+m+" min"; const h=Math.round(m/60); if(h<24) return "hace "+h+" h"; return new Date(ts).toLocaleDateString("es-MX",{day:"2-digit",month:"short"}); }
 function recentsHTML(tp,newId){
@@ -1773,13 +2201,14 @@ function recentsHTML(tp,newId){
 }
 function renderRecent(tp,newId){
   if(tp==="rx"){ const box=document.querySelector('#relNav .rcbox[data-tipo="rx"]'); if(box) box.innerHTML=recentsHTML("rx",newId); return; }
-  const p=$("recPanel"); if(!p||!RECENT_CFG[tp]||current!==tp) return; p.dataset.tipo=tp; p.classList.add("rcbox"); p.innerHTML=recentsHTML(tp,newId);
+  const p=$("recPanel"); if(!p||!RECENT_CFG[tp]||current!==tp) return; p.dataset.tipo=tp; p.setAttribute("aria-label",RECENT_CFG[tp].title); p.classList.add("rcbox"); p.innerHTML=recentsHTML(tp,newId);
 }
 function useRecent(tp,id,n){
   const r=HIST[tp].find(x=>x.id===id); if(!r) return;
   if(tp==="receta"){ const f=recFields()[n]; if(!f){ notify("No hay un campo de receta disponible.","warn"); return; } f.innerText=r.t; f.dispatchEvent(new Event("input",{bubbles:true})); }
   else if(tp==="interconsulta"){ const a=r.t.split("\n"); setCellText(cellSp("interconsulta","icServicio").parentElement,a[0]||""); setCellText(cellSp("interconsulta","icMotivo").parentElement,a.slice(1).join(" ")); renderRel("interconsulta"); }
   else if(tp==="rx"){ setCellText(cellSp("rx","rx").parentElement,r.t); renderRel("rx"); }
+  else if(tp==="solCx"||tp==="repCx"){ if(!applySurgerySnapshot(tp,r.p)) return; }
   toast("Cargado");
 }
 document.addEventListener("click",e=>{
@@ -1805,29 +2234,30 @@ const REC_PRESETS=[
     ["Pase Doble","Se permite acceso a 2 personas"],
     ["Boing","Se permite acceso de Jugo Boing Caja de 500ml"]]}
 ];
-function recPresetsHTML(){
-  const used=recFields().map(f=>recNorm(recText(f)));
-  return '<div class="rcpre"><span class="lbl">Recetas predeterminadas (1.ª arriba, 2.ª abajo)</span><div class="gwrapx">'
+function recPresetsHTML(owner=current){
+  const used=recFields(owner).map(f=>recNorm(recText(f)));
+  const label=owner==="pase"?"Predeterminados de Receta (mitad inferior)":halfMode("receta")==="otro"?"Predeterminados de Receta (mitad superior)":"Recetas predeterminadas (1.ª arriba, 2.ª abajo)";
+  return `<div class="rcpre"><span class="lbl">${label}</span><div class="gwrapx">`
    +REC_PRESETS.map((g,gi)=>`<div class="rgrp" style="--c:${g.c}"><span class="gl">${esc(g.g)}</span><div class="gb">`+g.items.map((it,ii)=>{ const on=used.includes(recNorm(it[1])); return `<button type="button" class="pre-txt col${on?" active":""}" style="--c:${g.c};--t:color-mix(in srgb,${g.c} 12%,#fff)" data-rpre="${gi}.${ii}">${on?"✓ ":""}${esc(it[0])}</button>`; }).join("")+'</div></div>').join("")+'</div></div>';
 }
 function applyRecPreset(gi,ii){
   const it=REC_PRESETS[gi].items[ii], txt=it[1];
-  let slots=recFields(); const setTxt=(f,v)=>{ f.innerText=v; f.dispatchEvent(new Event("input",{bubbles:true})); };
+  let slots=recFields(current); const setTxt=(f,v)=>{ f.innerText=v; f.dispatchEvent(new Event("input",{bubbles:true})); };
   const act=slots.findIndex(f=>recNorm(recText(f))===recNorm(txt));
-  if(act>=0){ setTxt(slots[act],""); if(act===1&&HALF_AUTO.receta) setHalf("receta","solo"); else renderRel("receta"); toast(it[0]+": quitado"); return; }
+  if(act>=0){ setTxt(slots[act],""); if(current==="receta"&&act===1&&HALF_AUTO.receta) setHalf("receta","solo"); else renderRel(current); toast(it[0]+": quitado"); return; }
   let free=slots.findIndex(f=>!recText(f));
-  if(free<0&&halfMode("receta")==="solo"){ HALF.receta="copia"; HALF_AUTO.receta=true; applyHalf("receta"); slots=recFields(); free=slots.findIndex(f=>!recText(f)); }
+  if(free<0&&current==="receta"&&halfMode("receta")==="solo"){ HALF.receta="copia"; HALF_AUTO.receta=true; applyHalf("receta"); slots=recFields("receta"); free=slots.findIndex(f=>!recText(f)); }
   if(free<0){ notify(slots.length>1?"Ya hay 2 recetas. Quita una para elegir otra.":"Ya hay 1 receta, quítala para elegir otra.","warn"); return; }
-  setTxt(slots[free],txt); renderRel("receta"); toast(it[0]+(free===1?": receta de abajo":": receta de arriba"));
+  setTxt(slots[free],txt); renderRel(current); toast(it[0]+(current==="pase"||free===1?": receta de abajo":": receta de arriba"));
 }
-document.addEventListener("click",e=>{ const b=e.target.closest("[data-rpre]"); if(!b||current!=="receta") return; const [g,i]=b.dataset.rpre.split(".").map(Number); applyRecPreset(g,i); });
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-rpre]"); if(!b||!(current==="receta"||(current==="pase"&&halfMode("pase")==="otro"))) return; const [g,i]=b.dataset.rpre.split(".").map(Number); applyRecPreset(g,i); });
 
 function driveError(err){
   const m=String(err&&err.message||err);
   if(m==="cancelado") return;
   notify("Google Drive: "+friendly(err),"err");
 }
-const doSave=()=>{ captureRecent(current); if(STORE==="drive"&&CAN_DRIVE) driveSaveNow().catch(driveError); else if(STORE==="drive") $("dlgInfo").showModal(); else savePatient(); };
+const doSave=()=>{ captureCurrentRecent(); if(STORE==="drive"&&CAN_DRIVE) driveSaveNow().catch(driveError); else if(STORE==="drive") $("dlgInfo").showModal(); else savePatient(); };
 $("btnSave").onclick=doSave; $("btnSaveFmt").onclick=doSave;
 $("btnOpen").onclick=()=>{ if(STORE==="drive"&&CAN_DRIVE) driveOpen().catch(e=>{ if($("dlgDrive").open) $("dlgDrive").close(); driveError(e); }); else if(STORE==="drive") $("dlgInfo").showModal(); else $("fileOpen").click(); };
 $("fileOpen").onchange=async e=>{
