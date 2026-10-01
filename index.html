@@ -513,6 +513,16 @@ aside{box-shadow:0 1px 2px rgba(16,24,40,.05)}
 .rcpre .rgrp{width:calc(50% - 4px);max-width:none;box-sizing:border-box}
 @media (max-width: 900px){.rcpre .rgrp{width:100%}}
 
+/* ---------- Predeterminados a la derecha + recientes debajo (Receta e Interconsulta) ---------- */
+.rel.side .rcpre{max-width:none;width:auto}
+.rel.side .rcpre .gwrapx{display:grid;grid-template-columns:1fr;gap:14px}
+.rel.side .rcpre .rgrp{width:auto}
+@media (min-width: 1040px){
+  body.rel-side.rec-side .fbody{grid-template-areas:"main side" "main recs";grid-template-rows:auto 1fr;gap:14px 20px}
+  body.rel-side.rec-side .fbody #relNav{grid-area:side}
+  body.rel-side.rec-side .fbody .recpanel{grid-area:recs;position:static}
+}
+
 @page{size:letter;margin:0}
 @media print{
   :root{padding:0}
@@ -1278,10 +1288,12 @@ function applyText(key,i){
   }
   renderRel(key); refreshMirror(key);
 }
+/* formatos cuyo menú de predeterminados va a la derecha de la hoja (sin caja desplazable) */
+const SIDE_KEYS=new Set(["labsUrg","folio","interconsulta","pase","receta"]);
 function renderRelBase(key){
   const nav=$("relNav"); const groups=RELATED.filter(r=>r.keys.includes(key)); const pre=PRESETS[key]||[], ho=HALF_OPTS[key];
   const tp=tpFor(key);
-  const side=key==="labsUrg"||!!(tp&&tp.items.some(it=>it.grp));
+  const side=SIDE_KEYS.has(key)||!!(tp&&tp.items.some(it=>it.grp));
   nav.classList.toggle("side",side); document.body.classList.toggle("rel-side",side);
   if(!groups.length&&!pre.length&&!tp&&!ho){ nav.hidden=true; nav.innerHTML=""; return; }
   nav.hidden=false;
