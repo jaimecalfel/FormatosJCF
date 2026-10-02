@@ -1379,6 +1379,10 @@ function customizeSummaryAreas(key,wrap){
     [[147,"ANT9C"],[252,"ANT9N"]].forEach(([left,id])=>{ const cell=at(sheet,211.2,left); if(!cell) return; cell.className="c e cb"; cell.dataset.cell=id; cell.removeAttribute("data-x"); cell.removeAttribute("data-sync"); cell.innerHTML='<span class="tg"></span>'; });
     [[21,"ANT12P"],[115.5,"ANT12E"],[231,"ANT12C"]].forEach(([left,id])=>{ if(!sheet) return; const cell=document.createElement("div"); cell.className="c e cb"; cell.style.cssText=`left:${left}pt;top:418.95pt;width:10.5pt;height:11.1pt;font-family:var(--f0);font-size:8pt;font-weight:700;justify-content:center;align-items:center;text-align:center`; cell.dataset.cell=id; cell.dataset.checkGroup="ANT12"; cell.dataset.addedControl=id; cell.innerHTML='<span class="tg"></span>'; sheet.appendChild(cell); });
   }
+  if(key==="transfusion"){
+    const sheet=wrap.querySelector(".sheet"), secondComponent=sheet&&at(sheet,412.15,0);
+    if(secondComponent&&secondComponent.firstElementChild) secondComponent.firstElementChild.textContent="PFC";
+  }
   if(key==="alta"){
     const sheet=wrap.querySelector(".sheet"), box=at(sheet,325.65,7.51); unify(box);
   }
@@ -1632,6 +1636,7 @@ const PRESETS={
     {label:"Tiempos de Coagulación",mode:"add",color:"blue",cells:["A63","A64"]},
   ],
   labsUrg:[
+    {label:"COMBO · TODOS LOS PREDETERMINADOS",mode:"add",color:"blue",cells:["A27","A61","A17","A51","A25","A59","A22","A56","A19","A53","A20","A54","A14","A48","A21","A55","A23","A57","A24","A58","A12","A46","A13","A47","A18","A52","U10","U44","U11","U45"]},
     {label:"Biometría Hemática",mode:"add",color:"lav",cells:["A27","A61"]},
     {label:"Química Sanguínea",mode:"add",color:"red",cells:["A17","A51","A25","A59","A22","A56"]},
     {label:"Electrolitos Séricos",mode:"add",color:"red",cells:["A19","A53","A20","A54","A14","A48","A21","A55"]},
@@ -1668,14 +1673,14 @@ function applyPreset(key,i){
     const where=halfMode(key)==="copia"&&LOWER_ROW[key]!==undefined?"copia de arriba":"";
     toast(`${p.label}: ${turnOff?"quitado":"agregado"}${where?" en "+where:""}`);
   }
-  renderRel(key);
+  renderRel(key); refreshMirror(key);
 }
 /* Textos predefinidos que llenan campos del formato (siguen siendo editables) */
 const IC=[["MEDICINA INTERNA","VALORACIÓN Y APOYO VENTILATORIO","#2563EB"],["ENDOSCOPIA","REALIZACIÓN DE COLONOSCOPIA","#0D9488"],["UCI - CUIDADOS INTENSIVOS","VALORACIÓN DE PACIENTE CRÍTICO","#DC2626"],["CARDIOLOGÍA","VALORACIÓN PREOPERATORIA","#DB2777"],["APOYO NUTRICIO","INICIO DE NUTRICIÓN PARENTERAL","#16A34A"],["CUIDADOS PALIATIVOS","ADECUACIÓN TERAPÉUTICA","#7C3AED"],["INTERVENCIONISMO","REALIZACIÓN DE BIOPSIA PERCUTÁNEA","#D97706"],["CLÍNICA DE HERIDAS","VALORACIÓN","#0891B2","CUIDADOS DE ESTOMA"],["CLÍNICA DE CATÉTERES","COLOCACIÓN DE CATÉTER PICC","#4F46E5","CUIDADO DE CATÉTER"]];
 const IC_SHORT={"UCI - CUIDADOS INTENSIVOS":"UCI"};
 const TEXT_PRESETS={
   rx:{label:"Estudio solicitado",items:[
-    ["Radiografías","RADIOGRAFÍA PA DE TÓRAX","#2563EB"],["Radiografías","RADIOGRAFÍA AP DE ABDOMEN DE PIE Y DECÚBITO","#2563EB"],
+    ["Radiografías","RADIOGRAFÍA PA DE TÓRAX","#2563EB"],["Radiografías","RADIOGRAFÍA AP DE TÓRAX PORTÁTIL","#2563EB"],["Radiografías","RADIOGRAFÍA AP DE ABDOMEN DE PIE Y DECÚBITO","#2563EB"],
     ["TAC","TAC SIMPLE Y CONTRASTADA DE TÓRAX, ABDOMEN Y PELVIS","#D97706"],["TAC","TAC SIMPLE Y CONTRASTADA DE ABDOMEN Y PELVIS","#D97706"],["TAC","TAC SIMPLE Y CONTRASTADA DE CRÁNEO","#D97706"],["TAC","UROTAC","#D97706"],
     ["Resonancia magnética","COLANGIORRESONANCIA MAGNÉTICA","#7C3AED"],["Resonancia magnética","RESONANCIA MAGNÉTICA CONTRASTADA DE CRÁNEO","#7C3AED"],
     ["Procedimientos","COLOCACIÓN DE NEFROSTOMÍA","#E0555A"],["Procedimientos","BIOPSIA PERCUTÁNEA","#E0555A"],["Procedimientos","DRENAJE PERCUTÁNEO","#E0555A"]
