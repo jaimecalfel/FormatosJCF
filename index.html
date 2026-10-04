@@ -1544,7 +1544,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v41 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v42 · Fecha de publicación: 04.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3053,6 +3053,26 @@ $("residentGateOffline").onclick=()=>{
 };
 /* Salir: vuelve a pedir el usuario actual (y la clave de Drive solo si este navegador no la tiene) */
 let EXITING=false;
+/* Inactividad: si la página no se usa en 10 minutos, al volver a usarla se pide de nuevo el usuario actual.
+   Los datos del paciente se conservan; solo se cierra la sesión del usuario. */
+const IDLE_MS=10*60*1000;let LAST_ACTIVITY=Date.now();
+function idleLock(){
+  if($("dlgResidentGate").open||EXITING)return false;
+  if(Date.now()-LAST_ACTIVITY<IDLE_MS)return false;
+  LAST_ACTIVITY=Date.now();
+  if(current){try{captureCurrentRecent();}catch(_){}}
+  SESSION_ADSCRITO="";SESSION_RESIDENT="";
+  openResidentGate();
+  gateStatus("La sesión se cerró por 10 minutos sin uso. Escribe el usuario actual para continuar.","info");
+  return true;
+}
+["pointerdown","keydown","touchstart","wheel"].forEach(t=>addEventListener(t,e=>{
+  if(!$("dlgResidentGate").open&&idleLock()){e.preventDefault();e.stopPropagation();return;}
+  LAST_ACTIVITY=Date.now();
+},{capture:true,passive:false}));
+addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")idleLock();});
+addEventListener("focus",()=>idleLock());
+addEventListener("afterprint",()=>{LAST_ACTIVITY=Date.now();});
 function gateStatus(text,state){const m=$("residentGateMsg");if(!m)return;m.textContent=text||"";m.classList.toggle("ok",state==="ok");m.classList.toggle("info",state==="info");}
 $("bandExit").onclick=async()=>{
   if(EXITING)return;EXITING=true;
