@@ -979,7 +979,7 @@ body.showing-clinical #view-clinical{display:block}
 .clinical-table button{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--navy);font-weight:700;cursor:pointer}.clinical-table button+button{margin-left:4px}.clinical-empty{padding:28px 10px;color:var(--muted);text-align:center;font-size:13px}
 .clinical-index{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 12px;border-bottom:1px solid var(--line)}
 .clinical-index button{min-height:42px;padding:8px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:10px;background:var(--accent-soft);color:var(--navy);font-size:12px;font-weight:800;cursor:pointer}.clinical-index button:hover{border-color:var(--accent)}
-.folio-last{margin-top:9px;padding:10px 11px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:10px;background:var(--accent-soft);color:var(--navy)}.folio-last span{display:block;margin-bottom:2px;font-size:10px;font-weight:800;letter-spacing:.055em;text-transform:uppercase}.folio-last strong{display:block;font-size:14px}.folio-last small{display:block;color:var(--muted);font-size:10.5px;font-weight:500}
+.folio-last{margin-top:9px;padding:10px 11px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:10px;background:var(--accent-soft);color:var(--navy)}.folio-last-grid{display:grid;grid-template-columns:minmax(88px,.7fr) minmax(0,1.3fr);gap:8px 12px;align-items:start}.folio-last span{display:block;margin-bottom:2px;font-size:9.5px;font-weight:800;letter-spacing:.045em;text-transform:uppercase}.folio-last strong{display:block;font-size:14px;line-height:1.25;overflow-wrap:anywhere}.folio-last [data-last-resident]{font-size:11.5px}.folio-last small{display:block;margin-top:7px;color:var(--muted);font-size:10.5px;font-weight:500}
 #fsTransfusion.incomplete legend[data-progress]::after{background:#fde8e8!important;color:#b42318!important;border-color:#f4b4b4!important}
 .fnote.transfusion-warning{border-color:#f4b4b4;background:#fff1f1;color:#9b1c1c;font-weight:750}
 #clinicalPrint{display:none}
@@ -1300,7 +1300,7 @@ body.showing-clinical #view-clinical{display:block}
     <span class="resident-gate-logo crab"><img data-logo="crab" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Cirugía Oncológica"></span>
   </div>
   <form class="resident-gate-body" id="residentGateForm" autocomplete="off">
-    <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" list="hjm-residentes" autocomplete="off" placeholder="Escribe o elige un usuario" required></label>
+    <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" list="hjm-usuarios" autocomplete="off" placeholder="Escribe o elige un usuario" required></label>
     <label class="resident-gate-field" id="residentGateKeyRow" hidden><span class="resident-key-label"><img class="resident-drive-logo" data-drive-logo alt="Google Drive"><b>CLAVE DE DRIVE</b></span><input id="residentGateKey" type="password" autocomplete="current-password" placeholder="Clave del Servicio de Oncología"></label>
     <p class="resident-gate-msg" id="residentGateMsg" role="alert"></p>
     <button class="resident-gate-submit" id="residentGateSubmit" type="submit">Ingresar</button>
@@ -1452,7 +1452,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v35 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v38 · Fecha de publicación: 04.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -1647,11 +1647,14 @@ const DRIVE_ICON_SRC=document.querySelector('[data-store="drive"] img')?.src||""
 document.querySelectorAll("[data-drive-logo]").forEach(img=>{if(DRIVE_ICON_SRC)img.src=DRIVE_ICON_SRC;});
 
 /* ---------- Valores predeterminados (como en el Excel) ---------- */
-const RIESGOS_DEF = "Sangrado, hematoma, dolor neuropático, reintervención quirúrgica, tromboembolismo pulmonar, broncoaspiración, infección de herida quirúrgica, dehiscencia de herida quirúrgica, lesión a grandes vasos, lesión nerviosa, choque séptico, hemorragia masiva, empaquetamiento abdominal, incluso muerte";
+const RIESGOS_DEF = "Sangrado, hematoma, dolor neuropático, reintervención quirúrgica, tromboembolismo pulmonar, broncoaspiración, infección de herida quirúrgica, dehiscencia de herida quirúrgica, lesión a grandes vasos, lesión nerviosa, choque séptico, hemorragia masiva, empaquetamiento abdominal, incluso muerte".toLocaleUpperCase("es-MX");
 function todayStr(){const d=new Date();return [d.getDate(),d.getMonth()+1,d.getFullYear()%100].map(n=>String(n).padStart(2,"0")).join(".");}
-const DEFAULTS = ()=>({fecha:todayStr(),indicacion:"PROTOCOLO PREOPERATORIO",servicio:"ONCOLOGIA",alergias:"NEGADAS",riesgos:RIESGOS_DEF,folioUltimaSolicitud:"",labsUrgUltimaSolicitud:""});
+const EXTRA_LAST_REQUEST_KEYS=["folioB","medNuc","bancoSangre","transfusion","antibiotico","ordenHosp","referencia"];
+const emptyExtraLastRequests=()=>Object.fromEntries(EXTRA_LAST_REQUEST_KEYS.map(key=>[key,{fecha:"",residente:""}]));
+function extraLastRequestsFrom(value){const out=emptyExtraLastRequests();if(value&&typeof value==="object")for(const key of EXTRA_LAST_REQUEST_KEYS){const item=value[key];if(item&&typeof item==="object"){out[key].fecha=String(item.fecha||"");out[key].residente=String(item.residente||"");}}return out;}
+const DEFAULTS = ()=>({fecha:todayStr(),indicacion:"PROTOCOLO PREOPERATORIO",servicio:"ONCOLOGIA",alergias:"NEGADAS",riesgos:RIESGOS_DEF,folioUltimaSolicitud:"",folioUltimaResidente:"",labsUrgUltimaSolicitud:"",labsUrgUltimaResidente:"",ultimasSolicitudes:emptyExtraLastRequests()});
 
-let LOADED_EXP="", NOTIFIED_EXP="", PP_AUTO=false, _expT=0, FOLIO_LAST="", LABSURG_LAST="";
+let LOADED_EXP="", NOTIFIED_EXP="", PP_AUTO=false, _expT=0, FOLIO_LAST="", FOLIO_LAST_BY="", LABSURG_LAST="", LABSURG_LAST_BY="", EXTRA_LAST_REQUESTS=emptyExtraLastRequests();
 const form = document.getElementById("datos");
 const inputs = [...form.querySelectorAll("input,select,textarea")];
 const $ = id => document.getElementById(id);
@@ -1681,7 +1684,9 @@ const HJM_STAFF=Object.freeze({
     {clinica:"MAMA",nombre:"DR. ARMANDO RAMIREZ RAMIREZ"},
     {clinica:"RADIO ONCOLOGÍA",nombre:"DR. ALFREDO MALDONADO"},
     {clinica:"RADIO ONCOLOGÍA",nombre:"DR. GABRIEL SANCHEZ MARIN"},
-    {clinica:"RADIO ONCOLOGÍA",nombre:"DRA. REBECA GIL"}
+    {clinica:"RADIO ONCOLOGÍA",nombre:"DRA. REBECA GIL"},
+    {clinica:"CABEZA Y CUELLO",nombre:"DR. OMAR SOTO BECERRIL"},
+    {clinica:"CABEZA Y CUELLO",nombre:"DR. JORGE DEL BOSQUE MENDEZ"}
   ]),
   residentes:Object.freeze([
     "JAIME CALDERA R5CO",
@@ -1701,22 +1706,29 @@ const HJM_STAFF=Object.freeze({
     "CARLOS PEREZ R6CO",
     "JENNIFER PLAZA R6CO",
     "URIEL REYES R7CO",
-    "LUCERO SOLARES R7CO"
+    "LUCERO SOLARES R7CO",
+    "DANIELA HERNANDEZ R5OM",
+    "MARIA JOSE BARRUETA R5OCYC",
+    "CAROLINA RAMIREZ R5OM"
   ])
 });
 function normalizeStaffName(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Z0-9]+/gi," ").trim().toUpperCase();}
-function clinicForAdscrito(value){const target=normalizeStaffName(value),item=HJM_STAFF.adscritos.find(x=>normalizeStaffName(x.nombre)===target);return item?item.clinica:"";}
+function staffAdscrito(value){const target=normalizeStaffName(value);return HJM_STAFF.adscritos.find(x=>normalizeStaffName(x.nombre)===target)||null;}
+function clinicForAdscrito(value){const item=staffAdscrito(value);return item?item.clinica:"";}
 function installStaffDatalists(){
   const make=(id,items)=>{let list=$(id);if(!list){list=document.createElement("datalist");list.id=id;document.body.appendChild(list);}list.innerHTML=items.map(x=>typeof x==="string"?`<option value="${esc(x)}"></option>`:`<option value="${esc(x.nombre)}" label="${esc(x.clinica)}"></option>`).join("");};
-  make("hjm-adscritos",HJM_STAFF.adscritos);make("hjm-residentes",HJM_STAFF.residentes);
+  make("hjm-adscritos",HJM_STAFF.adscritos);make("hjm-residentes",HJM_STAFF.residentes);make("hjm-usuarios",[...HJM_STAFF.residentes,...HJM_STAFF.adscritos]);
   const medico=$("medico"),residente=$("residente");if(medico){medico.setAttribute("list","hjm-adscritos");medico.setAttribute("autocomplete","off");}if(residente){residente.setAttribute("list","hjm-residentes");residente.setAttribute("autocomplete","off");}
 }
 installStaffDatalists();
-let SESSION_RESIDENT="";
-function currentResidentName(){return String(SESSION_RESIDENT||($("residente")&&$("residente").value)||"").trim();}
+let SESSION_RESIDENT="",SESSION_ADSCRITO="";
+function currentResidentName(){return String(SESSION_ADSCRITO||SESSION_RESIDENT||($("residente")&&$("residente").value)||"").trim();}
+function currentAuthorRole(){return SESSION_ADSCRITO||staffAdscrito(currentResidentName())?"adscrito":"residente";}
+function authorRoleForName(value){return staffAdscrito(value)?"adscrito":"residente";}
 function applySessionResident(){
-  const el=$("residente");if(!el||!SESSION_RESIDENT)return;
-  el.value=SESSION_RESIDENT;
+  const resident=$("residente"),medico=$("medico");
+  if(SESSION_ADSCRITO){if(resident)resident.value="";if(medico&&!medico.value.trim())medico.value=SESSION_ADSCRITO;return;}
+  if(resident&&SESSION_RESIDENT)resident.value=SESSION_RESIDENT;
 }
 function syncAltaClinicFromAdscrito(){
   const root=BUILT.alta,sp=root&&root.querySelector('.c.pick[data-auto-clinic="1"] > span');if(!sp||document.activeElement===sp)return;
@@ -1736,7 +1748,10 @@ function edad(fnac,hoy){
 function data(){
   const d={}; inputs.forEach(i=>d[i.id]=(i.value||"").trim());
   d.folioUltimaSolicitud=FOLIO_LAST;
+  d.folioUltimaResidente=FOLIO_LAST_BY;
   d.labsUrgUltimaSolicitud=LABSURG_LAST;
+  d.labsUrgUltimaResidente=LABSURG_LAST_BY;
+  d.ultimasSolicitudes=JSON.parse(JSON.stringify(EXTRA_LAST_REQUESTS));
   d.nombreCompleto=[d.apPaterno,d.apMaterno,d.nombres].filter(Boolean).join(" ").toUpperCase();
   d.edad=edad(d.fnac,d.fecha||todayStr());
   const f=parts(d.fecha); d.mes=f?(MESES[+f.mm-1]||""):""; d.anio=f?"20"+f.yy:"";
@@ -1799,7 +1814,7 @@ form.addEventListener("input",e=>{
 $("btnHoy").onclick=()=>{ const f=$("fecha"); f.value=todayStr(); f.dispatchEvent(new Event("input",{bubbles:true})); f.dispatchEvent(new Event("change",{bubbles:true})); toast("Fecha actualizada a hoy: "+f.value); };
 form.addEventListener("change",refresh);
 
-function fill(obj){inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
+function fill(obj){inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";FOLIO_LAST_BY=obj.folioUltimaResidente||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";LABSURG_LAST_BY=obj.labsUrgUltimaResidente||"";EXTRA_LAST_REQUESTS=extraLastRequestsFrom(obj.ultimasSolicitudes);for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
 $("btnClear").onclick=()=>{ if(confirm("¿Borrar todos los datos del paciente?")) fill(DEFAULTS()); };
 $("btnNegados").onclick=()=>{["internamiento","hta","dm","otrasEnfHC","tumores","qtrt"].forEach(id=>{if(!$(id).value.trim())$(id).value="NEGADO"});refresh();};
 $("btnDesc").onclick=()=>{
@@ -1845,7 +1860,7 @@ $("index").addEventListener("click",e=>{
 let current=null,currentClinical=null;
 const BUILT={};
 /* Listas desplegables dentro de los formatos */
-const PICKS={ alta:[{match:"TUMORES MIXTOS",opts:["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA"],editable:true,autoClinic:true}] };
+const PICKS={ alta:[{match:"TUMORES MIXTOS",opts:["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA"],editable:true,autoClinic:true,aria:"Mostrar clínicas disponibles"},{sync:"medico",opts:HJM_STAFF.adscritos.map(x=>x.nombre),editable:true,aria:"Mostrar adscritos disponibles"}] };
 function closePick(){ const m=document.querySelector(".pickmenu"); if(m) m.remove(); }
 let _pickT=0;
 function openPick(sp){
@@ -1855,7 +1870,7 @@ function openPick(sp){
   const m=document.createElement("div"); m.className="pickmenu"; m.setAttribute("role","listbox");
   m.innerHTML=opts.map(o=>`<button type="button" role="option" aria-selected="${sp.textContent.trim()===o}">${esc(o)}</button>`).join("");
   m.style.left=Math.max(8,Math.min(r.left,innerWidth-Math.min(260,innerWidth-16)-8))+"px"; m.style.visibility="hidden";
-  m.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; sp.textContent=b.textContent; shrinkOne(sp.parentElement); closePick(); };
+  m.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; sp.textContent=b.textContent; sp.dispatchEvent(new Event("input",{bubbles:true})); shrinkOne(sp.parentElement); closePick(); };
   document.body.appendChild(m);
   /* se abre hacia abajo o hacia arriba según el espacio, y nunca se sale de la pantalla */
   const h=m.scrollHeight, below=innerHeight-r.bottom-12, above=r.top-12, up=h>below&&above>below;
@@ -1889,7 +1904,7 @@ function customizeSummaryAreas(key,wrap){
   };
   if(key==="rx"){
     const cells=["B23","B24","B25","B26","B27"].map(ref=>wrap.querySelector(`[data-x="${ref}"]`)).filter(Boolean), box=cells[0];
-    if(box){ box.style.height="95.75pt"; unify(box); cells.slice(1).forEach(underlay); }
+    if(box){ box.style.height="95.75pt"; unify(box); box.style.lineHeight="19.15pt";box.style.padding="0 3pt";box.style.alignItems="flex-start";if(box.firstElementChild)box.firstElementChild.style.lineHeight="19.15pt";cells.slice(1).forEach(underlay); }
   }
   if(key==="antibiotico"){
     const sheet=wrap.querySelector(".sheet"), old=[at(sheet,341.2,52.5),at(sheet,367.5,10.5),at(sheet,380.65,10.5),at(sheet,393.8,10.5)].filter(Boolean);
@@ -2025,7 +2040,7 @@ function buildFormat(key){
   (PAIRS[key]||[]).forEach(([a,n,off])=>{ if(off) return; const sp=wrap.querySelector(`.cb[data-cell="${n}"] > span`); if(sp){ sp.classList.add("on"); sp.dataset.defon="1"; } });
   const saved=SAVED_FMT[key]; if(saved&&saved.__half){ HALF[key]=saved.__half; HALF_AUTO[key]=!!saved.__auto; }
   if(saved){ wrap.querySelectorAll(".c > span[data-i]").forEach(sp=>{const v=saved[sp.dataset.i]; if(v!==undefined){ if(sp.parentElement.dataset.x){ if(typeof v==="string"){ sp.textContent=v; sp.parentElement.setAttribute("data-ov",""); } } else if(typeof v==="object"){ sp.innerHTML=v.h; sp.classList.toggle("on",!!v.on); } else sp.textContent=v; }}); }
-  (PICKS[key]||[]).forEach(pk=>{ const sp=[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; const cell=sp.parentElement,hadSaved=!!(saved&&Object.prototype.hasOwnProperty.call(saved,sp.dataset.i)); cell.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); if(pk.autoClinic){cell.dataset.autoClinic="1";if(!hadSaved)sp.textContent=clinicForAdscrito($("medico").value);} if(pk.editable){sp.setAttribute("contenteditable","true");cell.classList.add("pick-editable");const trigger=document.createElement("button");trigger.type="button";trigger.className="pick-trigger";trigger.setAttribute("aria-label","Mostrar clínicas disponibles");trigger.textContent="▼";cell.appendChild(trigger);}else sp.removeAttribute("contenteditable"); });
+  (PICKS[key]||[]).forEach(pk=>{ const sp=pk.sync?wrap.querySelector(`.c[data-sync="${pk.sync}"] > span`):[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; const cell=sp.parentElement,hadSaved=!!(saved&&Object.prototype.hasOwnProperty.call(saved,sp.dataset.i)); cell.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); if(pk.autoClinic){cell.dataset.autoClinic="1";if(!hadSaved)sp.textContent=clinicForAdscrito($("medico").value);} if(pk.editable){sp.setAttribute("contenteditable","true");cell.classList.add("pick-editable");const trigger=document.createElement("button");trigger.type="button";trigger.className="pick-trigger";trigger.setAttribute("aria-label",pk.aria||"Mostrar opciones disponibles");trigger.textContent="▼";cell.appendChild(trigger);}else sp.removeAttribute("contenteditable"); });
   return wrap;
 }
 /* ---------- Distribución de media hoja (Laboratorios Urgencias, Receta, Pase) ---------- */
@@ -2200,7 +2215,7 @@ function altaHalfHTML(fmt){return `<span class="lbl">Hoja completa</span><div cl
 function altaToggleHTML(fmt,label,help,extra=""){const on=!!ALTA_COMPOSE[fmt];return `<button type="button" class="alta-check ${extra}" role="checkbox" aria-checked="${on}" data-alta-toggle="${fmt}"><span class="alta-box">${on?"✓":""}</span><span>${esc(label)}<small>${esc(help)}</small></span></button>`;}
 function altaSuppToggleHTML(key,label,ready=true){const on=!!ALTA_COMPOSE[key];return `<button type="button" class="alta-check" role="checkbox" aria-checked="${on}" data-alta-supp="${key}" ${ready?"":"disabled"}><span class="alta-box">${on?"✓":""}</span><span>${esc(label)}${ready?"":'<small class="soon">Formato pendiente</small>'}</span></button>`;}
 function altaDatesHTML(){return `<div class="alta-dates"><label class="alta-date-field">Fecha de Ingreso<input data-alta-date="ingreso" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(ALTA_DATES.ingreso||"")}"></label><label class="alta-date-field">Fecha de Egreso<input data-alta-date="egreso" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(ALTA_DATES.egreso||"")}"></label></div>`;}
-function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">Residente: '+esc(savedBy(r))+'</small></td><td><button type="button" data-alta-load="'+esc(r.id)+'">Cargar</button><button type="button" class="print" data-alta-print="'+esc(r.id)+'">Imprimir</button><button type="button" class="del" data-alta-delete="'+esc(r.id)+'">Borrar</button></td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
+function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">'+savedRoleLabel(r)+': '+esc(savedBy(r))+'</small></td><td><button type="button" data-alta-load="'+esc(r.id)+'">Cargar</button><button type="button" class="print" data-alta-print="'+esc(r.id)+'">Imprimir</button><button type="button" class="del" data-alta-delete="'+esc(r.id)+'">Borrar</button></td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
 function applyAltaDates(){const root=BUILT.alta;if(!root)return;[['D11','ingreso'],['G11','egreso']].forEach(([ref,key])=>{const cell=root.querySelector(':scope > .paper:not(.alta-attach) [data-x="'+ref+'"]'),sp=cell&&cell.firstElementChild;if(!sp)return;const v=ALTA_DATES[key]||'';sp.textContent=v;cell.toggleAttribute('data-ov',!!v);});}
 function syncAltaDateControls(){document.querySelectorAll('[data-alta-date]').forEach(i=>{const v=ALTA_DATES[i.dataset.altaDate]||'';if(i.value!==v)i.value=v;});}
 function altaPaseTargets(owner){
@@ -2502,7 +2517,7 @@ function applyText(key,i){
   renderRel(key); refreshMirror(key);
 }
 /* formatos cuyo menú de predeterminados va a la derecha de la hoja (sin caja desplazable) */
-const SIDE_KEYS=new Set(["labsUrg","folio","interconsulta","pase","receta","alta"]);
+const SIDE_KEYS=new Set(["labsUrg","folio","folioB","medNuc","bancoSangre","transfusion","antibiotico","ordenHosp","referencia","interconsulta","pase","receta","alta"]);
 function renderRelBase(key){
   const nav=$("relNav"); const groups=RELATED.filter(r=>r.keys.includes(key)); const pre=PRESETS[key]||[], ho=HALF_OPTS[key];
   nav.dataset.key=key;
@@ -2520,6 +2535,23 @@ function renderRelBase(key){
       const order=[]; tp.items.forEach((it,i)=>{ let g=order.find(x=>x.n===it.grp); if(!g){ g={n:it.grp,c:it.color,b:[]}; order.push(g); } g.b.push(btn(it,i)); });
       return `<div class="gwrap">`+order.map(g=>`<div class="rgrp" style="--c:${g.c}"><span class="gl">${esc(g.n)}</span><div class="gb">${g.b.join("")}</div></div>`).join("")+`</div>`;
     })():"")+groups.map(r=>`<span class="lbl">${r.label}</span>`+r.keys.map(k=>{const c=CAT[k]||{cls:r.cls,tt:FORMATS[k].title};return `<button type="button" class="${c.cls}" data-go="${k}"${k===key?' aria-current="page"':''}>${esc(c.tt)}</button>`}).join("")).join("");
+}
+
+const LAST_REQUEST_KEYS=new Set(["folio","labsUrg",...EXTRA_LAST_REQUEST_KEYS]);
+function lastRequestInfo(key){
+  if(key==="folio")return {fecha:FOLIO_LAST,residente:FOLIO_LAST_BY,nota:"Se actualiza al imprimir el Folio A."};
+  if(key==="labsUrg")return {fecha:LABSURG_LAST,residente:LABSURG_LAST_BY,nota:"Se actualiza al imprimir Laboratorios de Urgencias."};
+  const item=EXTRA_LAST_REQUESTS[key]||{fecha:"",residente:""},title=(CAT[key]&&CAT[key].tt)||(FORMATS[key]&&FORMATS[key].title)||"este formato";
+  return {fecha:item.fecha,residente:item.residente,nota:`Se actualiza al imprimir ${title}.`};
+}
+function lastRequestCardHTML(key){
+  const item=lastRequestInfo(key);return `<div class="folio-last" data-last-request="${esc(key)}"><div class="folio-last-grid"><div><span>Fecha última solicitud</span><strong data-last-date>${esc(item.fecha||"Sin registro")}</strong></div><div><span data-last-role>${authorRoleForName(item.residente)==="adscrito"?"Adscrito":"Residente"}</span><strong data-last-resident>${esc(item.residente||"Sin registro")}</strong></div></div><small>${esc(item.nota)}</small></div>`;
+}
+function appendLastRequestCard(key){
+  if(!LAST_REQUEST_KEYS.has(key))return;const nav=$("relNav");nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.insertAdjacentHTML("beforeend",lastRequestCardHTML(key));
+}
+function setLastRequest(key,fecha,residente){
+  if(key==="folio"){FOLIO_LAST=fecha;FOLIO_LAST_BY=residente;}else if(key==="labsUrg"){LABSURG_LAST=fecha;LABSURG_LAST_BY=residente;}else if(EXTRA_LAST_REQUESTS[key])EXTRA_LAST_REQUESTS[key]={fecha,residente};
 }
 
 function syncAltaMobileControls(){
@@ -2544,12 +2576,11 @@ $("paper").addEventListener("click",e=>{if(handleAltaControlClick(e)){e.preventD
 document.addEventListener("input",e=>{const od=e.target.closest&&e.target.closest("[data-order-date]");if(od){const dg=od.value.replace(/\D/g,"").slice(0,6);od.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");ORDER_DATES[od.dataset.orderDate]=od.value;applyOrderDates();return;}const i=e.target.closest&&e.target.closest("[data-alta-date]");if(!i)return;const dg=i.value.replace(/\D/g,"").slice(0,6);i.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");ALTA_DATES[i.dataset.altaDate]=i.value;applyAltaDates();syncAltaDateControls();});
 
 function renderRel(key){
-  if(key==="ordenHosp"){const nav=$("relNav");nav.hidden=false;nav.className="rel side";nav.dataset.key=key;nav.innerHTML=orderDatesHTML();document.body.classList.add("rel-side");return;}
+  if(key==="ordenHosp"){const nav=$("relNav");nav.hidden=false;nav.className="rel side";nav.dataset.key=key;nav.innerHTML=orderDatesHTML()+lastRequestCardHTML(key);document.body.classList.add("rel-side");return;}
   renderRelBase(key);
   const nav=$("relNav");nav.classList.toggle("alta-composer-nav",key==="alta");
   if(key==="alta"){nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.innerHTML=altaControlsHTML();syncAltaMobileControls();return;}
-  if(key==="folio") nav.insertAdjacentHTML("beforeend",`<div class="folio-last" data-last-request="folio"><span>Fecha última solicitud</span><strong>${esc(FOLIO_LAST||"Sin registro")}</strong><small>Se actualiza al imprimir el Folio A.</small></div>`);
-  if(key==="labsUrg") nav.insertAdjacentHTML("beforeend",`<div class="folio-last" data-last-request="labsUrg"><span>Fecha última solicitud</span><strong>${esc(LABSURG_LAST||"Sin registro")}</strong><small>Se actualiza al imprimir Laboratorios de Urgencias.</small></div>`);
+  appendLastRequestCard(key);
   if(key==="rx"){ nav.insertAdjacentHTML("beforeend",'<div class="rcsec rcbox" data-tipo="rx"></div>'); renderRecent("rx"); }
   if(key==="receta"){
     const html=recPresetsHTML("receta"), paseLabel=[...nav.querySelectorAll(":scope > .lbl")].find(el=>el.textContent.includes("Servicio del pase"));
@@ -2720,10 +2751,11 @@ addEventListener("afterprint",cleanBlank);
 $("btnPrintBlank").onclick=printBlank;
 /* Al imprimir se guarda en segundo plano (solo con Drive): sin ventanas, solo un aviso */
 function autoSaveOnPrint(){
-  if(current==="folio"||current==="labsUrg"){
+  if(LAST_REQUEST_KEYS.has(current)){
     const printed=($("fecha").value||todayStr()).trim();
-    if(current==="folio")FOLIO_LAST=printed;else LABSURG_LAST=printed;
-    const last=document.querySelector(`[data-last-request="${current}"] strong`);if(last)last.textContent=printed;
+    const printedBy=currentResidentName()||"Sin identificar";
+    setLastRequest(current,printed,printedBy);
+    const card=document.querySelector(`[data-last-request="${current}"]`);if(card){const date=card.querySelector("[data-last-date]"),resident=card.querySelector("[data-last-resident]"),role=card.querySelector("[data-last-role]");if(date)date.textContent=printed;if(resident)resident.textContent=printedBy;if(role)role.textContent=currentAuthorRole()==="adscrito"?"Adscrito":"Residente";}
   }
   captureCurrentRecent();
   if(STORE==="drive"&&CAN_DRIVE) driveSaveNow({silent:true}).catch(()=>{});
@@ -2761,7 +2793,10 @@ function warnMissing(d){
 function collect(){
   const datos={}; inputs.forEach(i=>datos[i.id]=i.value);
   datos.folioUltimaSolicitud=FOLIO_LAST;
+  datos.folioUltimaResidente=FOLIO_LAST_BY;
   datos.labsUrgUltimaSolicitud=LABSURG_LAST;
+  datos.labsUrgUltimaResidente=LABSURG_LAST_BY;
+  datos.ultimasSolicitudes=JSON.parse(JSON.stringify(EXTRA_LAST_REQUESTS));
   const fmt={};
   for(const k in BUILT){
     const m={};
@@ -2784,7 +2819,10 @@ function restore(obj){
   if(!obj||obj.app!=="solicitudes-hjm") return false;
   SAVED_FMT=obj.fmt||{}; HALF={}; HALF_AUTO={}; HIST=histFrom(obj.historial); restoreAltaCompose();restoreOrderDates();
   FOLIO_LAST=(obj.datos||{}).folioUltimaSolicitud||"";
+  FOLIO_LAST_BY=(obj.datos||{}).folioUltimaResidente||"";
   LABSURG_LAST=(obj.datos||{}).labsUrgUltimaSolicitud||"";
+  LABSURG_LAST_BY=(obj.datos||{}).labsUrgUltimaResidente||"";
+  EXTRA_LAST_REQUESTS=extraLastRequestsFrom((obj.datos||{}).ultimasSolicitudes);
   inputs.forEach(i=>i.value=(obj.datos||{})[i.id]??"");
   applySessionResident();
   $("fecha").value=todayStr();
@@ -2843,7 +2881,8 @@ $("residentGateForm").addEventListener("submit",e=>{
   if(!name){$("residentGateMsg").textContent="Escribe el usuario actual para continuar.";$("residentGateName").focus();return;}
   if(needsKey&&!key){$("residentGateMsg").textContent="Escribe la clave de Drive para continuar.";$("residentGateKey").focus();return;}
   if(needsKey)LS.set("hjm-key",key);
-  SESSION_RESIDENT=name.toLocaleUpperCase("es-MX");applySessionResident();refresh();
+  const entered=name.toLocaleUpperCase("es-MX"),adscrito=staffAdscrito(entered);
+  SESSION_ADSCRITO=adscrito?adscrito.nombre:"";SESSION_RESIDENT=adscrito?"":entered;applySessionResident();refresh();
   $("dlgResidentGate").close();
   if(needsKey)initDrive();
 });
@@ -3119,6 +3158,29 @@ function applySurgerySnapshot(fmt,payload){
   refresh();
   return true;
 }
+function completeFormatSnapshot(fmt){
+  const root=BUILT[fmt];if(!root)return null;const fields={};
+  root.querySelectorAll(".c > span[data-i]").forEach(sp=>{
+    const cell=sp.parentElement;if(cell.classList.contains("summary-line-underlay"))return;
+    if(!cell.classList.contains("ed")&&!cell.classList.contains("cb")&&!cell.classList.contains("pick"))return;
+    fields[sp.dataset.i]={h:sp.innerHTML,on:sp.classList.contains("on"),ov:true};
+  });
+  return {fecha:($("fecha").value||todayStr()).trim(),datos:data(),fields};
+}
+function completeFormatEntry(fmt){
+  const payload=completeFormatSnapshot(fmt);if(!payload)return null;
+  const fallback=fmt==="consInf"?"CONSENTIMIENTO INFORMADO":"NOTA PREOPERATORIA",subject=($("cirugia").value||$("diagnostico").value||fallback).trim();
+  return {text:payload.fecha+"\n"+subject,payload};
+}
+function applyCompleteFormatSnapshot(fmt,payload){
+  const root=BUILT[fmt];if(!root||!payload||!payload.fields){notify("Este registro no contiene apartados reutilizables.","warn");return false;}
+  Object.entries(payload.fields).forEach(([id,value])=>{
+    const sp=root.querySelector(`.c > span[data-i="${id}"]`);if(!sp)return;const cell=sp.parentElement;
+    sp.innerHTML=value&&typeof value.h==="string"?value.h:"";sp.classList.toggle("on",!!(value&&value.on));cell.setAttribute("data-ov","");
+  });
+  refresh();return true;
+}
+function datedRecentShow(text){const parts=String(text||"").split("\n");return {head:parts.shift()||"",body:parts.join(" ")};}
 const RECENT_CFG={
   receta:{lib:"recetas",ls:"hjm-recetas",title:"Recetas recientes",empty:"Aquí aparecerán las recetas que escribas.",
     capture:(owner=current)=>recFields(owner).map((field,slot)=>({text:recText(field),payload:{source:owner,slot}})).filter(entry=>entry.text), show:t=>({head:"",body:t})},
@@ -3130,17 +3192,21 @@ const RECENT_CFG={
   solCx:{lib:"solCx",title:"Solicitudes Previas",empty:"Aqu\u00ed aparecer\u00e1n las solicitudes de cirug\u00eda guardadas para este paciente.",
     capture:()=>{ const entry=surgeryEntry("solCx"); return entry?[entry]:[]; },show:t=>({head:"",body:t})},
   repCx:{lib:"repCx",title:"Reportes Previos",empty:"Aqu\u00ed aparecer\u00e1n los reportes de cirug\u00eda guardados para este paciente.",
-    capture:()=>{ const entry=surgeryEntry("repCx"); return entry?[entry]:[]; },show:t=>({head:"",body:t})}
+    capture:()=>{ const entry=surgeryEntry("repCx"); return entry?[entry]:[]; },show:t=>({head:"",body:t})},
+  consInf:{lib:"consInf",title:"Consentimientos Previos",empty:"Aquí aparecerán los consentimientos informados guardados para este paciente.",
+    capture:()=>{const entry=completeFormatEntry("consInf");return entry?[entry]:[];},show:datedRecentShow},
+  prequx:{lib:"prequx",title:"Notas Previas",empty:"Aquí aparecerán las notas preoperatorias guardadas para este paciente.",
+    capture:()=>{const entry=completeFormatEntry("prequx");return entry?[entry]:[];},show:datedRecentShow}
 };
-/* El historial va DENTRO del archivo del paciente (un solo JSON por paciente): recetas, interconsultas y estudios de rayos X */
+/* Cada historial va DENTRO del archivo JSON del paciente. */
 const HIST_MAX=40;
-const histEmpty=()=>({receta:[],interconsulta:[],rx:[],solCx:[],repCx:[],notas:[],indicaciones:[],altas:[]});
+const histEmpty=()=>({receta:[],interconsulta:[],rx:[],solCx:[],repCx:[],consInf:[],prequx:[],notas:[],indicaciones:[],altas:[]});
 let HIST=histEmpty();
 function histFrom(o){ const h=histEmpty(); if(o&&typeof o==="object") for(const k in h) if(Array.isArray(o[k])) h[k]=o[k].filter(r=>r&&r.id&&typeof r.t==="string"&&r.t.trim()).slice(0,HIST_MAX); return h; }
 const histSig=(text,payload)=>recNorm(text)+"|"+(payload?JSON.stringify(payload):"");
 function histAdd(tp,text,payload){
   const a=HIST[tp], sig=histSig(text,payload), i=a.findIndex(r=>histSig(r.t,r.p)===sig), ts=Math.max(Date.now(),a.reduce((m,x)=>Math.max(m,x.ts||0),0)+1);
-  let r; if(i>=0){ r=a.splice(i,1)[0]; r.ts=ts; r.t=text; r.p=payload; r.by=currentResidentName(); } else r={id:"h"+ts.toString(36)+Math.random().toString(36).slice(2,5),t:text,ts,p:payload,by:currentResidentName()};
+  let r; if(i>=0){ r=a.splice(i,1)[0]; r.ts=ts; r.t=text; r.p=payload; r.by=currentResidentName();r.byRole=currentAuthorRole(); } else r={id:"h"+ts.toString(36)+Math.random().toString(36).slice(2,5),t:text,ts,p:payload,by:currentResidentName(),byRole:currentAuthorRole()};
   a.unshift(r); if(a.length>HIST_MAX) a.length=HIST_MAX; return r;
 }
 
@@ -3235,7 +3301,7 @@ function clinicalMissing(tp,p){
 function upsertClinicalRecord(tp,p){
   const text=p.fecha+" · "+p.tipo,sameIndex=HIST[tp].findIndex(x=>x&&x.p&&x.p.fecha===p.fecha&&x.p.hora===p.hora);
   if(sameIndex<0)return histAdd(tp,text,p);
-  const saved=HIST[tp].splice(sameIndex,1)[0];saved.t=text;saved.p=p;saved.by=currentResidentName();saved.ts=Math.max(Date.now(),HIST[tp].reduce((m,x)=>Math.max(m,x.ts||0),0)+1);HIST[tp].unshift(saved);return saved;
+  const saved=HIST[tp].splice(sameIndex,1)[0];saved.t=text;saved.p=p;saved.by=currentResidentName();saved.byRole=currentAuthorRole();saved.ts=Math.max(Date.now(),HIST[tp].reduce((m,x)=>Math.max(m,x.ts||0),0)+1);HIST[tp].unshift(saved);return saved;
 }
 function saveClinicalRecord(tp,printAfter=false){
   const d=data();if(warnMissing(d))return;
@@ -3248,7 +3314,7 @@ function saveClinicalRecord(tp,printAfter=false){
 }
 function renderClinicalRecents(tp){
   const list=[...(HIST[tp]||[])].sort((a,b)=>(b.ts||0)-(a.ts||0));$("clinicalRecentTitle").textContent=tp==="notas"?"Últimas notas":"Últimas indicaciones";
-  $("clinicalRecentList").innerHTML=list.length?`<table class="clinical-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${list.map(r=>`<tr><td><strong>${esc((r.p&&r.p.fecha)||"")}</strong><small>${esc((r.p&&r.p.hora)||"")}</small></td><td>${esc((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones"))}<small class="clinical-saved-by">Residente: ${esc(savedBy(r))}</small></td><td><button type="button" data-cl-edit="${esc(r.id)}">Cargar</button><button type="button" data-cl-print="${esc(r.id)}">Imprimir</button><button type="button" class="del" data-cl-delete="${esc(r.id)}">Borrar</button></td></tr>`).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
+  $("clinicalRecentList").innerHTML=list.length?`<table class="clinical-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${list.map(r=>`<tr><td><strong>${esc((r.p&&r.p.fecha)||"")}</strong><small>${esc((r.p&&r.p.hora)||"")}</small></td><td>${esc((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones"))}<small class="clinical-saved-by">${savedRoleLabel(r)}: ${esc(savedBy(r))}</small></td><td><button type="button" data-cl-edit="${esc(r.id)}">Cargar</button><button type="button" data-cl-print="${esc(r.id)}">Imprimir</button><button type="button" class="del" data-cl-delete="${esc(r.id)}">Borrar</button></td></tr>`).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
 }
 function openClinical(tp){
   current=null;currentClinical=tp;indicationsDouble=false;document.body.classList.remove("showing-format","rec-side");document.body.classList.add("showing-clinical");$("recPanel").hidden=true;$("bandIdx").hidden=true;$("clinicalTitle").textContent=tp==="notas"?"Notas Médicas":"Indicaciones Médicas";document.querySelectorAll(".clinical-switch").forEach(b=>{const on=b.dataset.clinical===tp;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));});clinicalEditing[tp]=null;renderClinicalForm(tp);renderClinicalRecents(tp);window.scrollTo(0,0);
@@ -3313,7 +3379,7 @@ function captureAltaRecent(){
   if(current!=="alta"||!BUILT.alta)return null;
   applyAltaDates();const all=collect(),fmt=all.fmt.alta||{},fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
   const p={fecha,fmt:JSON.parse(JSON.stringify(fmt))},a=HIST.altas||[],i=a.findIndex(r=>r&&r.p&&r.p.fecha===fecha);let r;
-  if(i>=0){r=a.splice(i,1)[0];r.t=fecha;r.p=p;r.by=currentResidentName();r.ts=Date.now();a.unshift(r);}else r=histAdd("altas",fecha,p);
+  if(i>=0){r=a.splice(i,1)[0];r.t=fecha;r.p=p;r.by=currentResidentName();r.byRole=currentAuthorRole();r.ts=Date.now();a.unshift(r);}else r=histAdd("altas",fecha,p);
   return r;
 }
 function loadAltaRecent(id,printAfter=false){
@@ -3329,12 +3395,13 @@ function captureCurrentRecent(){
   if(current==="alta"&&ALTA_COMPOSE.receta){captureRecent("receta","alta-receta");if(ALTA_COMPOSE.pase&&altaMode("pase")==="otro")captureRecent("receta","alta-pase");}
 }
 function relTime(ts){ const m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora"; if(m<60) return "hace "+m+" min"; const h=Math.round(m/60); if(h<24) return "hace "+h+" h"; return new Date(ts).toLocaleDateString("es-MX",{day:"2-digit",month:"short"}); }
-function savedBy(r){return String((r&&r.by)||(r&&r.p&&r.p.residente)||"Sin identificar").trim();}
+function savedBy(r){return String((r&&r.by)||(r&&r.p&&r.p.residente)||(r&&r.p&&r.p.adscrito)||"Sin identificar").trim();}
+function savedRoleLabel(r){const role=(r&&r.byRole)||authorRoleForName(savedBy(r));return role==="adscrito"?"Adscrito":"Residente";}
 function recentsHTML(tp,newId,owner=current){
   const C=RECENT_CFG[tp], R={list:HIST[tp]}, two=tp==="receta"&&recFields(owner).length>1;
   const trash='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
   return `<div class="rc-head"><h2>${C.title}</h2><small>Historial de este paciente · se guarda en su archivo</small></div><div class="rc-list">`
-   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">Residente: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?'<button type="button" data-ra="use" data-n="0">Cargar 1</button><button type="button" class="sec" data-ra="use" data-n="1">Cargar 2</button>':'<button type="button" data-ra="use" data-n="0">Cargar</button>'}<button type="button" class="sec" data-ra="print" data-n="0">Imprimir</button><button type="button" class="del" data-ra="del" title="Borrar">${trash} Borrar</button></div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
+   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedRoleLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?'<button type="button" data-ra="use" data-n="0">Cargar 1</button><button type="button" class="sec" data-ra="use" data-n="1">Cargar 2</button>':'<button type="button" data-ra="use" data-n="0">Cargar</button>'}<button type="button" class="sec" data-ra="print" data-n="0">Imprimir</button><button type="button" class="del" data-ra="del" title="Borrar">${trash} Borrar</button></div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
    +'</div>';
 }
 function renderRecent(tp,newId){
@@ -3348,6 +3415,7 @@ function useRecent(tp,id,n,owner=current){
   else if(tp==="interconsulta"){ const a=r.t.split("\n"); setCellText(cellSp("interconsulta","icServicio").parentElement,a[0]||""); setCellText(cellSp("interconsulta","icMotivo").parentElement,a.slice(1).join(" ")); renderRel("interconsulta"); }
   else if(tp==="rx"){ setCellText(cellSp("rx","rx").parentElement,r.t); renderRel("rx"); }
   else if(tp==="solCx"||tp==="repCx"){ if(!applySurgerySnapshot(tp,r.p)) return; }
+  else if(tp==="consInf"||tp==="prequx"){if(!applyCompleteFormatSnapshot(tp,r.p))return;}
   toast("Cargado");
 }
 document.addEventListener("click",e=>{
