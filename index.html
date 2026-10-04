@@ -1361,6 +1361,14 @@ body.showing-clinical #view-clinical{display:block}
 <style id="v41">
 @media screen{.resident-gate-msg.info{color:#476983}.resident-gate-msg.ok{color:#0B6F75}}
 </style>
+<style id="v44">
+@media screen{
+  .resident-gate-clinic{display:flex;align-items:center;gap:9px;margin:-2px 0 2px;padding:8px 12px;border:1px solid #CFE3E5;border-left:4px solid #0B6F75;border-radius:10px;background:#EEF7F7;min-width:0}
+  .resident-gate-clinic[hidden]{display:none}
+  .resident-gate-clinic small{flex:0 0 auto;color:#557084;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  .resident-gate-clinic b{min-width:0;color:#0B5F65;font-size:13.5px;font-weight:800;line-height:1.2}
+}
+</style>
 </head>
 <body>
 
@@ -1391,6 +1399,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
   <form class="resident-gate-body" id="residentGateForm" autocomplete="off">
     <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" list="hjm-usuarios" autocomplete="off" placeholder="Escribe o elige un usuario" required></label>
+    <div class="resident-gate-clinic" id="residentGateClinic" hidden aria-live="polite"><small id="residentGateClinicLbl"></small><b id="residentGateClinicVal"></b></div>
     <label class="resident-gate-field" id="residentGateKeyRow" hidden><span class="resident-key-label"><img class="resident-drive-logo" data-drive-logo alt="Google Drive"><b>CLAVE DE DRIVE</b></span><input id="residentGateKey" type="password" autocomplete="current-password" placeholder="Clave del Servicio de Oncología"></label>
     <p class="resident-gate-msg" id="residentGateMsg" role="alert"></p>
     <div class="resident-gate-buttons"><button class="resident-gate-offline" id="residentGateOffline" type="button" hidden>Trabajar sin conexión</button><button class="resident-gate-submit" id="residentGateSubmit" type="submit">Ingresar</button></div>
@@ -1544,7 +1553,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v43 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v44 · Fecha de publicación: 04.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -1798,6 +1807,10 @@ const HJM_STAFF=Object.freeze({
     "DAVID ROMERO R5GO",
     "CARLOS QUINTERO R5GO",
     "TANIA ACEVEDO R5GO",
+    "ROSA NELLY HERRERA R6GO",
+    "BLANCA MACIAS R6GO",
+    "ESTEFANIA TASCON R6GO",
+    "EDGAR PADILLA R7GO",
     "JONATHAN MORENO R5OM",
     "CLAUDIA ALMENDAREZ R6CO",
     "DIEGO CARVAJAL R6CO",
@@ -3016,12 +3029,24 @@ function takeHashKey(){ try{ const m=/[#&]k=([^&]+)/.exec(location.hash||""); if
 if(takeHashKey()&&CAN_DRIVE){ STORE="drive"; LS.set("hjm-store","drive"); }
 addEventListener("hashchange",()=>{ if(takeHashKey()&&typeof initDrive==="function"){ if(CAN_DRIVE&&STORE!=="drive")setStore("drive"); initDrive(); } });
 
+/* Especialidad del residente según la terminación de su nombre (R5CO, R6GO, R5OM, R5OCYC…) */
+const RESIDENT_SPECIALTY={CO:"Cirugía Oncológica",GO:"Ginecología Oncológica",OCYC:"Oncología Cabeza y Cuello",OM:"Oncología Médica"};
+function residentSpecialty(value){const m=/\bR[1-9]\s*(OCYC|CO|GO|OM)\b\s*$/i.exec(normalizeStaffName(value));return m?RESIDENT_SPECIALTY[m[1].toUpperCase()]:"";}
+/* Muestra debajo del usuario: la clínica (adscrito) o la especialidad (residente) */
+function updateGateClinic(){
+  const box=$("residentGateClinic"),v=$("residentGateName").value.trim();
+  let lbl="",val="";
+  if(v){const a=staffAdscritoLoose(v.toLocaleUpperCase("es-MX"));if(a){lbl="Clínica";val=a.clinica;}else{const sp=residentSpecialty(v);if(sp){lbl="Especialidad";val=sp;}}}
+  box.hidden=!val;$("residentGateClinicLbl").textContent=lbl;$("residentGateClinicVal").textContent=val;
+}
+["input","change"].forEach(t=>$("residentGateName").addEventListener(t,updateGateClinic));
 function openResidentGate(opt={}){
   const dlg=$("dlgResidentGate"),needsKey=!apiKey();
   $("residentGateKeyRow").hidden=!needsKey;$("residentGateKey").required=false;
   $("residentGateOffline").hidden=!needsKey||!CAN_DRIVE;
   $("residentGateKey").value="";$("residentGateName").value=opt.keepName?sessionUserName():"";$("residentGateMsg").textContent="";$("residentGateMsg").classList.remove("ok","info");
   if(!dlg.open)dlg.showModal();
+  updateGateClinic();
   setTimeout(()=>$("residentGateName").focus(),80);
 }
 $("dlgResidentGate").addEventListener("cancel",e=>e.preventDefault());
