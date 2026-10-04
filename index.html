@@ -1544,7 +1544,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v42 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v43 · Fecha de publicación: 04.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3012,8 +3012,9 @@ const apiUrl=()=>(API_URL||LS.get("hjm-api")||"").trim().replace(/\/u\/\d+\//,"/
 const apiKey=()=>LS.get("hjm-key")||API_KEY||"";
 /* enlace privado: https://.../#k=CLAVE -> guarda la clave en este navegador y la quita de la barra de direcciones */
 function takeHashKey(){ try{ const m=/[#&]k=([^&]+)/.exec(location.hash||""); if(m){ LS.set("hjm-key",decodeURIComponent(m[1])); history.replaceState(null,"",location.pathname+location.search); return true; } }catch(_){} return false; }
-takeHashKey();
-addEventListener("hashchange",()=>{ if(takeHashKey()&&typeof initDrive==="function") initDrive(); });
+/* Si la clave llega por el enlace de GitHub (#k=…), se trabaja en Drive aunque antes se haya elegido "Este equipo" */
+if(takeHashKey()&&CAN_DRIVE){ STORE="drive"; LS.set("hjm-store","drive"); }
+addEventListener("hashchange",()=>{ if(takeHashKey()&&typeof initDrive==="function"){ if(CAN_DRIVE&&STORE!=="drive")setStore("drive"); initDrive(); } });
 
 function openResidentGate(opt={}){
   const dlg=$("dlgResidentGate"),needsKey=!apiKey();
@@ -3196,9 +3197,16 @@ async function initDrive(){
   if(!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()){ renderAcct(); return; }
   CONNECTING=true; renderAcct();
   try{ USER=await call("hjmUser"); FOLDER=await call("hjmGetFolder"); }
-  catch(e){ CONNECT_FAIL=true; if(e.code==="clave") LS.del("hjm-key"); }
+  catch(e){ CONNECT_FAIL=true; if(e.code==="clave") LS.del("hjm-key"); else if(!DRIVE_RETRY_T&&DRIVE_RETRIES<3){ DRIVE_RETRIES++; DRIVE_RETRY_T=setTimeout(()=>{DRIVE_RETRY_T=0;driveReconnect();},4000*DRIVE_RETRIES); } }
   finally{ CONNECTING=false; renderAcct(); }
 }
+/* Reconexión automática: el celular pierde la red al bloquearse o cambiar de Wi-Fi a datos.
+   Se reintenta sola (3 veces al inicio) y cada vez que vuelve la red o se regresa a la pestaña. */
+let DRIVE_RETRIES=0,DRIVE_RETRY_T=0;
+function driveReconnect(){ if(CAN_DRIVE&&STORE==="drive"&&apiUrl()&&apiKey()&&!USER&&!CONNECTING){ CONNECT_FAIL=false; initDrive(); } }
+addEventListener("online",()=>{ DRIVE_RETRIES=0; driveReconnect(); if(USER&&STORE==="drive"){ PP_LAST=0; loadPatients(); } });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) driveReconnect(); });
+addEventListener("pageshow",e=>{ if(e.persisted){ driveReconnect(); if(USER&&STORE==="drive"){ PP_LAST=0; loadPatients(); } } });
 async function ensureFolder(){
   if(!USER) USER=await gcall("hjmUser");
   if(!FOLDER) FOLDER=await gcall("hjmGetFolder");
@@ -3274,7 +3282,7 @@ function expCheck(){
   if(v!==NOTIFIED_EXP&&v!==LOADED_EXP) NOTIFIED_EXP="";
   if(v.length<3){ if(PP_AUTO){ sb.value=""; PP_AUTO=false; renderPP(); } return; }
   const hay=DRIVE_FILES.some(f=>expOf(f).startsWith(v));
-  if(hay){ sb.value=v; PP_AUTO=true; renderPP(); $("ppList").scrollLeft=0; }
+  if(hay){ sb.value=v; PP_AUTO=true; renderPP(); $("ppList").scrollLeft=0; if(window.ppExpand)ppExpand(); }
   else if(PP_AUTO){ sb.value=""; PP_AUTO=false; renderPP(); }
   const ex=DRIVE_FILES.find(f=>expOf(f)===v);
   if(ex&&v!==LOADED_EXP&&v!==NOTIFIED_EXP&&!SAVING&&!document.querySelector("#popHost .pop .pa")){
@@ -3311,10 +3319,14 @@ const ppScroll=d=>{ const l=$("ppList"); l.scrollBy({left:d*Math.max(200,l.clien
 $("ppPrev").onclick=()=>ppScroll(-1); $("ppNext").onclick=()=>ppScroll(1);
 $("ppList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDriveFile(b.dataset.id).then(ppMarkCurrent).catch(driveError); };
 (function(){
-  const box=$("pPanel"), col=LS.get("hjm-pp-col"), narrow=matchMedia("(max-width: 900px)").matches;
+  /* La lista de pacientes se muestra abierta por defecto también en el celular (antes se ocultaba en pantallas < 900 px) */
+  const box=$("pPanel"), col=LS.get("hjm-pp-col2");
   const set=c=>{ box.classList.toggle("collapsed",c); $("ppToggle").setAttribute("aria-expanded",String(!c)); };
-  set(col===null?narrow:col==="1");
-  $("ppToggle").onclick=()=>{ const c=!box.classList.contains("collapsed"); set(c); LS.set("hjm-pp-col",c?"1":"0"); };
+  set(col==="1");
+  $("ppToggle").onclick=()=>{ const c=!box.classList.contains("collapsed"); set(c); LS.set("hjm-pp-col2",c?"1":"0"); };
+  /* Al buscar, la lista se abre sola */
+  $("ppSearch").addEventListener("input",()=>{ if(box.classList.contains("collapsed")&&$("ppSearch").value.trim()) set(false); });
+  window.ppExpand=()=>set(false);
 })();
 form.addEventListener("input",()=>{ if(ppOn()) ppMarkCurrent(); });
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&ppOn()&&Date.now()-PP_LAST>45000){ PP_LAST=0; loadPatients(); } });
