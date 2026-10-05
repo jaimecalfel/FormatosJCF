@@ -1697,7 +1697,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v55 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v56 · Fecha de publicación: 04.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3492,7 +3492,7 @@ async function driveSaveNow(opt={}){
   try{
     await ensureFolder();
     const key=expKey(d.expediente);
-    if(!DRIVE_FILES.length||Date.now()-PP_LAST>120000){ DRIVE_FILES=await gcall("hjmList",FOLDER.id); PP_LAST=Date.now(); if(typeof renderPP==="function")renderPP(); }
+    if(!DRIVE_FILES.length||Date.now()-PP_LAST>120000){ DRIVE_FILES=onlyJsonFiles(await gcall("hjmList",FOLDER.id)); PP_LAST=Date.now(); if(typeof renderPP==="function")renderPP(); }
     const twins=DRIVE_FILES.filter(f=>expKey(expOf(f))===key);         // más reciente primero
     const plain=d.expediente.replace(/[\\/:*?"<>|]/g,"").trim()+".json";
     const target=twins.find(f=>f.name===plain)||twins[0]||null;
@@ -3526,6 +3526,8 @@ async function driveSaveNow(opt={}){
 }
 
 /* Abrir */
+/* v56 · En la carpeta de Drive solo cuentan los archivos .json de pacientes; cualquier otro archivo (PDF, Word, imágenes, notas, etc.) no aparece en la lista ni se usa al guardar */
+function onlyJsonFiles(list){return (Array.isArray(list)?list:[]).filter(f=>f&&/\.json$/i.test(String(f.name||"").trim()));}
 let DRIVE_FILES=[];
 function renderDriveList(){
   const s=$("dlgSearch").value.trim().toUpperCase();
@@ -3536,7 +3538,7 @@ function renderDriveList(){
 }
 async function loadFolderList(){
   $("openFolder").textContent=FOLDER.name; $("dlgList").innerHTML='<div class="dlg-empty">Cargando…</div>';
-  DRIVE_FILES=await gcall("hjmList",FOLDER.id); renderDriveList();
+  DRIVE_FILES=onlyJsonFiles(await gcall("hjmList",FOLDER.id)); renderDriveList();
 }
 async function driveOpen(){
   await ensureFolder();
@@ -3589,7 +3591,7 @@ function renderPP(){
 async function loadPatients(){
   if(!ppOn()||PP_LOADING) return;
   PP_LOADING=true; $("pPanel").classList.add("busy");
-  try{ DRIVE_FILES=await call("hjmList"); PP_LAST=Date.now(); renderPP(); if($("dlgDrive").open) renderDriveList(); }
+  try{ DRIVE_FILES=onlyJsonFiles(await call("hjmList")); PP_LAST=Date.now(); renderPP(); if($("dlgDrive").open) renderDriveList(); }
   catch(e){
     if(e.code==="clave"){ LS.del("hjm-key"); USER=null; renderAcct(); }
     else $("ppList").innerHTML='<div class="dlg-empty">No se pudo cargar la lista. Toca ⟳ para reintentar.</div>';
