@@ -1697,7 +1697,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v54 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v55 · Fecha de publicación: 04.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2922,7 +2922,7 @@ function clearFormatOnOpen(key){
   if(key==="alta"){ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ALTA_AUTO.receta=ALTA_AUTO.pase=false;}
 }
 function openFormat(key){
-  clearFormatOnOpen(key);
+  clearFormatOnOpen(key);delete VIEWED[key];if(key==="alta")ALTA_OWN=null;
   currentClinical=null; current=key; $("btnPrintBlank").hidden=!BLANKS[key]; $("fmtTitle").textContent=(CAT[key]&&CAT[key].tt)||FORMATS[key].title; $("fmtCat").textContent=(CAT[key]&&CAT[key].g)||""; renderRel(key);
   document.body.classList.remove("showing-clinical","showing-archive"); document.body.classList.add("showing-format"); $("bandIdx").hidden=true; $("bandBack").hidden=false; renderFormat(key); if(key==="alta")renderRel(key); updateFormatNotice(key);
   const recentSide=!!RECENT_CFG[key]&&key!=="rx";
@@ -3102,7 +3102,8 @@ function autoSaveOnPrint(){
   captureCurrentRecent();
   if(STORE==="drive"&&CAN_DRIVE) driveSaveNow({silent:true}).catch(()=>{});
 }
-$("btnPrint").onclick=async()=>{ document.activeElement&&document.activeElement.blur(); autoSaveOnPrint(); if(current==="alta") await prewarmAltaSupp(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); };
+$("btnPrint").onclick=()=>confirmAltaOverwrite(printFormatNow);
+async function printFormatNow(){ document.activeElement&&document.activeElement.blur(); autoSaveOnPrint(); if(current==="alta") await prewarmAltaSupp(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); }
 addEventListener("resize",()=>{if(current)fitPaper()});
 
 /* ---------- Guardar / abrir paciente (los datos viajan dentro del propio HTML) ---------- */
@@ -4015,17 +4016,40 @@ function captureRecent(tp,owner=current){
 function captureAltaRecent(){
   if(current!=="alta"||!BUILT.alta)return null;
   applyAltaDates();const all=collect(),fmt=all.fmt.alta||{},fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
-  const p={fecha,fmt:JSON.parse(JSON.stringify(fmt)),cells:snapCells(BUILT.alta)},a=HIST.altas||[],i=a.findIndex(r=>r&&r.p&&r.p.fecha===fecha);let r;
+  const p={fecha,fmt:JSON.parse(JSON.stringify(fmt)),cells:snapCells(BUILT.alta)},a=HIST.altas||[],v=VIEWED.alta,mine=id=>id===ALTA_OWN||(v&&v.id===id),i=a.findIndex(r=>r&&r.p&&r.p.fecha===fecha&&mine(r.id));let r;
   if(i>=0){r=a.splice(i,1)[0];r.t=fecha;r.p=p;r.by=currentResidentName();r.byRole=currentAuthorRole();r.ts=Date.now();a.unshift(r);}else r=histAdd("altas",fecha,p);
+  if(r){ALTA_OWN=r.id;if(v){v.id=r.id;v.dirty=false;}}
   return r;
 }
 function loadAltaRecent(id,printAfter=false){
   const r=(HIST.altas||[]).find(x=>x.id===id);if(!r||!r.p||!r.p.fmt)return;
-  SAVED_FMT.alta=JSON.parse(JSON.stringify(r.p.fmt));delete BUILT.alta;delete HALF.alta;delete HALF_AUTO.alta;restoreAltaCompose();renderFormat("alta");renderRel("alta");if(r.p.cells)applySnapCells(BUILT.alta,r.p.cells);fitPaper();toast("Alta cargada");
+  SAVED_FMT.alta=JSON.parse(JSON.stringify(r.p.fmt));delete BUILT.alta;delete HALF.alta;delete HALF_AUTO.alta;restoreAltaCompose();renderFormat("alta");renderRel("alta");if(r.p.cells)applySnapCells(BUILT.alta,r.p.cells);fitPaper();markViewed("alta","altas",id);ALTA_OWN=null;toast("Alta cargada");
   if(printAfter)setTimeout(async()=>{document.activeElement&&document.activeElement.blur();await prewarmAltaSupp();addPrintCopies();window.print();setTimeout(removePrintCopies,1500);},100);
 }
 
+/* v55 · «Ver» en Solicitud de Cirugía, Reporte de Cirugía y Nota de Alta: si no se cambia nada, Imprimir/Guardar
+   reimprime ese mismo registro sin duplicarlo ni moverlo. Cualquier edición (en la hoja, en los controles o en la hoja de datos) lo marca como modificado. */
+const VIEW_FMTS=new Set(["solCx","repCx","alta"]);
+const VIEWED={};let ALTA_OWN=null;
+function markViewed(fmt,tp,id){if(VIEW_FMTS.has(fmt))VIEWED[fmt]={tp,id,dirty:false};}
+function viewedClean(fmt){const v=VIEWED[fmt];return !!(v&&!v.dirty&&(HIST[v.tp]||[]).some(x=>x.id===v.id));}
+function markDirty(){if(current&&VIEWED[current])VIEWED[current].dirty=true;}
+document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls"))markDirty();},true);
+document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls"))markDirty();},true);
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("#paper .c.cb,#paper .c.pick,#paper [data-gen],[data-alta-toggle],[data-alta-supp],[data-alta-half],[data-alta-text],#relNav [data-preset],#relNav [data-text],#relNav [data-half],#relNav [data-tgt],#btnReset,#clearFmt");if(t)markDirty();},true);
+/* Nota de Alta modificada cuya fecha de egreso ya tiene otra alta guardada: pregunta antes de sobrescribir */
+function altaConflict(){
+  if(current!=="alta"||!BUILT.alta||viewedClean("alta"))return null;
+  applyAltaDates();const fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
+  return (HIST.altas||[]).find(r=>r&&r.p&&r.p.fecha===fecha&&r.id!==ALTA_OWN)||null;
+}
+function confirmAltaOverwrite(go){
+  const c=altaConflict();if(!c){go();return;}
+  notify(`Ya existe una Nota de Alta con fecha ${c.p.fecha}. ¿Quieres sobrescribirla? Si quieres crear una nueva, cambia la fecha de egreso antes de guardar.`,"warn",
+    {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>{ALTA_OWN=c.id;go();}},{label:"Cancelar",fn:()=>{}}]});
+}
 function captureCurrentRecent(){
+  if(VIEW_FMTS.has(current)&&viewedClean(current))return;      // es el mismo registro que se abrió con «Ver»: no se duplica
   if(current==="alta")captureAltaRecent();
   captureRecent(current,current);
   if(current==="pase"&&halfMode("pase")==="otro") captureRecent("receta","pase");
@@ -4051,7 +4075,7 @@ function useRecent(tp,id,n,owner=current){
   if(tp==="receta"){ const f=recFields(owner)[n]; if(!f){ notify("No hay un campo de receta disponible.","warn"); return; } f.innerText=r.t; f.dispatchEvent(new Event("input",{bubbles:true})); if(current==="alta"){renderFormat("alta");renderRel("alta");fitPaper();} }
   else if(tp==="interconsulta"){ const a=r.t.split("\n"); setCellText(cellSp("interconsulta","icServicio").parentElement,a[0]||""); setCellText(cellSp("interconsulta","icMotivo").parentElement,a.slice(1).join(" ")); renderRel("interconsulta"); }
   else if(tp==="rx"){ setCellText(cellSp("rx","rx").parentElement,r.t); renderRel("rx"); }
-  else if(tp==="solCx"||tp==="repCx"){ if(!applySurgerySnapshot(tp,r.p)) return; }
+  else if(tp==="solCx"||tp==="repCx"){ if(!applySurgerySnapshot(tp,r.p)) return; markViewed(tp,tp,id); }
   else if(tp==="consInf"||tp==="prequx"){if(!applyCompleteFormatSnapshot(tp,r.p))return;}
   toast("Cargado");
 }
@@ -4100,7 +4124,8 @@ function driveError(err){
   if(m==="cancelado") return;
   notify("Google Drive: "+friendly(err),"err");
 }
-const doSave=()=>{ captureCurrentRecent(); if(STORE==="drive"&&CAN_DRIVE) driveSaveNow().catch(driveError); else if(STORE==="drive") $("dlgInfo").showModal(); else savePatient(); };
+const doSave=()=>confirmAltaOverwrite(doSaveNow);
+function doSaveNow(){ captureCurrentRecent(); if(STORE==="drive"&&CAN_DRIVE) driveSaveNow().catch(driveError); else if(STORE==="drive") $("dlgInfo").showModal(); else savePatient(); }
 $("btnSave").onclick=doSave; $("btnSaveFmt").onclick=doSave;
 $("btnOpen").onclick=()=>{ if(STORE==="drive"&&CAN_DRIVE) driveOpen().catch(e=>{ if($("dlgDrive").open) $("dlgDrive").close(); driveError(e); }); else if(STORE==="drive") $("dlgInfo").showModal(); else $("fileOpen").click(); };
 $("fileOpen").onchange=async e=>{
