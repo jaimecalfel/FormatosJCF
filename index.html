@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="97">
+<meta name="application-version" content="98">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2102,11 +2102,14 @@ body.showing-clinical #view-clinical{display:block}
 #residentGateSuggestions button{display:block;width:100%;padding:10px 12px;border:0;border-radius:6px;background:white;color:#2e507f;font:inherit;font-size:12px;font-weight:650;text-align:left;cursor:pointer;overflow-wrap:anywhere}
 #residentGateSuggestions button:hover,#residentGateSuggestions button[aria-selected=true]{background:#edf3fc;color:#254e86}
 </style>
-<style id="single-user-v97">
-#residentGateSingle[hidden]{display:none!important}
-#residentGateSingle{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:3px;padding:8px 10px;border-radius:7px;background:#edf3fc;color:#426a9e}
-#residentGateSingle strong{font-size:11px;font-weight:650;line-height:1.4;overflow-wrap:anywhere}
-#residentGateSingle small{font-size:10px;color:#7d93b0;font-weight:500}
+
+<style id="user-options-v98">
+#residentGateSuggestions{position:static;margin-top:4px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;max-height:240px;overflow-y:auto}
+#residentGateSuggestions button{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 5px;padding:10px 12px;border:1px solid #dbe6f5;border-radius:8px;background:#edf3fc;color:#426a9e;transition:background .12s,border-color .12s}
+#residentGateSuggestions button:last-child{margin-bottom:0}
+#residentGateSuggestions strong{font-size:11px;font-weight:650;line-height:1.4;overflow-wrap:anywhere}
+#residentGateSuggestions small{font-size:10px;color:#7d93b0;font-weight:500}
+#residentGateSuggestions button:hover,#residentGateSuggestions button[aria-selected=true]{background:#dce8f8;border-color:#88a8d4;color:#254e86}
 </style>
 </head>
 <body>
@@ -2137,7 +2140,7 @@ body.showing-clinical #view-clinical{display:block}
     <span class="resident-gate-logo crab"><img data-logo="crab" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Cirugía Oncológica"></span>
   </div>
   <form class="resident-gate-body" id="residentGateForm" autocomplete="off">
-    <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" autocomplete="off" placeholder="Escribe tu nombre" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="residentGateSuggestions" required><div id="residentGateSuggestions" class="gate-suggestions" role="listbox" aria-label="Usuarios coincidentes" hidden></div><span id="residentGateSingle" class="gate-single" aria-live="polite" hidden></span></label>
+    <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" autocomplete="off" placeholder="Escribe tu nombre" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="residentGateSuggestions" required><div id="residentGateSuggestions" class="gate-suggestions" role="listbox" aria-label="Usuarios coincidentes" hidden></div></label>
     <div class="resident-gate-clinic" id="residentGateClinic" hidden aria-live="polite"><small id="residentGateClinicLbl"></small><b id="residentGateClinicVal"></b></div>
     <label class="resident-gate-field" id="residentGateKeyRow" hidden><span class="resident-key-label"><img class="resident-drive-logo" data-drive-logo alt="Google Drive"><b>CLAVE DE DRIVE</b></span><input id="residentGateKey" type="password" autocomplete="current-password" placeholder="Clave del Servicio de Oncología"></label>
     <a class="resident-gate-request" id="residentGateRequest" href="https://docs.google.com/document/d/1Effsqt0pE4AqIOkhyP8eYwJw8J79aVuK4P7YhaMTlx8/edit?usp=sharing" target="_blank" rel="noopener noreferrer" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M16 6l3 3M14 8l2 2"/></svg>Solicitar Clave</a>
@@ -2293,7 +2296,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v97 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v98 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -5321,38 +5324,29 @@ function prepareClinicalPagination(host){
  host.classList.add("clinical-measure");host.style.cssText="display:block!important;position:absolute!important;left:-10000px!important;top:0!important;width:8.5in!important;height:auto!important;visibility:hidden!important;overflow:visible!important";
  try{paginateClinicalNotes(host);}finally{host.style.cssText=previous;if(!wasMeasure)host.classList.remove("clinical-measure");}
 }
-function hideGateSuggestions(){const input=$("residentGateName"),list=$("residentGateSuggestions");list.hidden=true;list.replaceChildren();input.setAttribute("aria-expanded","false");input.removeAttribute("aria-activedescendant");input.removeAttribute("aria-describedby");delete input.dataset.suggestedUser;$("residentGateSingle").hidden=true;$("residentGateSingle").replaceChildren();}
+function hideGateSuggestions(){const input=$("residentGateName"),list=$("residentGateSuggestions");list.hidden=true;list.replaceChildren();input.setAttribute("aria-expanded","false");input.removeAttribute("aria-activedescendant");}
 function renderGateSuggestions(){
  const input=$("residentGateName"),list=$("residentGateSuggestions"),q=normalizeStaffName(input.value);
- if(q.replace(/[^A-Z]/g,"").length<3){hideGateSuggestions();return;}
+ hideGateSuggestions();if(q.replace(/[^A-Z]/g,"").length<3)return;
  const matches=[...HJM_STAFF.residentes,...HJM_STAFF.adscritos.map(x=>x.nombre)].filter(name=>q.split(/\s+/).every(term=>normalizeStaffName(name).includes(term)));
- hideGateSuggestions();
  if(!matches.length)return;
- if(matches.length===1){
-  input.dataset.suggestedUser=matches[0];input.setAttribute("aria-describedby","residentGateSingle");
-  const single=$("residentGateSingle");single.innerHTML=`<strong>${esc(matches[0])}</strong><small>↵ Enter para completar</small>`;single.hidden=false;return;
- }
- list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="false" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}">${esc(name)}</button>`).join("");
- list.hidden=false;input.setAttribute("aria-expanded","true");input.removeAttribute("aria-activedescendant");
+ list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>Clic o Enter para elegir</small></button>`).join("");
+ list.hidden=false;input.setAttribute("aria-expanded","true");if(matches.length===1)input.setAttribute("aria-activedescendant","gate-user-option-0");
 }
+function chooseGateUser(name){const input=$("residentGateName");input.value=name;hideGateSuggestions();input.dispatchEvent(new Event("change",{bubbles:true}));input.focus();input.setSelectionRange(input.value.length,input.value.length);}
 $("residentGateName").addEventListener("input",renderGateSuggestions);
 $("residentGateName").addEventListener("focus",hideGateSuggestions);
 $("residentGateName").addEventListener("blur",hideGateSuggestions);
 $("residentGateSuggestions").addEventListener("pointerdown",e=>e.preventDefault());
-$("residentGateSuggestions").addEventListener("click",e=>{const option=e.target.closest("[data-gate-user]");if(!option)return;$("residentGateName").value=option.dataset.gateUser;hideGateSuggestions();$("residentGateName").dispatchEvent(new Event("change",{bubbles:true}));$("residentGateName").focus();});
+$("residentGateSuggestions").addEventListener("click",e=>{const option=e.target.closest("[data-gate-user]");if(option)chooseGateUser(option.dataset.gateUser);});
 $("residentGateName").addEventListener("keydown",e=>{
- const input=$("residentGateName");
- if(input.dataset.suggestedUser){
-  if(e.key==="Escape"){e.preventDefault();e.stopPropagation();hideGateSuggestions();return;}
-  if(e.key==="Enter"){e.preventDefault();input.value=input.dataset.suggestedUser;hideGateSuggestions();input.dispatchEvent(new Event("change",{bubbles:true}));input.setSelectionRange(input.value.length,input.value.length);return;}
- }
- const list=$("residentGateSuggestions"),options=[...list.querySelectorAll("[role=option]")];if(list.hidden||!options.length)return;
+ const input=$("residentGateName"),list=$("residentGateSuggestions"),options=[...list.querySelectorAll("[role=option]")];if(list.hidden||!options.length)return;
  let index=options.findIndex(x=>x.getAttribute("aria-selected")==="true");
  if(e.key==="Escape"){e.preventDefault();e.stopPropagation();hideGateSuggestions();return;}
- if(e.key==="Enter"){e.preventDefault();if(index>=0)options[index].click();else{options[0].setAttribute("aria-selected","true");input.setAttribute("aria-activedescendant",options[0].id);}return;}
- if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;e.preventDefault();
- index=e.key==="ArrowDown"?(index+1)%options.length:(index<=0?options.length-1:index-1);
- options.forEach((x,i)=>x.setAttribute("aria-selected",String(i===index)));$("residentGateName").setAttribute("aria-activedescendant",options[index].id);options[index].scrollIntoView({block:"nearest"});
+ if(e.key==="Enter"){e.preventDefault();if(index>=0){chooseGateUser(options[index].dataset.gateUser);return;}index=0;}
+ else if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();index=e.key==="ArrowDown"?(index+1)%options.length:(index<=0?options.length-1:index-1);}
+ else return;
+ options.forEach((x,i)=>x.setAttribute("aria-selected",String(i===index)));input.setAttribute("aria-activedescendant",options[index].id);options[index].scrollIntoView({block:"nearest"});
 });
 </script>
 </body>
