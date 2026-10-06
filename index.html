@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="98">
+<meta name="application-version" content="99">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2111,6 +2111,11 @@ body.showing-clinical #view-clinical{display:block}
 #residentGateSuggestions small{font-size:10px;color:#7d93b0;font-weight:500}
 #residentGateSuggestions button:hover,#residentGateSuggestions button[aria-selected=true]{background:#dce8f8;border-color:#88a8d4;color:#254e86}
 </style>
+<style id="patient-loading-v99">
+.pop.loading .pi{display:block;width:19px;height:19px;box-sizing:border-box;border:2px solid #d7e4f5;border-top-color:#315e9b;border-radius:50%;background:transparent;animation:patient-loading-spin .8s linear infinite;flex-shrink:0}
+@keyframes patient-loading-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.pop.loading .pi{animation:none}}
+</style>
 </head>
 <body>
 
@@ -2296,7 +2301,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v98 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v99 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3999,12 +4004,12 @@ function notify(msg,kind="info",opt={}){
   const h=$("popHost"); if(!h) return; clearTimeout(_popT); h.replaceChildren(); h.classList.toggle("centered",!!opt.center);
   const close=()=>{h.replaceChildren();h.classList.remove("centered");};
   const ic={ok:"✓",warn:"!",err:"×",info:""}[kind]||"";
-  const d=document.createElement("div"); d.className="pop "+kind; d.setAttribute("role",kind==="info"?"status":"alert");
+  const d=document.createElement("div"); d.className="pop "+kind+(opt.loading?" loading":""); if(opt.loading)d.setAttribute("aria-busy","true"); d.setAttribute("role",kind==="info"?"status":"alert");
   d.innerHTML=`<span class="pi">${ic}</span><span class="pm">${esc(msg)}</span>`;
   [].concat(opt.actions||[],opt.action||[]).forEach(ac=>{ const b=document.createElement("button"); b.type="button"; b.className="pa"; b.textContent=ac.label; b.onclick=()=>{ close(); ac.fn(); }; d.appendChild(b); });
-  const x=document.createElement("button"); x.type="button"; x.className="px"; x.setAttribute("aria-label","Cerrar"); x.textContent="×"; x.onclick=close; d.appendChild(x);
+  const x=document.createElement("button"); x.type="button"; x.className="px"; x.setAttribute("aria-label","Cerrar"); x.textContent="×"; x.onclick=close; if(!opt.loading)d.appendChild(x);
   h.appendChild(d);
-  _popT=setTimeout(()=>{ if(h.firstChild===d) close(); },opt.ms||({ok:3200,warn:6500,err:8000,info:20000}[kind]||4000));
+  if(!opt.persist)_popT=setTimeout(()=>{ if(h.firstChild===d) close(); },opt.ms||({ok:3200,warn:6500,err:8000,info:20000}[kind]||4000));
 }
 function joinEs(a){ return a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1]; }
 /* Datos mínimos para guardar: expediente y nombre. Devuelve true si falta algo (y avisa). */
@@ -4433,10 +4438,16 @@ async function driveOpen(){
   $("dlgSearch").value=""; $("dlgDrive").showModal();
   await loadFolderList(); $("dlgSearch").focus();
 }
+let DRIVE_OPEN_BUSY=false;
 async function openDriveFile(id){
-  const txt=await gcall("hjmRead",id); let obj=null; try{ obj=JSON.parse(txt); }catch(_){}
+  if(DRIVE_OPEN_BUSY)return;
+  DRIVE_OPEN_BUSY=true;
   if($("dlgDrive").open) $("dlgDrive").close();
-  if(obj&&restore(obj)) notify("Paciente abierto · "+(data().nombreCompleto||id),"ok"); else notify("Ese archivo no es de un paciente.","err");
+  notify("Cargando paciente…","info",{center:true,loading:true,persist:true});
+  try{
+    const txt=await gcall("hjmRead",id);let obj=null;try{obj=JSON.parse(txt);}catch(_){}
+    if(obj&&restore(obj)) notify("Paciente abierto · "+(data().nombreCompleto||id),"ok");else notify("Ese archivo no es de un paciente.","err");
+  }finally{DRIVE_OPEN_BUSY=false;}
 }
 $("dlgSearch").oninput=renderDriveList;
 $("dlgClose").onclick=()=>$("dlgDrive").close();
