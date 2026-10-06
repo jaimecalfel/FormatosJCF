@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
+<meta name="application-version" content="60">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -1515,6 +1516,207 @@ body.showing-clinical #view-clinical{display:block}
 <style id="v57">
 .sheet .c.nogrow.dx-wrapped{margin-top:1.2pt;height:21.5pt!important;align-items:flex-start!important;line-height:1.02;background:#fff!important;z-index:5;padding-top:.4pt;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 </style>
+<style id="clinical-workspace-refresh">
+/* Exclusivo de la página de trabajo; los formatos impresos conservan sus estilos. */
+@media screen{
+  #view-clinical{--cl-accent:#315e9b;--cl-navy:#203f56;background:#f2f6f7;padding:24px clamp(12px,3vw,44px) 56px;color:#263f50}
+  #view-clinical .clinical-shell{max-width:1440px}
+  #view-clinical .clinical-switcher{width:fit-content;max-width:100%;margin:0 0 20px;padding:5px;gap:5px;border:1px solid #dae5e8;border-radius:15px;background:#e8eff1;box-shadow:none}
+  #view-clinical .clinical-switch{min-height:58px;padding:8px 20px 8px 12px;grid-template-columns:34px minmax(0,1fr);border-radius:11px;box-shadow:none}
+  #view-clinical .clinical-switch:before{width:32px;height:32px;border:0;background:transparent;color:#587383;border-radius:9px}
+  #view-clinical .clinical-switch span{font-size:14px;color:#536e7e}
+  #view-clinical .clinical-switch small{font-size:11px;color:#6b8290}
+  #view-clinical .clinical-switch.active{background:#fff;border-color:#d8e5e8;box-shadow:0 2px 6px #203f5609}
+  #view-clinical .clinical-switch.active span{color:#254e86}
+  #view-clinical .clinical-switch.active:before{background:#eaf0fa;color:#254e86}
+  #view-clinical .clinical-head{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;margin:0 0 24px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;position:relative;top:auto}
+  #view-clinical .clinical-head .ftitle{display:block}
+  #view-clinical .clinical-head .ftitle:before{display:none}
+  #view-clinical .clinical-head .ftitle>span{display:block;margin-bottom:6px;color:#69828e;font-size:10px;letter-spacing:.14em}
+  #view-clinical .clinical-head h1{font-size:clamp(24px,2.3vw,32px);font-weight:800;line-height:1.2;letter-spacing:-.035em;color:#203f56}
+  #view-clinical .clinical-head .actions{display:flex;width:auto;flex-wrap:wrap;gap:8px}
+  #view-clinical .clinical-head .btn{width:auto;flex:none;min-height:42px;gap:7px;padding:10px 14px;font-size:12px;border:1px solid #d0dfe4;border-radius:11px;background:#fff;color:#365567;transition:background .15s,border-color .15s}
+  #view-clinical .clinical-head .btn:hover{background:#edf2f9;border-color:#93accf;transform:none;box-shadow:none}
+  #view-clinical .clinical-head .btn.save{background:#315e9b;border-color:#315e9b;color:#fff;box-shadow:0 3px 8px #315e9b18}
+  #view-clinical .clinical-head .btn.save:hover{background:#244b80;border-color:#244b80}
+  #view-clinical #clinicalEditTop{background:#eaf0fa;border-color:#c5d5ed;color:#315e9b}
+  #view-clinical #clinicalPrintTop{background:#203f56;border-color:#203f56;color:#fff}
+  #view-clinical #clinicalPrintTop:hover{background:#162f42}
+  #view-clinical .clinical-double.active{background:#eaf0fa;border-color:#a3bade;color:#254e86;box-shadow:none}
+  #view-clinical .clinical-head .btn[hidden]{display:none!important}
+  #view-clinical .clinical-head .btn:focus-visible,#view-clinical .clinical-switch:focus-visible{outline:3px solid #8fabd2;outline-offset:3px}
+  #view-clinical .clinical-layout{grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"form recent";gap:24px;align-items:start}
+  #view-clinical .clinical-card{border:1px solid #dce6e9;border-radius:18px;background:#fff;box-shadow:0 4px 18px #203f5605;min-width:0}
+  #view-clinical .clinical-form-card{padding:26px;border-top:1px solid #dce6e9}
+  #view-clinical .clinical-form-card:before{display:none}
+  #view-clinical .clinical-form-title{gap:12px;align-items:flex-start;margin:0 0 22px;padding-bottom:20px;border-bottom:1px solid #e8eef0}
+  #view-clinical .clinical-form-title h2{margin:0;color:#294a5e;font-size:18px;letter-spacing:-.02em}
+  #view-clinical .clinical-form-title h2:before{display:none}
+  #view-clinical .clinical-form-title p{margin:6px 0 0;font-size:12px;line-height:1.5;color:#718793}
+  #view-clinical .clinical-form-title:after{content:"Nueva captura";flex:none;padding:6px 9px;border:1px solid #cfdeed;border-radius:7px;background:#edf3fa;color:#466586;font-size:10px;font-weight:700;white-space:nowrap}
+  #view-clinical:has(#clinicalEditTop:not([hidden])) .clinical-form-title:after{content:"Registro cargado";background:#edf3fa;border-color:#cfdeed;color:#466586}
+  #view-clinical .clinical-grid{grid-template-columns:145px 120px repeat(2,minmax(0,1fr));gap:18px}
+  #view-clinical .clinical-grid>label{padding:0;border:0;border-radius:0;background:transparent;gap:8px;color:#5c7482;font-size:11px;font-weight:700}
+  #view-clinical .clinical-grid input,#view-clinical .clinical-grid select{min-height:44px;border:1px solid #d7e2e7;border-radius:9px;background:#f9fbfc;color:#294453;font-size:13px;padding:10px 12px}
+  #view-clinical .clinical-grid input:focus,#view-clinical .clinical-grid select:focus{background:#fff;border-color:#799ccf;box-shadow:0 0 0 3px #315e9b10}
+  #view-clinical .clinical-field.main-text{padding:0;border:0;border-radius:0;background:transparent;gap:9px}
+  #view-clinical .clinical-field.main-text:before{display:none}
+  #view-clinical .clinical-label{display:flex;align-items:center;gap:8px;padding:0;color:#38576a;font-size:12px;font-weight:750}
+  #view-clinical .rich-box{border:1px solid #d7e2e7;border-radius:12px;background:#fff;box-shadow:none}
+  #view-clinical .rich-box:focus-within{border-color:#799ccf;box-shadow:0 0 0 3px #315e9b10}
+  #view-clinical .rich-tools{padding:7px 9px;gap:5px;border-bottom:1px solid #e8eef0;background:#f8fafb}
+  #view-clinical .rich-tools button{min-height:30px;border:1px solid transparent;background:transparent;border-radius:6px;color:#607b8b;font-size:11px;box-shadow:none}
+  #view-clinical .rich-tools button:hover{border-color:#d1ddeb;background:#eaf0f8;color:#254e86}
+  #view-clinical .rich-editor{padding:16px 18px;font-size:14px;line-height:1.7;color:#2b4554}
+  #view-clinical .rich-editor.content{min-height:380px}
+  #view-clinical .rich-editor p{margin:0 0 12px}
+  #view-clinical .rich-editor ul,#view-clinical .rich-editor ol{padding-left:24px}
+  #view-clinical .rich-editor li{margin-bottom:5px}
+  #view-clinical .clinical-grid .signature{grid-column:span 2;padding:14px;background:#f7f9fc;border:1px solid #e3e9f1;border-radius:10px}
+  #view-clinical .clinical-grid .signature-wide{grid-column:1/-1}
+  #view-clinical .indication-capture{border:0;border-radius:0;overflow:visible}
+  #view-clinical .indication-capture+ .indication-capture{margin-top:30px;padding-top:24px;border-top:2px dashed #dce7e8}
+  #view-clinical .indication-capture>header{padding:0 0 18px;border:0;background:transparent;gap:10px}
+  #view-clinical .indication-capture>header>span{width:30px;height:30px;border:1px solid #cddbeb;border-radius:9px;background:#edf3fa;color:#315e9b;font-size:12px}
+  #view-clinical .indication-capture>header h3{color:#365669;font-size:14px}
+  #view-clinical .indication-capture>header p{font-size:11px;color:#7c919c}
+  #view-clinical .indication-capture>.clinical-grid{padding:0;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] .main-text{grid-column:1/-1}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] :is(.clinical-cl-dieta,.clinical-cl-soluciones,.clinical-cl2-dieta,.clinical-cl2-soluciones){grid-column:span 1}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] .signature{grid-column:span 1}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] .signature-wide{grid-column:1/-1}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor{min-height:115px;font-size:14px}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor.indication-large{min-height:175px}
+  #view-clinical [class$="-dieta"]>.clinical-label:before{content:"01"}
+  #view-clinical [class$="-soluciones"]>.clinical-label:before{content:"02"}
+  #view-clinical [class$="-medicamentos"]>.clinical-label:before{content:"03"}
+  #view-clinical [class$="-cuidados"]>.clinical-label:before{content:"04"}
+  #view-clinical .clinical-grid[data-kind="indicaciones"] .clinical-label:before{display:grid;place-items:center;width:23px;height:23px;border-radius:6px;background:#edf2fa;color:#5376a4;font-size:9px;font-weight:800}
+  #view-clinical .clinical-recents{padding:0;overflow:hidden}
+  #view-clinical .clinical-recents-head{display:block;padding:21px 18px 17px;background:#fff;border-bottom:1px solid #e8eef0}
+  #view-clinical .clinical-recents-head:after{display:none}
+  #view-clinical .clinical-recents h2{font-size:16px;color:#38566a}
+  #view-clinical .clinical-recents-head p{margin-top:6px;font-size:11px;line-height:1.5;color:#7c909c}
+  #view-clinical .clinical-table-wrap{max-height:760px;padding:8px 14px 14px;overflow:auto;overscroll-behavior:contain}
+  #view-clinical .clinical-table{display:block;border-spacing:0}
+  #view-clinical .clinical-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #view-clinical .clinical-table tbody{display:grid;gap:10px;padding-top:6px}
+  #view-clinical .clinical-table tr{display:grid;grid-template-columns:85px minmax(0,1fr);gap:10px;padding:13px;border:1px solid #e0eaed;border-radius:11px;background:#fbfcfd}
+  #view-clinical .clinical-table tr:hover{background:#f3f6fb;border-color:#c0d0e7}
+  #view-clinical .clinical-table td{display:block;min-width:0;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;font-size:12px}
+  #view-clinical .clinical-table td:first-child{padding-right:9px!important;border-right:1px solid #e3eaee!important}
+  #view-clinical .clinical-table td:first-child strong{font-size:12px;color:#38566a}
+  #view-clinical .clinical-table td:first-child small{margin-top:5px;font-size:10px;color:#82949f}
+  #view-clinical .clinical-table td:nth-child(2){line-height:1.4;color:#405e70;font-weight:700}
+  #view-clinical .clinical-saved-by{display:block;margin-top:6px;font-size:10px;font-weight:400;line-height:1.5;color:#7c909c;overflow-wrap:anywhere}
+  #view-clinical .clinical-table td:last-child{grid-column:1/-1;min-width:0;display:flex!important;justify-content:flex-start;padding-top:10px!important;border-top:1px solid #e7edef!important;gap:6px!important}
+  #view-clinical .clinical-table .rb-del{margin-left:auto!important}
+  #view-clinical .clinical-empty{padding:30px 16px;color:#78909d;font-size:12px;line-height:1.6}
+}
+@media screen and (max-width:1100px){
+  #view-clinical .clinical-layout{grid-template-columns:minmax(0,1fr) 300px;gap:18px}
+  #view-clinical .clinical-form-card{padding:22px}
+  #view-clinical .clinical-grid{grid-template-columns:1fr 1fr}
+  #view-clinical .clinical-grid .note-type{grid-column:1/-1}
+  #view-clinical .clinical-grid .signature{grid-column:span 1}
+  #view-clinical .clinical-grid .signature-wide{grid-column:1/-1}
+}
+@media screen and (max-width:860px){
+  #view-clinical .clinical-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"form" "recent"}
+  #view-clinical .clinical-recents .clinical-table-wrap{max-height:540px}
+  #view-clinical .clinical-head{gap:18px}
+  #view-clinical .clinical-head .actions{width:100%}
+}
+@media screen and (max-width:560px){
+  #view-clinical{padding:16px 10px 32px}
+  #view-clinical .clinical-switcher{width:100%;box-sizing:border-box;margin-bottom:18px}
+  #view-clinical .clinical-switch{padding:8px;grid-template-columns:28px minmax(0,1fr);column-gap:6px;min-height:44px}
+  #view-clinical .clinical-switch span{font-size:12px}
+  #view-clinical .clinical-head{width:100%;margin:0 0 18px}
+  #view-clinical .clinical-head h1{font-size:26px}
+  #view-clinical .clinical-head .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  #view-clinical .clinical-head .btn{width:100%;min-height:44px;padding:10px 8px;font-size:11px}
+  #view-clinical .clinical-card{border:1px solid #dce6e9;border-radius:14px}
+  #view-clinical .clinical-form-card{padding:18px 14px}
+  #view-clinical .clinical-form-title{flex-wrap:wrap;gap:10px}
+  #view-clinical .clinical-form-title h2{font-size:17px}
+  #view-clinical .clinical-grid,#view-clinical .indication-capture>.clinical-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 10px}
+  #view-clinical .clinical-grid .note-type,#view-clinical .clinical-grid .main-text,#view-clinical .clinical-grid .signature,#view-clinical .clinical-grid[data-kind="indicaciones"] :is(.main-text,.signature){grid-column:1/-1}
+  #view-clinical .rich-editor{padding:13px;font-size:14px}
+  #view-clinical .rich-editor.content{min-height:300px}
+  #view-clinical .clinical-recents-head{padding:18px 16px}
+}
+
+@media screen{
+  #view-clinical .clinical-switcher{width:fit-content;max-width:100%;box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,max-content));margin-left:auto;margin-right:auto;padding:5px;gap:6px;border-radius:18px;background:#e7edf5;border-color:#d8e2ef}
+  #view-clinical .clinical-switch{grid-template-columns:34px minmax(0,1fr);column-gap:10px;min-height:72px;padding:12px 18px;border-radius:13px;text-align:left;transition:background .16s,box-shadow .16s}
+  #view-clinical .clinical-switch:before{display:none}
+  #view-clinical .clinical-switch-icon{display:grid;grid-column:1;grid-row:1/3;place-items:center;width:34px;height:34px;background:#fff;border-radius:9px;color:#5275a4}
+  #view-clinical .clinical-switch-icon .ic{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.7}
+  #view-clinical .clinical-switch>span:not(.clinical-switch-icon){grid-column:2;font-size:15px;color:#426080}
+  #view-clinical .clinical-switch small{grid-column:2;color:#7488a1;font-size:11px}
+  #view-clinical .clinical-switch:hover{background:#f6f8fc;border-color:#c4d4e9}
+  #view-clinical .clinical-switch.active{background:linear-gradient(120deg,#254e86,#365f97);border-color:#254e86;box-shadow:0 4px 12px #254e8620}
+  #view-clinical .clinical-switch.active>span:not(.clinical-switch-icon){color:#fff}
+  #view-clinical .clinical-switch.active small{color:#d6e3f5}
+  #view-clinical .clinical-switch.active .clinical-switch-icon{background:#ffffff1f;color:#fff}
+  #view-clinical .clinical-table .rb-view{background:#edf3fc!important;border-color:#c4d5ed!important;color:#315e9b!important}
+  #view-clinical .clinical-table .rb-view:hover{background:#e0eafa!important}
+}
+@media screen and (max-width:560px){
+  #view-clinical .clinical-switcher{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));padding:4px;gap:5px}
+  #view-clinical .clinical-switch{grid-template-columns:30px minmax(0,1fr);column-gap:8px;min-height:60px;padding:10px 8px}
+  #view-clinical .clinical-switch-icon{width:30px;height:34px;border-radius:8px}
+  #view-clinical .clinical-switch-icon .ic{width:20px;height:20px}
+  #view-clinical .clinical-switch>span:not(.clinical-switch-icon){font-size:12px;align-self:center;grid-row:1/3}
+}
+</style>
+<style id="clinical-index-icons">
+@media screen{
+  .clinical-index :is(button[data-clinical],button.clinical-fmt){display:flex;align-items:center;justify-content:center;gap:8px}
+  .clinical-index-icon{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;border-radius:7px;background:#eaf0fa;color:#315e9b}
+  .clinical-index-icon .ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
+}
+</style>
+<style id="transfusion-workspace-layout">
+@media screen and (min-width:1040px){
+  body.transfusion-side .fbody{grid-template-areas:"switch switch" "main missing";grid-template-rows:auto 1fr;gap:14px 18px}
+  body.transfusion-side #relNav{grid-area:switch;justify-self:center;width:100%;box-sizing:border-box;margin:0 auto;justify-content:center}
+  body.transfusion-side #transfusionMissing{grid-area:missing;align-self:start}
+}
+@media screen{
+  body.transfusion-side #relNav{justify-content:center}
+  #transfusionMissing .folio-last{margin:12px;border-color:#cbd9e7;background:#f3f7fb}
+  #transfusionMissing .folio-last-grid{grid-template-columns:1fr;gap:10px}
+  #transfusionMissing .folio-last>small{display:block;line-height:1.5}
+}
+@media screen and (max-width:1039px){
+  body.transfusion-side #relNav{order:0;align-self:center;box-sizing:border-box;width:100%;margin:0 auto 14px}
+  body.transfusion-side .fbody .stage{order:1}
+  body.transfusion-side #transfusionMissing{order:2}
+}
+</style>
+<style id="home-blue-v58">
+@media screen{
+  #view-data{--accent:#315e9b;--accent-ink:#fff;--accent-soft:#eaf0fa}
+  #view-data .g-cx{--c:#486ea6;--t:#e6edf8}
+  #view-data .g-hosp{--c:#315487;--t:#e5ecf7}
+  #view-data .btn.primary,#view-data .btn.save{box-shadow:0 5px 14px rgba(49,94,155,.15)}
+  #view-data .btn.primary:hover,#view-data .btn.save:hover{background:#254e86;border-color:#254e86}
+  #view-data .hoy{border-color:#c6d5ec;background:#eaf0fa;color:#315e9b}
+  #view-data .hoy:hover{background:#dce7f7;border-color:#829fc6}
+  #view-data input:focus,#view-data select:focus,#view-data textarea:focus{box-shadow:0 0 0 3px rgba(49,94,155,.12)}
+  #view-data fieldset.complete{border-color:#c5d5ea}
+  #view-data fieldset.complete legend[data-progress]::after{background:#eaf0fa;color:#315e9b;border-color:#c5d5ea}
+  #view-data .store-st .dot{background:#315e9b}
+  #view-data .clinical-index button[data-clinical]{border-color:#c5d5ea;background:#edf3fc;color:#315e9b}
+  #view-data .clinical-index button[data-clinical]:hover{background:#e0eafa;border-color:#8ca8cf}
+  .top .credit .credit-service{color:#315e9b}
+  .top .home-logo:hover .seal,.top .home-logo:focus-visible .seal{box-shadow:0 0 0 4px rgba(49,94,155,.16),0 8px 20px rgba(23,59,94,.18)}
+  .top>.seal.crab.crab-link:hover,.top>.seal.crab.crab-link:focus-visible{box-shadow:0 0 0 4px rgba(49,94,155,.16),0 8px 20px rgba(23,59,94,.18)}
+}
+</style>
+<style id="format-loaded-actions-v59">@media screen{#btnEditFmt[hidden]{display:none!important}#btnEditFmt{background:#eaf0fa;border-color:#c5d5ed;color:#315e9b}}</style>
 </head>
 <body>
 
@@ -1688,10 +1890,10 @@ body.showing-clinical #view-clinical{display:block}
     <aside aria-label="Formatos" id="formatos">
       <button type="button" class="idx-section-title idx-archive-btn" id="archiveOpen" title="Ver todo el archivo clínico del paciente"><span>Archivo Clínico</span><small>Ver todo<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></small></button>
       <div class="clinical-index" aria-label="Archivo clínico">
-        <button type="button" data-clinical="notas">Notas Médicas</button>
-        <button type="button" data-clinical="indicaciones">Indicaciones</button>
-        <button type="button" class="clinical-fmt" data-fmt="repCx">Reporte de Cirugía</button>
-        <button type="button" class="clinical-fmt" data-fmt="alta">Nota de Alta</button>
+        <button type="button" data-clinical="notas"><span class="clinical-index-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H5v18h14v-9M8 7h4M8 11h3M8 15h2M14 14l2-.5L22 7l-2-2-6 6.5z"/></svg></span><span>Notas Médicas</span></button>
+        <button type="button" data-clinical="indicaciones"><span class="clinical-index-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 9l1 1 2-2M13 9h3M8 14l1 1 2-2M13 14h3"/></svg></span><span>Indicaciones</span></button>
+        <button type="button" class="clinical-fmt" data-fmt="repCx"><span class="clinical-index-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H5v18h14V9l-5-6zM14 3v6h5M8 13h8M8 17h5"/><path d="M8 8h3"/></svg></span><span>Reporte de Cirugía</span></button>
+        <button type="button" class="clinical-fmt" data-fmt="alta"><span class="clinical-index-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M13 3H5v18h14v-5M13 3v6h6M13 12h9M19 9l3 3-3 3M8 13h2M8 17h7"/></svg></span><span>Nota de Alta</span></button>
       </div>
       <div class="idx-section-title">Formatos</div>
       <div id="index"></div>
@@ -1700,7 +1902,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v57 · Fecha de publicación: 04.10.26</div>
+  <div class="app-footer-version">Versión v60 · Fecha de publicación: 05.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -1709,8 +1911,8 @@ body.showing-clinical #view-clinical{display:block}
 <section id="view-clinical" aria-label="Archivo clínico">
   <div class="clinical-shell">
     <nav class="clinical-switcher" aria-label="Cambiar sección del archivo clínico">
-      <button class="clinical-switch" type="button" data-clinical="notas"><span>Notas Médicas</span><small>Evolución y otras notas clínicas</small></button>
-      <button class="clinical-switch" type="button" data-clinical="indicaciones"><span>Indicaciones</span><small>Dieta, soluciones, medicamentos y cuidados</small></button>
+      <button class="clinical-switch" type="button" data-clinical="notas"><span class="clinical-switch-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H5v18h14v-9M8 7h4M8 11h3M8 15h2M14 14l2-.5L22 7l-2-2-6 6.5z"/></svg></span><span>Notas Médicas</span><small>Evolución y otras notas clínicas</small></button>
+      <button class="clinical-switch" type="button" data-clinical="indicaciones"><span class="clinical-switch-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 9l1 1 2-2M13 9h3M8 14l1 1 2-2M13 14h3"/></svg></span><span>Indicaciones</span><small>Dieta, soluciones, medicamentos y cuidados</small></button>
     </nav>
 
     <div class="clinical-head">
@@ -1718,7 +1920,8 @@ body.showing-clinical #view-clinical{display:block}
       <div class="actions" aria-label="Acciones del registro clínico">
         <button class="btn" type="button" id="clinicalNewTop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nuevo</button>
         <button class="btn clinical-double" type="button" id="clinicalDoubleTop" hidden aria-pressed="false"><span class="double-page-icon" aria-hidden="true"></span><span>Indicaciones dobles</span></button>
-        <button class="btn save" type="button" id="clinicalSaveTop"><span class="sv-ic"></span>Guardar</button>
+        <button class="btn save" type="button" id="clinicalSaveTop"><span class="sv-ic"></span><span class="clinical-save-label">Guardar</span></button>
+        <button class="btn" type="button" id="clinicalEditTop" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15zM12 20h9"/></svg><span>Editar</span></button>
         <button class="btn primary" type="button" id="clinicalPrintTop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>Imprimir</button>
       </div>
     </div>
@@ -1776,7 +1979,8 @@ body.showing-clinical #view-clinical{display:block}
     <div class="ftitle"><span class="fcat" id="fmtCat"></span><h1 id="fmtTitle"></h1></div>
     <div class="actions">
       <button class="btn clear" type="button" id="btnReset"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 11.5 11.5"/><path d="M9.8 10.2c-2.6-.4-4.9 1.3-5.6 3.7L3 20.5c2.4.3 5.2-.1 7-1.3 2.2-1.5 3.3-3.7 2.8-6"/><path d="m8.5 11 4.5 4.5"/><path d="M6 20.2 7.5 17M9.3 19.6l1-2.6"/></svg>Restablecer formato</button>
-      <button class="btn save" type="button" id="btnSaveFmt"><span class="sv-ic"></span>Guardar</button>
+      <button class="btn save" type="button" id="btnSaveFmt"><span class="sv-ic"></span><span class="format-save-label">Guardar</span></button>
+      <button class="btn" type="button" id="btnEditFmt" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15zM12 20h9"/></svg>Editar</button>
       <button class="btn primary" type="button" id="btnPrint"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="12" r=".6" fill="currentColor"/></svg>Imprimir</button>
       <button class="btn" type="button" id="btnPrintBlank" hidden title="Imprime solo los datos, para hojas ya impresas: Escala 100 %, márgenes ninguno, sin encabezados"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2" stroke-dasharray="3 2"/><path d="M6 14h12v7H6z" stroke-dasharray="3 2"/></svg>Imprimir en blanco</button>
     </div>
@@ -2077,7 +2281,7 @@ function updateFormatNotice(key){
   note.classList.remove("transfusion-warning"); note.textContent=FORMAT_NOTE;
   document.body.classList.toggle("transfusion-side",key==="transfusion");
   panel.hidden=key!=="transfusion";
-  if(key==="transfusion") panel.innerHTML='<div class="missing-head"><span>Solicitud de transfusión</span><strong>'+ (missing.length?'Datos faltantes':'Datos completos') +'</strong></div>'+(missing.length?'<table><tbody>'+missing.map(id=>'<tr><td><i></i>'+esc(TRANSFUSION_LABELS[id])+'</td></tr>').join('')+'</tbody></table><p>Completa estos datos en la Hoja de Datos.</p>':'<div class="missing-ok">✓ La información requerida está completa.</div>');
+  if(key==="transfusion") panel.innerHTML='<div class="missing-head"><span>Solicitud de transfusión</span><strong>'+ (missing.length?'Datos faltantes':'Datos completos') +'</strong></div>'+(missing.length?'<table><tbody>'+missing.map(id=>'<tr><td><i></i>'+esc(TRANSFUSION_LABELS[id])+'</td></tr>').join('')+'</tbody></table><p>Completa estos datos en la Hoja de Datos.</p>':'<div class="missing-ok">✓ La información requerida está completa.</div>')+lastRequestCardHTML(key);
 }
 
 /* ---------- Entrada: mayúsculas y fechas DD.MM.AA ---------- */
@@ -2282,9 +2486,10 @@ function customizeRequestedFormats(key,wrap){
       if(Math.abs(top-252)<.08&&Math.abs(height-112.5)<.1){
         el.style.height="67.5pt";
         if(el.classList.contains("ed")){el.classList.add("fit","big");el.style.alignItems="stretch";el.style.justifyContent="flex-start";el.style.textAlign="left";el.style.padding="2pt 3pt";el.style.fontSize="8.5pt";}
-      }else if(top>=364.45&&top<812.9){
+      }else if(el.classList.contains("ln")&&Math.abs(top-153)<.1&&Math.abs(height-238.5)<.1){
+        el.style.height=(height-shift)+"pt";
+      }else if(top>=364&&top<812.9){
         el.style.top=(top-shift)+"pt";
-        if(height&&bottom>805&&top>=418.45) el.style.height=(height+shift)+"pt";
       }
     });
   }
@@ -2512,7 +2717,7 @@ function altaHalfHTML(fmt){return `<span class="lbl">Hoja completa</span><div cl
 function altaToggleHTML(fmt,label,help,extra=""){const on=!!ALTA_COMPOSE[fmt];return `<button type="button" class="alta-check ${extra}" role="checkbox" aria-checked="${on}" data-alta-toggle="${fmt}"><span class="alta-box">${on?"✓":""}</span><span>${esc(label)}<small>${esc(help)}</small></span></button>`;}
 function altaSuppToggleHTML(key,label,ready=true){const on=!!ALTA_COMPOSE[key];return `<button type="button" class="alta-check" role="checkbox" aria-checked="${on}" data-alta-supp="${key}" ${ready?"":"disabled"}><span class="alta-box">${on?"✓":""}</span><span>${esc(label)}${ready?"":'<small class="soon">Formato pendiente</small>'}</span></button>`;}
 function altaDatesHTML(){return `<div class="alta-dates"><label class="alta-date-field">Fecha de Ingreso<input data-alta-date="ingreso" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(ALTA_DATES.ingreso||"")}"></label><label class="alta-date-field">Fecha de Egreso<input data-alta-date="egreso" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(ALTA_DATES.egreso||"")}"></label></div>`;}
-function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">'+savedRoleLabel(r)+': '+esc(savedBy(r))+'</small></td><td>'+rbBtn("view","Ver",'data-alta-load="'+esc(r.id)+'"')+rbBtn("print","Imprimir",'data-alta-print="'+esc(r.id)+'"')+rbBtn("del","Borrar",'data-alta-delete="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
+function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">'+savedRoleLabel(r)+': '+esc(savedBy(r))+'</small></td><td>'+rbBtn("view","Cargar",'data-alta-load="'+esc(r.id)+'"')+rbBtn("print","Imprimir",'data-alta-print="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
 function applyAltaDates(){const root=BUILT.alta;if(!root)return;[['D11','ingreso'],['G11','egreso']].forEach(([ref,key])=>{const cell=root.querySelector(':scope > .paper:not(.alta-attach) [data-x="'+ref+'"]'),sp=cell&&cell.firstElementChild;if(!sp)return;const v=ALTA_DATES[key]||'';sp.textContent=v;cell.toggleAttribute('data-ov',!!v);});}
 function syncAltaDateControls(){document.querySelectorAll('[data-alta-date]').forEach(i=>{const v=ALTA_DATES[i.dataset.altaDate]||'';if(i.value!==v)i.value=v;});}
 function altaPaseTargets(owner){
@@ -2852,7 +3057,7 @@ function applyText(key,i){
   renderRel(key); refreshMirror(key);
 }
 /* formatos cuyo menú de predeterminados va a la derecha de la hoja (sin caja desplazable) */
-const SIDE_KEYS=new Set(["labsUrg","folio","folioB","medNuc","bancoSangre","transfusion","antibiotico","ordenHosp","referencia","interconsulta","pase","receta","alta"]);
+const SIDE_KEYS=new Set(["labsUrg","folio","folioB","medNuc","bancoSangre","antibiotico","ordenHosp","referencia","interconsulta","pase","receta","alta"]);
 function renderRelBase(key){
   const nav=$("relNav"); const groups=RELATED.filter(r=>r.keys.includes(key)); const pre=PRESETS[key]||[], ho=HALF_OPTS[key];
   nav.dataset.key=key;
@@ -2883,7 +3088,7 @@ function lastRequestCardHTML(key){
   const item=lastRequestInfo(key);return `<div class="folio-last" data-last-request="${esc(key)}"><div class="folio-last-grid"><div><span>Fecha última solicitud</span><strong data-last-date>${esc(item.fecha||"Sin registro")}</strong></div><div><span data-last-role>${savedRoleLabel({by:item.residente})}</span><strong data-last-resident>${esc(item.residente||"Sin registro")}</strong></div></div><small>${esc(item.nota)}</small></div>`;
 }
 function appendLastRequestCard(key){
-  if(!LAST_REQUEST_KEYS.has(key))return;const nav=$("relNav");nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.insertAdjacentHTML("beforeend",lastRequestCardHTML(key));
+  if(!LAST_REQUEST_KEYS.has(key))return;if(key==="transfusion"){updateFormatNotice(key);return;}const nav=$("relNav");nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.insertAdjacentHTML("beforeend",lastRequestCardHTML(key));
 }
 function setLastRequest(key,fecha,residente){
   if(key==="folio"){FOLIO_LAST=fecha;FOLIO_LAST_BY=residente;}else if(key==="labsUrg"){LABSURG_LAST=fecha;LABSURG_LAST_BY=residente;}else if(EXTRA_LAST_REQUESTS[key])EXTRA_LAST_REQUESTS[key]={fecha,residente};
@@ -2904,7 +3109,6 @@ function handleAltaControlClick(e){
   const as=e.target.closest("[data-alta-supp]");if(as){const key=as.dataset.altaSupp;ALTA_COMPOSE[key]=as.getAttribute("aria-checked")!=="true";renderRel("alta");return true;}
   const al=e.target.closest("[data-alta-load]");if(al){loadAltaRecent(al.dataset.altaLoad,false);return true;}
   const ap=e.target.closest("[data-alta-print]");if(ap){loadAltaRecent(ap.dataset.altaPrint,true);return true;}
-  const ad=e.target.closest("[data-alta-delete]");if(ad){if(rbArm(ad)){histDelete("altas",ad.dataset.altaDelete);renderRel("alta");saveAfterDelete();}return true;}
   return false;
 }
 $("paper").addEventListener("click",e=>{if(handleAltaControlClick(e)){e.preventDefault();e.stopPropagation();}});
@@ -2938,7 +3142,7 @@ function openFormat(key){
   document.body.classList.remove("showing-clinical","showing-archive"); document.body.classList.add("showing-format"); $("bandIdx").hidden=true; $("bandBack").hidden=false; renderFormat(key); if(key==="alta")renderRel(key); updateFormatNotice(key);
   const recentSide=!!RECENT_CFG[key]&&key!=="rx";
   document.body.classList.toggle("rec-side",recentSide); $("recPanel").hidden=!recentSide; if(RECENT_CFG[key]) renderRecent(key);
-  fitPaper(); window.scrollTo(0,0);
+  syncFormatSaveButtons();fitPaper(); window.scrollTo(0,0);
 }
 function back(){current=null;currentClinical=null;document.body.classList.remove("showing-archive","showing-format","showing-clinical","rec-side","transfusion-side");$("recPanel").hidden=true;$("bandBack").hidden=true;$("bandIdx").hidden=false;window.scrollTo(0,0);}
 $("bandIdx").onclick=()=>$("formatos").scrollIntoView({behavior:"smooth",block:"start"});
@@ -3113,7 +3317,7 @@ function autoSaveOnPrint(){
   captureCurrentRecent();
   if(STORE==="drive"&&CAN_DRIVE) driveSaveNow({silent:true}).catch(()=>{});
 }
-$("btnPrint").onclick=()=>confirmAltaOverwrite(printFormatNow);
+$("btnPrint").onclick=()=>{if(loadedFormatRecord()&&!viewedClean(current)){saveLoadedFormat("edit",true);return;}if(loadedFormatRecord()){printFormatNow();return;}confirmAltaOverwrite(printFormatNow);};
 async function printFormatNow(){ document.activeElement&&document.activeElement.blur(); autoSaveOnPrint(); if(current==="alta") await prewarmAltaSupp(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); }
 addEventListener("resize",()=>{if(current)fitPaper()});
 
@@ -3387,6 +3591,8 @@ function setStore(v){
 function updateSaveFmt(){
   const drv=STORE==="drive", img=document.querySelector("#dlgDrive .dlg-head img");
   [$("btnSaveFmt"),$("clinicalSaveTop")].filter(Boolean).forEach(b=>{
+    if(b.id==="clinicalSaveTop"&&clinicalEditing[currentClinical])return;
+    if(b.id==="btnSaveFmt"&&loadedFormatRecord())return;
     b.querySelector(".sv-ic").innerHTML = drv&&img ? `<img src="${img.src}" alt="">` : '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>';
     b.title = drv ? "Guardar paciente en el Drive compartido" : "Guardar paciente en este equipo";
     b.setAttribute("aria-label",b.title);
@@ -3475,9 +3681,9 @@ function mergePatient(local,remote){
 /* Aplica en pantalla lo que llegó de Drive sin perder lo que se está escribiendo */
 function applyMerged(merged,local){
   if(!objSame(merged.datos,local.datos)||!objSame(merged.fmt,local.fmt)){
-    const tp=currentClinical,draft=tp?clinicalPayload(tp,1):null,ed=tp?clinicalEditing[tp]:null,y=window.scrollY;
+    const tp=currentClinical,draft=tp?clinicalPayload(tp,1):null,draft2=tp==="indicaciones"&&indicationsDouble?clinicalPayload(tp,2):null,ed=tp?clinicalEditing[tp]:null,y=window.scrollY;
     restore(merged);
-    if(tp){clinicalEditing[tp]=ed;renderClinicalForm(tp,draft);}
+    if(tp){clinicalEditing[tp]=ed;renderClinicalForm(tp,draft,draft2);}
     window.scrollTo(0,y); return true;
   }
   if(!objSame(merged.historial,local.historial)){
@@ -3787,7 +3993,7 @@ function clinicalDefaults(tp,dayOffset=0){
   const last=arCollect([tp])[0],lp=last&&last.r&&last.r.p;
   linked.otros=(lp&&lp.otros)||"";
   if(tp==="notas")return {fecha:todayStr(),hora:nowTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
-  const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&clinicalRichHasText(lp[k]))?lp[k]:INDICATION_DEFAULTS[k];
+  const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&typeof lp[k]==="string")?lp[k]:INDICATION_DEFAULTS[k];
   return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,...linked};
 }
 function clinicalRichHTML(value){
@@ -3813,7 +4019,7 @@ function clinicalFields(tp,v,opt={}){
     <label class="signature">Adscrito<input id="cl-adscrito" list="hjm-adscritos" autocomplete="off" value="${esc(v.adscrito||"")}"></label><label class="signature">Residente<input id="cl-residente" list="hjm-residentes" autocomplete="off" value="${esc(v.residente||"")}"></label>
     <label class="signature signature-wide">Otros residentes<input id="cl-otros" autocomplete="off" placeholder="Opcional" value="${esc(v.otros||"")}"></label>
   </div>`;
-  return `<section class="indication-capture" data-indication-slot="${slot}"><header><span>${slot}</span><div><h3>${slot===1?"Primera indicación":"Segunda indicación"}</h3><p>${slot===1?"Captura principal":"Se guarda como una entrada independiente"}</p></div></header><div class="clinical-grid" data-kind="indicaciones">
+  return `<section class="indication-capture" data-indication-slot="${slot}"><div class="clinical-grid" data-kind="indicaciones">
     <label>Fecha<input id="${prefix}-fecha" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(v.fecha||"")}"></label>
     <label>Hora${clinicalTimeInput(prefix+"-hora",v.hora)}</label>
     ${clinicalRichField(prefix+"-dieta","Dieta",v.dieta)}
@@ -3829,6 +4035,17 @@ function syncClinicalDoubleButton(){
   b.hidden=!show;b.classList.toggle("active",show&&indicationsDouble);b.setAttribute("aria-pressed",String(show&&indicationsDouble));
   const label=b.querySelector("span:last-child");if(label)label.textContent=indicationsDouble?"Indicaciones sencillas":"Indicaciones dobles";
 }
+function syncClinicalSaveButtons(){
+  const loaded=!!clinicalEditing[currentClinical],save=$("clinicalSaveTop"),edit=$("clinicalEditTop");
+  if(!save||!edit)return;
+  save.querySelector(".clinical-save-label").textContent=loaded?"Guardar Nuevo":"Guardar";
+  edit.hidden=!loaded;
+  if(loaded){
+    save.querySelector(".sv-ic").innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3H5v18h14V9l-6-6zM13 3v6h6M8 15h8M12 11v8"/></svg>';
+    save.title="Crear un registro nuevo sin modificar el registro cargado";save.setAttribute("aria-label",save.title);
+  }else updateSaveFmt();
+  edit.title="Actualizar el registro cargado, incluida su fecha y hora";edit.setAttribute("aria-label",edit.title);
+}
 function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
   const form=$("clinicalForm"),isNote=tp==="notas";
   const second=!isNote&&indicationsDouble?(v2||duplicateIndications(v)):null;
@@ -3838,8 +4055,8 @@ function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
   form.onfocusout=e=>{if(!e.target.matches("[data-time]"))return;const normalized=normalizeClinicalTime(e.target.value);if(normalized)e.target.value=normalized;};
   form.onmousedown=e=>{const b=e.target.closest("[data-rich-command]");if(!b)return;e.preventDefault();const editor=$(b.dataset.richEditor);if(!editor)return;editor.focus();document.execCommand("styleWithCSS",false,false);document.execCommand(b.dataset.richCommand,false,null);};
   form.onpaste=e=>{if(!e.target.closest(".rich-editor"))return;e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text"));};
-  form.onsubmit=()=>saveClinicalRecord(tp);
-  syncClinicalDoubleButton();
+  form.onsubmit=e=>{e.preventDefault();saveClinicalRecord(tp,false,false,clinicalEditing[tp]?"new":"save");};
+  syncClinicalDoubleButton();syncClinicalSaveButtons();
 }
 function clinicalRichValue(id){const el=$(id);return el?clinicalRichHTML(el.innerHTML).trim():"";}
 function clinicalRichHasText(value){const d=document.createElement("div");d.innerHTML=clinicalRichHTML(value);return !!d.textContent.trim();}
@@ -3857,37 +4074,41 @@ function upsertClinicalRecord(tp,p){
   if(sameIndex<0)return histAdd(tp,text,p);
   const saved=HIST[tp].splice(sameIndex,1)[0];saved.t=text;saved.p=p;saved.by=currentResidentName();saved.byRole=currentAuthorRole();saved.ts=Math.max(Date.now(),HIST[tp].reduce((m,x)=>Math.max(m,x.ts||0),0)+1);HIST[tp].unshift(saved);return saved;
 }
-function saveClinicalRecord(tp,printAfter=false,force=false){
+function saveClinicalRecord(tp,printAfter=false,force=false,mode="save"){
   const d=data();if(warnMissing(d))return;
   const payloads=[clinicalPayload(tp,1)];if(tp==="indicaciones"&&indicationsDouble)payloads.push(clinicalPayload(tp,2));
   if(payloads.some(p=>clinicalMissing(tp,p).length)){notify("Completa los campos vacíos antes de guardar.","warn");return;}
   if(payloads.length===2&&payloads[0].fecha===payloads[1].fecha&&payloads[0].hora===payloads[1].hora){notify("Las dos indicaciones tienen la misma fecha y hora. Cambia la fecha o la hora de una para guardarlas como registros separados.","warn");return;}
-  const enc=(()=>{const d=data();return {nombreCompleto:d.nombreCompleto||"",expediente:d.expediente||"",fnac:d.fnac||"",servicio:d.servicio||"",cama:d.cama||"",alergias:d.alergias||""};})();
-  /* v54 · Abierta con «Ver» y sin ningún cambio: es la misma nota; se imprime tal cual, sin preguntar ni duplicar */
   const eid=clinicalEditing[tp],original=(HIST[tp]||[]).find(x=>x.id===eid);
-  if(eid&&payloads.length===1&&clinicalSnap[tp]&&JSON.stringify(payloads[0])===clinicalSnap[tp]&&original&&(!original.p.enc||Object.keys(enc).every(k=>enc[k]===(original.p.enc[k]||"")))){
-    if(printAfter)printClinicalSet(tp,[eid]);else notify(tp==="notas"?"Sin cambios: la nota ya está guardada.":"Sin cambios: las indicaciones ya están guardadas.","ok");
-    return;
-  }
+  if(mode==="edit"&&(!original||!original.p)){notify("El registro cargado ya no está disponible. Vuelve a cargarlo antes de editar.","warn");return;}
+  /* Imprimir una copia cargada sin cambios conserva la impresión original. */
+  if(printAfter&&original&&payloads.length===1&&clinicalSnap[tp]===JSON.stringify(payloads[0])){printClinicalSet(tp,[eid]);return;}
+  const enc={nombreCompleto:d.nombreCompleto||"",expediente:d.expediente||"",fnac:d.fnac||"",servicio:d.servicio||"",cama:d.cama||"",alergias:d.alergias||""};
   payloads.forEach(p=>p.enc=enc);
-  if(!force){
-    const hit=payloads.find(p=>(HIST[tp]||[]).some(x=>x&&x.p&&x.p.fecha===p.fecha&&x.p.hora===p.hora));
-    if(hit){
-      const what=tp==="notas"?"una nota":"unas indicaciones",nueva=tp==="notas"?"una nota nueva":"indicaciones nuevas";
-      notify(`Ya existe ${what} con fecha ${hit.fecha} a las ${hit.hora} hrs. ¿Quieres sobrescribirla? Si quieres crear ${nueva}, cambia la fecha o la hora antes de guardar.`,"warn",
-        {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>saveClinicalRecord(tp,printAfter,true)},{label:"Cancelar",fn:()=>{const el=$("cl-hora")||document.querySelector("#clinicalForm [name=hora], #clinicalForm input[id$=hora]");if(el)el.focus();}}]});
-      return;
-    }
+  const matches=payloads.map((p,i)=>(HIST[tp]||[]).find(x=>x&&x.p&&x.p.fecha===p.fecha&&x.p.hora===p.hora&&!(mode==="edit"&&i===0&&x.id===eid)));
+  const hit=matches.find(Boolean);
+  if(hit&&mode!=="save"){
+    notify(mode==="new"?"Ya existe un registro con esa fecha y hora. Cambia la fecha o la hora para Guardar Nuevo; usa Editar para actualizar el registro cargado.":"La fecha y hora elegidas coinciden con otro registro. Cambia la fecha o la hora para editar el registro cargado sin reemplazar otro.","warn");return;
   }
-  const saved=payloads.map(p=>upsertClinicalRecord(tp,p));clinicalEditing[tp]=null;
-  renderClinicalForm(tp);renderClinicalRecents(tp);notify(saved.length===2?"Las dos indicaciones se guardaron por separado.":tp==="notas"?"Nota guardada con el paciente.":"Indicaciones guardadas con el paciente.","ok");
+  if(hit&&!force){
+    notify(`Ya existe un registro con fecha ${hit.p.fecha} a las ${hit.p.hora} hrs. ¿Quieres sobrescribirlo? Para crear uno nuevo, cambia la fecha o la hora.`,"warn",
+      {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>saveClinicalRecord(tp,printAfter,true,mode)},{label:"Cancelar",fn:()=>{const el=$("cl-hora");if(el)el.focus();}}]});return;
+  }
+  const saved=payloads.map((p,i)=>{
+    if(mode!=="edit"||i!==0)return upsertClinicalRecord(tp,p);
+    const a=HIST[tp],index=a.findIndex(x=>x.id===eid),r=a.splice(index,1)[0];
+    r.t=p.fecha+" · "+p.tipo;r.p=p;r.by=currentResidentName();r.byRole=currentAuthorRole();r.ts=Math.max(Date.now(),a.reduce((m,x)=>Math.max(m,x.ts||0),0)+1);a.unshift(r);return r;
+  });
+  clinicalEditing[tp]=null;clinicalSnap[tp]="";
+  renderClinicalForm(tp);renderClinicalRecents(tp);
+  notify(mode==="edit"?"Registro cargado actualizado.":saved.length===2?"Las dos indicaciones se guardaron por separado.":tp==="notas"?"Nota guardada con el paciente.":"Indicaciones guardadas con el paciente.","ok");
   doSave();if(printAfter)setTimeout(()=>printClinicalSet(tp,saved.map(x=>x.id)),80);return saved.length===1?saved[0]:saved;
 }
 function renderClinicalRecents(tp){
   $("clinicalRecentTitle").textContent=tp==="notas"?"Últimas notas":"Últimas indicaciones";
   const list=arCollect(tp==="notas"?["notas","prequx","altas"]:["indicaciones"]);
   $("clinicalRecentList").innerHTML=list.length?`<table class="clinical-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${list.map(e=>{const r=e.r,own=e.tp===tp;
-    const acts=own?`${rbBtn("view","Ver",`data-cl-edit="${esc(r.id)}"`)}${rbBtn("print","Imprimir",`data-cl-print="${esc(r.id)}"`)}${rbBtn("del","Borrar",`data-cl-delete="${esc(r.id)}"`)}`:arActions(e);
+    const acts=own?`${rbBtn("view","Cargar",`data-cl-edit="${esc(r.id)}"`)}${rbBtn("print","Imprimir",`data-cl-print="${esc(r.id)}"`)}`:arActions(e);
     return `<tr data-src="${esc(e.tp)}"><td><strong>${esc(e.fecha||"")}</strong><small>${esc(e.hora||"")}</small></td><td>${esc(own?((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones")):e.tipo)}${!own&&e.detail?`<small class="clinical-detail">${esc(e.detail)}</small>`:""}<small class="clinical-saved-by">${savedChangeLabel(r)}: ${esc(savedBy(r))}</small></td><td>${acts}</td></tr>`;}).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
 }
 function openClinical(tp){
@@ -3978,9 +4199,9 @@ function arEntry(tp,r){
   return {tp,r,fecha,hora,tipo,detail,ms:arDateMs(fecha,hora,r.ts)};
 }
 function arCollect(src){return src.flatMap(tp=>(HIST[tp]||[]).map(r=>arEntry(tp,r))).sort((a,b)=>(b.ms-a.ms)||((b.r.ts||0)-(a.r.ts||0)));}
-function arActions(e){const a=`data-ar-tp="${esc(e.tp)}" data-ar-id="${esc(e.r.id)}"`;return rbBtn("view","Ver",a+' data-ar="view"')+rbBtn("print","Imprimir",a+' data-ar="print"')+rbBtn("del","Borrar",a+' data-ar="del"');}
+function arActions(e,allowDelete=false){const a=`data-ar-tp="${esc(e.tp)}" data-ar-id="${esc(e.r.id)}"`;return rbBtn("view","Ver",a+' data-ar="view"')+rbBtn("print","Imprimir",a+' data-ar="print"')+(allowDelete?rbBtn("del","Borrar",a+' data-ar="del"'):"");}
 function arRowHTML(e){
-  return `<div class="ar-tr" data-src="${esc(e.tp)}"><div class="ar-td ar-when"><strong>${esc(e.fecha||"Sin fecha")}</strong>${e.hora?`<small>${esc(e.hora)} hrs</small>`:""}</div><div class="ar-td ar-type"><span class="ar-tag t-${esc(e.tp)}">${esc(e.tipo||"Registro")}</span>${e.detail?`<small>${esc(e.detail)}</small>`:""}</div><div class="ar-td ar-by"><span>Último cambio por (${savedRoleLabel(e.r)})</span>${esc(savedBy(e.r))}</div><div class="ar-td ar-act">${arActions(e)}</div></div>`;
+  return `<div class="ar-tr" data-src="${esc(e.tp)}"><div class="ar-td ar-when"><strong>${esc(e.fecha||"Sin fecha")}</strong>${e.hora?`<small>${esc(e.hora)} hrs</small>`:""}</div><div class="ar-td ar-type"><span class="ar-tag t-${esc(e.tp)}">${esc(e.tipo||"Registro")}</span>${e.detail?`<small>${esc(e.detail)}</small>`:""}</div><div class="ar-td ar-by"><span>Último cambio por (${savedRoleLabel(e.r)})</span>${esc(savedBy(e.r))}</div><div class="ar-td ar-act">${arActions(e,true)}</div></div>`;
 }
 function arPanelHTML(pn,mini){
   const list=arCollect(pn.src);if(mini&&!list.length)return "";
@@ -4011,8 +4232,15 @@ function openArchive(){
 function arPrintFormat(){setTimeout(()=>{document.activeElement&&document.activeElement.blur();autoSaveOnPrint();addPrintCopies();window.print();setTimeout(removePrintCopies,1500);},120);}
 function arAct(tp,id,act,btn){
   const kind=AR_KIND[tp];
-  if(act==="del"){if(!rbArm(btn))return;histDelete(tp,id);if(clinicalEditing[tp]===id)clinicalEditing[tp]=null;
-    if(document.body.classList.contains("showing-archive"))renderArchive();if(currentClinical)renderClinicalRecents(currentClinical);saveAfterDelete();return;}
+  if(act==="del"){
+    if(!document.body.classList.contains("showing-archive")||!btn||!btn.closest("#view-archive"))return;
+    if(!(HIST[tp]||[]).some(r=>r.id===id))return;
+    if(!confirm("¿Seguro que quieres eliminar este registro del archivo clínico? No será posible recuperarlo."))return;
+    histDelete(tp,id);if(clinicalEditing[tp]===id)clinicalEditing[tp]=null;
+    for(const key of Object.keys(VIEWED))if(VIEWED[key].tp===tp&&VIEWED[key].id===id)delete VIEWED[key];
+    if(ALTA_OWN===id)ALTA_OWN=null;
+    renderArchive();saveAfterDelete();return;
+  }
   if(kind==="cl"){ if(act==="print"){printClinical(tp,id);return;} openClinical(tp);editClinical(tp,id);return; }
   if(kind==="alta"){ openFormat("alta");loadAltaRecent(id,act==="print");return; }
   openFormat(tp);useRecent(tp,id,0);if(act==="print")arPrintFormat();
@@ -4031,9 +4259,10 @@ $("clinicalDoubleTop").onclick=()=>{
   const second=indicationsDouble?duplicateIndications(first):null;
   renderClinicalForm("indicaciones",first,second);
 };
-$("clinicalSaveTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical);};
-$("clinicalPrintTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical,true);};
-$("clinicalRecentList").onclick=e=>{const edit=e.target.closest("[data-cl-edit]"),print=e.target.closest("[data-cl-print]");if(edit)editClinical(currentClinical,edit.dataset.clEdit);if(print)printClinical(currentClinical,print.dataset.clPrint);const del=e.target.closest("[data-cl-delete]");if(del&&rbArm(del)){histDelete(currentClinical,del.dataset.clDelete);if(clinicalEditing[currentClinical]===del.dataset.clDelete)clinicalEditing[currentClinical]=null;renderClinicalRecents(currentClinical);saveAfterDelete();}};
+$("clinicalSaveTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical,false,false,clinicalEditing[currentClinical]?"new":"save");};
+$("clinicalEditTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical,false,false,"edit");};
+$("clinicalPrintTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical,true,false,clinicalEditing[currentClinical]?"edit":"save");};
+$("clinicalRecentList").onclick=e=>{const edit=e.target.closest("[data-cl-edit]"),print=e.target.closest("[data-cl-print]");if(edit)editClinical(currentClinical,edit.dataset.clEdit);if(print)printClinical(currentClinical,print.dataset.clPrint);};
 function captureRecent(tp,owner=current){
   if(!RECENT_CFG[tp]||!(owner===current||(current==="alta"&&owner.startsWith("alta-")))) return;
   const entries=RECENT_CFG[tp].capture(owner).filter(Boolean).map(value=>typeof value==="string"?{text:value}:value).filter(value=>value&&value.text);
@@ -4060,7 +4289,44 @@ function loadAltaRecent(id,printAfter=false){
    reimprime ese mismo registro sin duplicarlo ni moverlo. Cualquier edición (en la hoja, en los controles o en la hoja de datos) lo marca como modificado. */
 const VIEW_FMTS=new Set(["solCx","repCx","alta"]);
 const VIEWED={};let ALTA_OWN=null;
-function markViewed(fmt,tp,id){if(VIEW_FMTS.has(fmt))VIEWED[fmt]={tp,id,dirty:false};}
+function markViewed(fmt,tp,id){if(VIEW_FMTS.has(fmt))VIEWED[fmt]={tp,id,dirty:false};syncFormatSaveButtons();}
+function loadedFormatRecord(){
+  if(current!=="repCx"&&current!=="alta")return null;
+  const v=VIEWED[current];return v&&(HIST[v.tp]||[]).find(r=>r.id===v.id)||null;
+}
+function syncFormatSaveButtons(){
+  const save=$("btnSaveFmt"),edit=$("btnEditFmt");if(!save||!edit)return;
+  const loaded=!!loadedFormatRecord();edit.hidden=!loaded;
+  save.querySelector(".format-save-label").textContent=loaded?"Guardar Nuevo":"Guardar";
+  if(loaded){
+    save.querySelector(".sv-ic").innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3H5v18h14V9l-6-6zM13 3v6h6M8 15h8M12 11v8"/></svg>';
+    save.title="Crear un registro nuevo sin modificar el cargado";save.setAttribute("aria-label",save.title);
+  }else updateSaveFmt();
+}
+function saveLoadedFormat(mode,printAfter=false){
+  const original=loadedFormatRecord();
+  if(!original){notify("Vuelve a cargar el registro antes de guardarlo.","warn");return;}
+  const d=data();if(warnMissing(d))return;
+  document.activeElement&&document.activeElement.blur();
+  const key=current,tp=VIEWED[key].tp;let entry;
+  if(key==="alta"){
+    applyAltaDates();const all=collect(),fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
+    entry={text:fecha,payload:{fecha,fmt:JSON.parse(JSON.stringify(all.fmt.alta||{})),cells:snapCells(BUILT.alta)}};
+  }else entry=surgeryEntry(key);
+  if(!entry||!entry.payload)return;
+  const a=HIST[tp],ts=Math.max(Date.now(),a.reduce((m,r)=>Math.max(m,r.ts||0),0)+1);let r;
+  if(mode==="edit"){
+    r=a.splice(a.findIndex(x=>x.id===original.id),1)[0];
+    Object.assign(r,{t:entry.text,p:entry.payload,ts,by:currentResidentName(),byRole:currentAuthorRole()});
+  }else{
+    r={id:"h"+ts.toString(36)+Math.random().toString(36).slice(2,7),t:entry.text,p:entry.payload,ts,by:currentResidentName(),byRole:currentAuthorRole()};
+  }
+  a.unshift(r);if(a.length>histCap(tp))a.length=histCap(tp);
+  markViewed(key,tp,r.id);if(key==="alta")ALTA_OWN=r.id;
+  if(key==="alta")renderRel(key);else renderRecent(key,r.id);
+  doSaveNow();notify(mode==="edit"?"Registro cargado actualizado.":"Nuevo registro guardado; el original se conserva.","ok");
+  if(printAfter)printFormatNow();return r;
+}
 function viewedClean(fmt){const v=VIEWED[fmt];return !!(v&&!v.dirty&&(HIST[v.tp]||[]).some(x=>x.id===v.id));}
 function markDirty(){if(current&&VIEWED[current])VIEWED[current].dirty=true;}
 document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls"))markDirty();},true);
@@ -4078,6 +4344,7 @@ function confirmAltaOverwrite(go){
     {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>{ALTA_OWN=c.id;go();}},{label:"Cancelar",fn:()=>{}}]});
 }
 function captureCurrentRecent(){
+  if((current==="repCx"||current==="alta")&&VIEWED[current])return; // Los cargados solo cambian con Guardar Nuevo o Editar.
   if(VIEW_FMTS.has(current)&&viewedClean(current))return;      // es el mismo registro que se abrió con «Ver»: no se duplica
   if(current==="alta")captureAltaRecent();
   captureRecent(current,current);
@@ -4097,7 +4364,7 @@ function recentsHTML(tp,newId,owner=current){
   const C=RECENT_CFG[tp], R={list:HIST[tp]}, two=tp==="receta"&&recFields(owner).length>1;
   const trash='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
   return `<div class="rc-head"><h2>${C.title}</h2><small>Historial de este paciente · se guarda en su archivo</small></div><div class="rc-list">`
-   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedChangeLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?rbBtn("view","Ver 1",'data-ra="use" data-n="0"')+rbBtn("view","Ver 2",'data-ra="use" data-n="1"'):rbBtn("view","Ver",'data-ra="use" data-n="0"')}${rbBtn("print","Imprimir",'data-ra="print" data-n="0"')}${rbBtn("del","Borrar",'data-ra="del" title="Borrar"')}</div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
+   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedChangeLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?rbBtn("view","Ver 1",'data-ra="use" data-n="0"')+rbBtn("view","Ver 2",'data-ra="use" data-n="1"'):rbBtn("view",tp==="repCx"?"Cargar":"Ver",'data-ra="use" data-n="0"')}${rbBtn("print","Imprimir",'data-ra="print" data-n="0"')}</div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
    +'</div>';
 }
 function renderRecent(tp,newId){
@@ -4119,9 +4386,7 @@ document.addEventListener("click",e=>{
   const tp=box.dataset.tipo, id=b.closest(".rc-item").dataset.id, owner=box.dataset.owner||current;
   if(b.dataset.ra==="use"){ useRecent(tp,id,+b.dataset.n,owner); return; }
   if(b.dataset.ra==="print"){useRecent(tp,id,+b.dataset.n,owner);setTimeout(()=>{document.activeElement&&document.activeElement.blur();autoSaveOnPrint();addPrintCopies();window.print();setTimeout(removePrintCopies,1500);},80);return;}
-  if(!rbArm(b)) return;
-  histDelete(tp,id); renderRecent(tp); if(current==="alta")renderRel("alta");
-  saveAfterDelete();
+  // El borrado solo está disponible en Archivo Clínico.
 });
 
 /* ---------- Recetas predeterminadas: la 1.ª va en la receta de arriba y la 2.ª en la de abajo ---------- */
@@ -4159,9 +4424,10 @@ function driveError(err){
   if(m==="cancelado") return;
   notify("Google Drive: "+friendly(err),"err");
 }
-const doSave=()=>confirmAltaOverwrite(doSaveNow);
+const doSave=()=>{if(loadedFormatRecord()){saveLoadedFormat("new");return;}confirmAltaOverwrite(doSaveNow);};
 function doSaveNow(){ captureCurrentRecent(); if(STORE==="drive"&&CAN_DRIVE) driveSaveNow().catch(driveError); else if(STORE==="drive") $("dlgInfo").showModal(); else savePatient(); }
 $("btnSave").onclick=doSave; $("btnSaveFmt").onclick=doSave;
+$("btnEditFmt").onclick=()=>saveLoadedFormat("edit");
 $("btnOpen").onclick=()=>{ if(STORE==="drive"&&CAN_DRIVE) driveOpen().catch(e=>{ if($("dlgDrive").open) $("dlgDrive").close(); driveError(e); }); else if(STORE==="drive") $("dlgInfo").showModal(); else $("fileOpen").click(); };
 $("fileOpen").onchange=async e=>{
   const f=e.target.files[0]; e.target.value=""; if(!f) return;
