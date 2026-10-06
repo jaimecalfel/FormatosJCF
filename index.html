@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.10">
+<meta name="application-version" content="2.16">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2188,6 +2188,40 @@ body.showing-clinical #view-clinical{display:block}
  @media(max-width:620px){#view-archive .ar-record .ar-act{margin-left:0}#view-archive .ar-column-heading{padding:16px 14px 0}#view-archive .ar-record{padding:12px}#view-archive .ar-dates-head>span{display:block}}
 }
 </style>
+<style id="alta-capture-v211">
+#altaCapture[hidden]{display:none!important}
+@media screen{
+ #view-format.alta-capture-workspace .stage{position:relative;display:flex;flex-direction:column;align-items:stretch;max-width:none!important;min-width:0;background:transparent;border:0;box-shadow:none}
+ #view-format.alta-capture-workspace .paper:not(.alta-attach){position:absolute!important;left:-100000px!important;top:0!important;visibility:hidden;pointer-events:none}
+ #view-format.alta-capture-workspace:not(.has-alta-attachments) #holder{position:absolute;left:-100000px;visibility:hidden;pointer-events:none}
+ #view-format.alta-capture-workspace #fnote{display:none}
+ #view-format.alta-capture-workspace .alta-mobile-controls{display:none!important}
+ #view-format.alta-capture-workspace .alta-control-page{min-height:0!important;margin-bottom:0;margin-top:var(--alta-control-offset,0px)}
+ #view-format.alta-capture-workspace .alta-composer-nav{display:flex!important;flex-direction:column;gap:14px;margin:0;min-width:0}
+ #altaCapture{margin:0 0 20px;border:1px solid #d8e2ef;background:#fff;box-shadow:none}
+ #altaCapture .alta-capture-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #altaCapture .clinical-form-title{margin-bottom:12px;padding-bottom:9px}
+ #altaCapture .clinical-form-title h2{font-size:18px}
+ #altaCapture .alta-capture-grid{gap:10px}
+ #altaCapture .clinical-field{padding:9px 10px}
+ #altaCapture .alta-capture-grid input{padding:7px 10px;min-height:32px}
+ #altaCapture .rich-editor{padding:9px 11px}
+ #view-format.alta-capture-workspace #holder{margin-top:var(--alta-holder-offset,0px)}
+ #view-format.alta-capture-workspace .alta-attach{margin-bottom:var(--alta-screen-gap,0px)}
+ #altaCapture .alta-diagnosis textarea{min-height:60px;height:60px;font-size:13px;line-height:1.45}
+ #altaCapture .rich-editor.content{min-height:180px}
+ #altaCapture .rich-editor.indication-large{min-height:130px}
+ #altaCapture .alta-capture-responsibles{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"clinica residente" "adscrito residente";gap:9px 16px;width:100%;min-width:0;align-items:start}
+ #altaCapture .alta-capture-responsibles>label:nth-child(1){grid-area:clinica}
+ #altaCapture .alta-capture-responsibles>label:nth-child(2){grid-area:adscrito}
+ #altaCapture .alta-capture-responsibles>label:nth-child(3){grid-area:residente;align-self:start}
+ #altaCapture .rich-editor ul,#altaCapture .rich-editor ol{margin:5px 0;padding-left:25px}
+ @media(min-width:1040px){#view-format.alta-capture-workspace .fbody{grid-template-columns:minmax(0,1fr) 300px;grid-template-areas:"main side";align-items:start}}
+ @media(max-width:1039px){#view-format.alta-capture-workspace .fbody{display:flex;flex-direction:column;gap:14px;padding:0}#view-format.alta-capture-workspace .stage{order:0;width:100%;box-sizing:border-box}#view-format.alta-capture-workspace #relNav{order:1;width:100%;box-sizing:border-box}#altaCapture{padding:16px}}
+ @media(max-width:560px){#altaCapture .alta-capture-grid{grid-template-columns:minmax(0,1fr)}#altaCapture .rich-editor.content{min-height:170px}}
+}
+@media print{#altaCapture{display:none!important}.alta-capture-workspace .sheet .c > span ul,.alta-capture-workspace .sheet .c > span ol{margin:3pt 0;padding-left:16pt}.alta-capture-workspace .sheet .c > span li{margin:0}}
+</style>
 </head>
 <body>
 
@@ -2373,7 +2407,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.10 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión 2.16 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3359,6 +3393,13 @@ function buildFormat(key){
   if(key==='consInf'&&saved)wrap.querySelectorAll('[data-independent-adscrito] > span').forEach(sp=>{const v=saved[sp.dataset.i];if(v&&typeof v==='object'&&typeof v.h==='string'){sp.innerHTML=v.h;sp.parentElement.setAttribute('data-ov','');}});
   (PICKS[key]||[]).forEach(pk=>{ const sp=pk.sync?wrap.querySelector(`.c[data-sync="${pk.sync}"] > span`):[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; const cell=sp.parentElement,hadSaved=!!(saved&&Object.prototype.hasOwnProperty.call(saved,sp.dataset.i)); cell.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); if(pk.autoClinic){cell.dataset.autoClinic="1";if(!hadSaved)sp.textContent=clinicForAdscrito($("medico").value);} if(pk.editable){sp.setAttribute("contenteditable","true");cell.classList.add("pick-editable");const trigger=document.createElement("button");trigger.type="button";trigger.className="pick-trigger";trigger.setAttribute("aria-label",pk.aria||"Mostrar opciones disponibles");trigger.textContent="▼";cell.appendChild(trigger);}else sp.removeAttribute("contenteditable"); });
   if(key==="prequx")customizePrequxNote(wrap);
+  if(key==="alta"){
+    if(saved?.__altaCapture)applyNativeAltaCapture(wrap,saved.__altaCapture);
+    for(const field of ["diagnosticoIngreso","diagnosticoEgreso"]){
+      const sp=altaCaptureSpan(wrap,field);
+      if(sp&&!sp.parentElement.hasAttribute("data-ov"))applyNativeAltaCapture(wrap,{[field]:$("diagnostico").value||""});
+    }
+  }
   return wrap;
 }
 /* ---------- Distribución de media hoja (Laboratorios Urgencias, Receta, Pase) ---------- */
@@ -3537,6 +3578,85 @@ function altaDatesHTML(){return `<div class="alta-dates"><label class="alta-date
 function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">'+savedChangeLabel(r)+': '+esc(savedBy(r))+'</small></td><td>'+rbBtn("view","Cargar",'data-alta-load="'+esc(r.id)+'"')+rbBtn("print","Imprimir",'data-alta-print="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
 function applyAltaDates(){const root=BUILT.alta;if(!root)return;[['D11','ingreso'],['G11','egreso']].forEach(([ref,key])=>{const cell=root.querySelector(':scope > .paper:not(.alta-attach) [data-x="'+ref+'"]'),sp=cell&&cell.firstElementChild;if(!sp)return;const v=ALTA_DATES[key]||'';sp.textContent=v;cell.toggleAttribute('data-ov',!!v);});}
 function syncAltaDateControls(){document.querySelectorAll('[data-alta-date]').forEach(i=>{const v=ALTA_DATES[i.dataset.altaDate]||'';if(i.value!==v)i.value=v;});}
+/* v2.11 · Captura del alta; la plantilla y sus copias impresas se conservan. */
+function altaCaptureSpan(root,field){
+  const selector={diagnosticoIngreso:'[data-x="D15"] > span',diagnosticoEgreso:'[data-x="D17"] > span',resumen:'[data-x="_alta_resumen"] > span',indicaciones:'.c > span[data-i="33"]',clinica:'.c > span[data-i="42"]',adscrito:'[data-x="B42"] > span',residente:'[data-x="B44"] > span'}[field];
+  return selector?root?.querySelector(':scope > .paper:not(.alta-attach):not(.print-copy) '+selector):null;
+}
+function readAltaCapture(){
+  const root=BUILT.alta,out={ingreso:ALTA_DATES.ingreso||"",egreso:ALTA_DATES.egreso||""};
+  for(const field of ["diagnosticoIngreso","diagnosticoEgreso","resumen","indicaciones","clinica","adscrito","residente"]){const sp=altaCaptureSpan(root,field);out[field]=sp?(["resumen","indicaciones"].includes(field)?clinicalRichHTML(sp.innerHTML):field==="residente"?sp.textContent.replace(/^RESIDENTE:\s*/i,""):sp.textContent):"";}
+  return out;
+}
+function applyNativeAltaCapture(root,values){
+  for(const field of ["diagnosticoIngreso","diagnosticoEgreso","resumen","indicaciones","clinica","adscrito","residente"]){
+    if(values[field]===undefined)continue;const sp=altaCaptureSpan(root,field);if(!sp)continue;
+    if(field==="resumen"||field==="indicaciones")sp.innerHTML=clinicalRichHTML(values[field]);else sp.textContent=field==="residente"&&values[field]?"RESIDENTE: "+String(values[field]).replace(/^RESIDENTE:\s*/i,""):values[field];
+    sp.parentElement.setAttribute("data-ov","");
+  }
+}
+function syncAltaCaptureForm(){
+  if(current!=="alta"||!BUILT.alta)return;
+  let form=$("altaCapture");
+  const values=readAltaCapture();
+  if(!form){
+    form=document.createElement("form");form.id="altaCapture";form.className="clinical-card clinical-form-card";form.autocomplete="off";
+    form.innerHTML='<div class="clinical-form-title"><div><h2>Captura de nota de alta</h2></div></div><div class="clinical-grid alta-capture-grid">'+
+      '<label>Fecha de Ingreso<input id="alta-ingreso" data-alta-date="ingreso" data-date inputmode="numeric" placeholder="DD.MM.AA"></label><label>Fecha de Egreso<input id="alta-egreso" data-alta-date="egreso" data-date inputmode="numeric" placeholder="DD.MM.AA"></label>'+
+      '<label class="wide alta-diagnosis">Diagnóstico de Ingreso<textarea id="alta-diagnosticoIngreso" data-alta-capture="diagnosticoIngreso" rows="2"></textarea></label><label class="wide alta-diagnosis">Diagnóstico de Egreso<textarea id="alta-diagnosticoEgreso" data-alta-capture="diagnosticoEgreso" rows="2"></textarea></label>'+
+      clinicalRichField('alta-resumen','Resumen','',{content:true})+clinicalRichField('alta-indicaciones','Indicaciones','',{large:true})+
+      '<div class="alta-capture-responsibles"><label>Clínica<input id="alta-clinica" data-alta-capture="clinica" list="alta-clinicas" autocomplete="off"></label><label>Adscrito<input id="alta-adscrito" data-alta-capture="adscrito" list="hjm-adscritos" autocomplete="off"></label><label>Residente<input id="alta-residente" data-alta-capture="residente" list="hjm-residentes" autocomplete="off"></label></div><datalist id="alta-clinicas">'+PICKS.alta[0].opts.map(v=>'<option value="'+esc(v)+'"></option>').join('')+'</datalist></div>';
+    $('holder').before(form);observeAltaCapture(form);
+    form.addEventListener('submit',e=>e.preventDefault());
+    form.addEventListener('input',e=>{
+      const field=e.target.dataset.altaCapture||(e.target.id==='alta-resumen'?'resumen':e.target.id==='alta-indicaciones'?'indicaciones':null);
+      if(!field)return;
+      const before=readAltaCapture(),value=e.target.isContentEditable?clinicalRichHTML(e.target.innerHTML):e.target.value;
+      applyNativeAltaCapture(BUILT.alta,{[field]:value});
+      if(field==='adscrito'&&(!before.clinica||before.clinica===clinicForAdscrito(before.adscrito))){const clinic=clinicForAdscrito(value);applyNativeAltaCapture(BUILT.alta,{clinica:clinic});$('alta-clinica').value=clinic;}
+      markDirty();shrink($('paper'));
+    });
+    form.addEventListener('mousedown',e=>{const b=e.target.closest('[data-rich-command]');if(!b)return;e.preventDefault();$(b.dataset.richEditor).focus();document.execCommand('styleWithCSS',false,false);document.execCommand(b.dataset.richCommand,false,null);});
+    form.addEventListener('paste',e=>{if(!e.target.closest('.rich-editor'))return;e.preventDefault();document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text'));});
+  }
+  form.hidden=false;
+  for(const field of Object.keys(values)){
+    const el=$('alta-'+field);if(!el||el===document.activeElement)continue;
+    if(el.isContentEditable){const html=clinicalRichHTML(values[field]);if(el.innerHTML!==html)el.innerHTML=html;}
+    else if(el.value!==values[field])el.value=values[field];
+  }
+  $('view-format').classList.toggle('has-alta-attachments',!!(ALTA_COMPOSE.receta||ALTA_COMPOSE.pase));
+}
+/* v2.14 · Alinea cada panel de receta/pase con su página, solo en pantalla. */
+let altaCaptureResizeObserver=null,altaAlignmentFrame=0;
+function observeAltaCapture(form){
+  if(altaCaptureResizeObserver)return;
+  altaCaptureResizeObserver=new ResizeObserver(()=>{
+    if(current!=="alta"||matchMedia("print").matches||altaAlignmentFrame)return;
+    altaAlignmentFrame=requestAnimationFrame(()=>{altaAlignmentFrame=0;if(current==="alta")fitPaper();});
+  });
+  altaCaptureResizeObserver.observe(form);altaCaptureResizeObserver.observe($("relNav"));
+}
+function alignAltaPageControls(scale){
+  const root=BUILT.alta,holder=$("holder"),nav=$("relNav");if(!root||!holder||!nav)return;
+  holder.style.removeProperty('--alta-holder-offset');
+  nav.querySelectorAll('[data-alta-control-page]').forEach(c=>c.style.removeProperty('--alta-control-offset'));
+  const pages=[...root.querySelectorAll(':scope > .alta-attach:not([hidden])')];
+  root.querySelectorAll(':scope > .alta-attach').forEach(p=>p.style.removeProperty('--alta-screen-gap'));
+  if(!pages.length||!matchMedia('(min-width:1040px)').matches)return;
+  let extra=0;
+  pages.forEach((page,index)=>{
+    const panel=nav.querySelector('[data-alta-control-page="'+page.dataset.altaFmt+'"]');if(!panel)return;
+    const py=page.getBoundingClientRect().top,cy=panel.getBoundingClientRect().top;
+    if(py>cy)panel.style.setProperty('--alta-control-offset',(py-cy)+'px');
+    else if(cy>py){
+      const delta=cy-py;
+      if(index===0)holder.style.setProperty('--alta-holder-offset',delta+'px');
+      else{const previous=pages[index-1];previous.style.setProperty('--alta-screen-gap',(delta/scale)+'px');extra+=delta;}
+    }
+  });
+  if(extra)holder.style.height=(parseFloat(holder.style.height)+extra)+'px';
+}
 function altaPaseTargets(owner){
   if(owner==="alta-pase"){const root=altaPage("pase"),slots=root?[{root,refs:PASE_SLOTS[0]}]:[];if(root&&altaMode("pase")!=="otro")slots.push({root,refs:PASE_SLOTS[1],lower:true});return slots;}
   if(owner==="alta-receta"&&altaMode("receta")==="otro"){const page=altaPage("receta"),emb=page&&page.querySelector(':scope > .emb[data-fmt="pase"]:not([hidden])');return emb?[{root:emb,refs:PASE_SLOTS[1],lower:true}]:[];}
@@ -3559,13 +3679,15 @@ function applyAltaPaseText(owner,i){
 }
 function altaControlsHTML(newId){
   setTimeout(()=>{try{prewarmAltaSupp();}catch(_){}} ,0);
-  let html=`<section class="alta-control-page alta-main-controls"><div class="alta-control-card">${altaDatesHTML()}${altaToggleHTML("receta","Agregar Receta / Pase","Imprime la Recetas y Pases para el alta")}<span class="alta-supp-title">Documentos adicionales al imprimir</span><div class="alta-supp-list">${altaSuppToggleHTML("dietaSeca","Dieta Seca - Estoma de Alto Gasto")}${altaSuppToggleHTML("dietaGrasa","Dieta baja en grasa - Disminuir Gastos Drenaje")}${altaSuppToggleHTML("drenaje","Hoja de Gastos de Drenaje")}${altaSuppToggleHTML("cuidDrenaje","Cuidados de Drenaje")}${altaSuppToggleHTML("cateter","Cuidados de Catéter Multipropósito")}${altaSuppToggleHTML("mama","Ejercicios Post Mastectomía")}</div>${altaRecentsHTML()}</div></section>`;
-  if(ALTA_COMPOSE.receta)html+=`<section class="alta-control-page"><div class="alta-control-card"><div class="alta-page-title"><span class="alta-kicker">Página adicional</span><h2>Receta</h2></div>${altaHalfHTML("receta")}${recPresetsHTML("alta-receta")}${altaMode("receta")==="otro"?altaPassPresetsHTML("alta-receta"):""}<div class="alta-recent rcbox" data-tipo="receta" data-owner="alta-receta">${recentsHTML("receta",newId,"alta-receta")}</div>${altaToggleHTML("pase","Agregar otra pagina de Pase","Agrega otra pagina de Pases","alta-add-pass")}</div></section>`;
-  if(ALTA_COMPOSE.pase)html+=`<section class="alta-control-page"><div class="alta-control-card"><div class="alta-page-title"><span class="alta-kicker">Página adicional</span><h2>Pase</h2></div>${altaHalfHTML("pase")}${altaPassPresetsHTML("alta-pase")}${altaMode("pase")==="otro"?recPresetsHTML("alta-pase")+'<div class="alta-recent rcbox" data-tipo="receta" data-owner="alta-pase">'+recentsHTML("receta",newId,"alta-pase")+'</div>':""}</div></section>`;
+  let html=`<section class="alta-control-page alta-main-controls"><div class="alta-control-card">${altaToggleHTML("receta","Agregar Receta / Pase","Imprime la Recetas y Pases para el alta")}<span class="alta-supp-title">Documentos adicionales al imprimir</span><div class="alta-supp-list">${altaSuppToggleHTML("dietaSeca","Dieta Seca - Estoma de Alto Gasto")}${altaSuppToggleHTML("dietaGrasa","Dieta baja en grasa - Disminuir Gastos Drenaje")}${altaSuppToggleHTML("drenaje","Hoja de Gastos de Drenaje")}${altaSuppToggleHTML("cuidDrenaje","Cuidados de Drenaje")}${altaSuppToggleHTML("cateter","Cuidados de Catéter Multipropósito")}${altaSuppToggleHTML("mama","Ejercicios Post Mastectomía")}</div>${altaRecentsHTML()}</div></section>`;
+  if(ALTA_COMPOSE.receta)html+=`<section class="alta-control-page" data-alta-control-page="receta"><div class="alta-control-card"><div class="alta-page-title"><span class="alta-kicker">Página adicional</span><h2>Receta</h2></div>${altaHalfHTML("receta")}${recPresetsHTML("alta-receta")}${altaMode("receta")==="otro"?altaPassPresetsHTML("alta-receta"):""}<div class="alta-recent rcbox" data-tipo="receta" data-owner="alta-receta">${recentsHTML("receta",newId,"alta-receta")}</div>${altaToggleHTML("pase","Agregar otra pagina de Pase","Agrega otra pagina de Pases","alta-add-pass")}</div></section>`;
+  if(ALTA_COMPOSE.pase)html+=`<section class="alta-control-page" data-alta-control-page="pase"><div class="alta-control-card"><div class="alta-page-title"><span class="alta-kicker">Página adicional</span><h2>Pase</h2></div>${altaHalfHTML("pase")}${altaPassPresetsHTML("alta-pase")}${altaMode("pase")==="otro"?recPresetsHTML("alta-pase")+'<div class="alta-recent rcbox" data-tipo="receta" data-owner="alta-pase">'+recentsHTML("receta",newId,"alta-pase")+'</div>':""}</div></section>`;
   return html;
 }
 function renderFormat(key){
   const paper=$("paper"), F=FORMATS[key];
+  $("view-format").classList.toggle("alta-capture-workspace",key==="alta");
+  if($("altaCapture"))$("altaCapture").hidden=key!=="alta";
   if(!BUILT[key]) BUILT[key]=buildFormat(key);
   if(key==="alta") ensureAltaAttachments();
   if(key==="rx"&&!BUILT[key].querySelector(".rx-print-page")) BUILT[key].appendChild(buildRxCatalogPage());
@@ -3582,7 +3704,7 @@ function renderFormat(key){
   fillCells([...BUILT[key].querySelectorAll("[data-x]:not(.summary-line-underlay)")].filter(el=>!el.closest(".emb,.alta-attach")),evalSheet(F,d));
   BUILT[key].querySelectorAll(".alta-attach").forEach(page=>fillCells([...page.querySelectorAll("[data-x]:not(.summary-line-underlay)")].filter(el=>!el.closest(".emb")),evalSheet(FORMATS[page.dataset.altaFmt],d)));
   BUILT[key].querySelectorAll(".emb").forEach(e=>fillCells(e.querySelectorAll("[data-x]:not(.summary-line-underlay)"),evalSheet(FORMATS[e.dataset.fmt],d)));
-  if(key==="alta"){applyAltaDates();syncAltaDateControls();}
+  if(key==="alta"){applyAltaDates();syncAltaDateControls();syncAltaCaptureForm();}
   if(key==="prequx")refreshPrequxHeader(BUILT[key],d);
   if(key==="ordenHosp"){applyOrderDates();syncOrderControls();}
   syncCaptureControls();
@@ -3779,7 +3901,7 @@ function altaFitText(root){
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{if(current)shrink($("paper"))});
 function fitPaper(){
   const holder=$("holder"),paper=$("paper"),F=FORMATS[current];if(!F)return;
-  const pages=[...paper.querySelectorAll(":scope > .pages > .paper")].filter(pg=>!pg.hidden&&!pg.classList.contains("print-copy"));
+  const pages=[...paper.querySelectorAll(":scope > .pages > .paper")].filter(pg=>!pg.hidden&&!pg.classList.contains("print-copy")&&(current!=="alta"||pg.classList.contains("alta-attach")));
   const fallbackW=F.pw*96,fallbackH=F.ph*96,pw=Math.max(fallbackW,...pages.map(pg=>(parseFloat(pg.style.width)||F.pw)*96));
   const heights=pages.length?pages.map(pg=>(parseFloat(pg.style.height)||F.ph)*96):[fallbackH],mobileCtl=paper.querySelector(":scope > .pages > .alta-mobile-controls");
   const stg=document.querySelector(".stage");if(stg)stg.style.setProperty("--stage-max",Math.round(pw+70)+"px");
@@ -3787,7 +3909,7 @@ function fitPaper(){
   let mobileExtra=0;if(mobileCtl&&getComputedStyle(mobileCtl).display!=="none"){mobileCtl.style.width=Math.max(280,aw-24)+"px";mobileCtl.style.transform=`scale(${1/s})`;const mh=mobileCtl.offsetHeight;mobileCtl.style.marginBottom=Math.max(0,mh*(1/s-1))+"px";mobileExtra=mh/s+24;}else if(mobileCtl){mobileCtl.style.width="";mobileCtl.style.transform="";mobileCtl.style.marginBottom="";}
   const tot=heights.reduce((a,b)=>a+b,0)+Math.max(0,heights.length-1)*24+mobileExtra;
   paper.style.transform=`scale(${s})`;holder.style.width=pw*s+"px";holder.style.height=tot*s+"px";
-  const nav=$("relNav");if(current==="alta"&&nav)nav.style.setProperty("--alta-row-h",(fallbackH+24)*s+"px");
+  const nav=$("relNav");if(current==="alta"&&nav){nav.style.setProperty("--alta-row-h",(fallbackH+24)*s+"px");alignAltaPageControls(s);}
 }
 const RELATED=[
   {label:"Paja y cirugía",cls:"g-paja",keys:["informe","hFrontal","hCaritas","hc","medicamentos","consInf","marcaje","cxSegura","prequx"]},
@@ -3972,12 +4094,7 @@ function setLastRequest(key,fecha,residente){
 }
 
 function syncAltaMobileControls(){
-  const wrap=BUILT.alta;if(!wrap)return;
-  let mobile=wrap.querySelector(":scope > .alta-mobile-controls");
-  if(!mobile){mobile=document.createElement("div");mobile.className="alta-mobile-controls";}
-  mobile.innerHTML=altaControlsHTML();
-  const attach=wrap.querySelector(":scope > .alta-attach");
-  if(attach)wrap.insertBefore(mobile,attach);else{const first=wrap.querySelector(":scope > .paper");if(first)first.after(mobile);else wrap.appendChild(mobile);}
+  BUILT.alta?.querySelector(":scope > .alta-mobile-controls")?.remove();
 }
 function handleAltaControlClick(e){
   const at=e.target.closest("[data-alta-toggle]");if(at){setAltaAttach(at.dataset.altaToggle,at.getAttribute("aria-checked")!=="true");return true;}
@@ -4252,7 +4369,7 @@ function collect(){
     });
     if(HALF[k]){ m.__half=HALF[k]; m.__auto=!!HALF_AUTO[k]; }
     if(k==="ordenHosp"){m.__fechaElaboracion=ORDER_DATES.elaboracion||"";m.__fechaInternamiento=ORDER_DATES.internamiento||"";m.__fechaQuirofano=ORDER_DATES.quirofano||"";}
-    if(k==="alta"){m.__addReceta=!!ALTA_COMPOSE.receta;m.__addPase=!!ALTA_COMPOSE.pase;m.__recetaMode=altaMode("receta");m.__paseMode=altaMode("pase");m.__suppDrenaje=!!ALTA_COMPOSE.drenaje;m.__suppCuidDrenaje=!!ALTA_COMPOSE.cuidDrenaje;m.__suppCateter=!!ALTA_COMPOSE.cateter;m.__suppMama=!!ALTA_COMPOSE.mama;m.__suppDietaGrasa=!!ALTA_COMPOSE.dietaGrasa;m.__suppDietaSeca=!!ALTA_COMPOSE.dietaSeca;m.__fechaIngreso=ALTA_DATES.ingreso||"";m.__fechaEgreso=ALTA_DATES.egreso||"";}
+    if(k==="alta"){m.__addReceta=!!ALTA_COMPOSE.receta;m.__addPase=!!ALTA_COMPOSE.pase;m.__recetaMode=altaMode("receta");m.__paseMode=altaMode("pase");m.__suppDrenaje=!!ALTA_COMPOSE.drenaje;m.__suppCuidDrenaje=!!ALTA_COMPOSE.cuidDrenaje;m.__suppCateter=!!ALTA_COMPOSE.cateter;m.__suppMama=!!ALTA_COMPOSE.mama;m.__suppDietaGrasa=!!ALTA_COMPOSE.dietaGrasa;m.__suppDietaSeca=!!ALTA_COMPOSE.dietaSeca;m.__fechaIngreso=ALTA_DATES.ingreso||"";m.__fechaEgreso=ALTA_DATES.egreso||"";m.__altaCapture=readAltaCapture();}
     if(Object.keys(m).length) fmt[k]=m;
   }
   for(const k in SAVED_FMT) if(!BUILT[k]) fmt[k]=SAVED_FMT[k];
@@ -5279,17 +5396,41 @@ function captureRecent(tp,owner=current){
   renderRecent(tp,last&&last.id);
 }
 
+/* v2.15 · Cada alta conserva su paquete completo, incluidas las hojas anexas. */
+function altaRecordPayload(){
+  applyAltaDates();const all=collect(),capture=readAltaCapture(),fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
+  const pages=[...BUILT.alta.querySelectorAll(':scope > .paper:not(.print-copy):not([hidden])')].map(page=>({
+    fmt:page.dataset.altaFmt||'alta',
+    fields:[...page.querySelectorAll('.c > span[data-i]')].map(sp=>({id:sp.dataset.i,h:sp.innerHTML,on:sp.classList.contains('on')}))
+  }));
+  return {fecha,fmt:JSON.parse(JSON.stringify(all.fmt.alta||{})),cells:snapCells(BUILT.alta),altaBundle:{v:1,capture,compose:{...ALTA_COMPOSE},pages}};
+}
+function restoreAltaBundle(bundle){
+  if(!bundle||!Array.isArray(bundle.pages)||!BUILT.alta)return;
+  bundle.pages.forEach(saved=>{
+    const page=saved.fmt==='alta'?BUILT.alta.querySelector(':scope > .paper:not(.alta-attach):not(.print-copy)'):altaPage(saved.fmt);
+    if(!page||!Array.isArray(saved.fields))return;
+    const fields=new Map(saved.fields.map(f=>[String(f.id),f]));
+    page.querySelectorAll('.c > span[data-i]').forEach(sp=>{const f=fields.get(sp.dataset.i);if(!f)return;sp.innerHTML=f.h||'';sp.classList.toggle('on',!!f.on);if(sp.parentElement.dataset.x)sp.parentElement.setAttribute('data-ov','');});
+  });
+  if(bundle.capture)applyNativeAltaCapture(BUILT.alta,bundle.capture);
+  shrink($('paper'));
+}
 function captureAltaRecent(){
   if(current!=="alta"||!BUILT.alta)return null;
-  applyAltaDates();const all=collect(),fmt=all.fmt.alta||{},fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
-  const p={fecha,fmt:JSON.parse(JSON.stringify(fmt)),cells:snapCells(BUILT.alta)},a=HIST.altas||[],v=VIEWED.alta,mine=id=>id===ALTA_OWN||(v&&v.id===id),i=a.findIndex(r=>r&&r.p&&r.p.fecha===fecha&&mine(r.id));let r;
+  const p=altaRecordPayload(),fecha=p.fecha,a=HIST.altas||[],v=VIEWED.alta,mine=id=>id===ALTA_OWN||(v&&v.id===id),i=a.findIndex(r=>r&&r.p&&r.p.fecha===fecha&&mine(r.id));let r;
   if(i>=0){r=a.splice(i,1)[0];r.t=fecha;r.p=p;r.by=currentResidentName();r.byRole=currentAuthorRole();r.ts=Date.now();a.unshift(r);}else r=histAdd("altas",fecha,p);
   if(r){ALTA_OWN=r.id;if(v){v.id=r.id;v.dirty=false;}}
   return r;
 }
 function loadAltaRecent(id,printAfter=false){
   const r=(HIST.altas||[]).find(x=>x.id===id);if(!r||!r.p||!r.p.fmt)return;
-  SAVED_FMT.alta=JSON.parse(JSON.stringify(r.p.fmt));delete BUILT.alta;delete HALF.alta;delete HALF_AUTO.alta;restoreAltaCompose();renderFormat("alta");renderRel("alta");if(r.p.cells)applySnapCells(BUILT.alta,r.p.cells);fitPaper();markViewed("alta","altas",id);ALTA_OWN=null;toast("Alta cargada");
+  document.activeElement?.blur();
+  SAVED_FMT.alta=JSON.parse(JSON.stringify(r.p.fmt));delete BUILT.alta;delete HALF.alta;delete HALF_AUTO.alta;restoreAltaCompose();
+  const bundle=r.p.altaBundle;
+  if(bundle?.compose){ALTA_COMPOSE={...altaComposeDefaults(),...bundle.compose};if(ALTA_COMPOSE.pase)ALTA_COMPOSE.receta=true;}
+  if(bundle?.capture)ALTA_DATES={ingreso:bundle.capture.ingreso||"",egreso:bundle.capture.egreso||""};
+  renderFormat("alta");if(r.p.cells)applySnapCells(BUILT.alta,r.p.cells);restoreAltaBundle(bundle);syncAltaCaptureForm();renderRel("alta");fitPaper();markViewed("alta","altas",id);ALTA_OWN=null;toast("Alta cargada");
   if(printAfter)setTimeout(async()=>{document.activeElement&&document.activeElement.blur();await prewarmAltaSupp();addPrintCopies();window.print();setTimeout(removePrintCopies,1500);},100);
 }
 
@@ -5307,7 +5448,7 @@ function syncFormatSaveButtons(){
   const blank=$("btnPrintBlank"),actions=save.parentElement;
   if(blank){if(current==="repCx")actions.prepend(blank);else actions.appendChild(blank);}
   const loaded=!!loadedFormatRecord();edit.hidden=!loaded;syncLoadedSaveActions(save,edit,loaded);
-  save.querySelector(".format-save-label").textContent=loaded?"Guardar Nuevo":"Guardar";
+  save.querySelector(".format-save-label").textContent=loaded||current==="alta"?"Guardar Nuevo":"Guardar";
   if(loaded){
     save.querySelector(".sv-ic").innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3H5v18h14V9l-6-6zM13 3v6h6M8 15h8M12 11v8"/></svg>';
     save.title="Crear un registro nuevo sin modificar el cargado";save.setAttribute("aria-label",save.title);
@@ -5320,8 +5461,7 @@ function saveLoadedFormat(mode,printAfter=false){
   document.activeElement&&document.activeElement.blur();
   const key=current,tp=VIEWED[key].tp;let entry;
   if(key==="alta"){
-    applyAltaDates();const all=collect(),fecha=ALTA_DATES.egreso||ALTA_DATES.ingreso||todayStr();
-    entry={text:fecha,payload:{fecha,fmt:JSON.parse(JSON.stringify(all.fmt.alta||{})),cells:snapCells(BUILT.alta)}};
+    const payload=altaRecordPayload();entry={text:payload.fecha,payload};
   }else entry=surgeryEntry(key);
   if(!entry||!entry.payload)return;
   const a=HIST[tp],ts=Math.max(Date.now(),a.reduce((m,r)=>Math.max(m,r.ts||0),0)+1);let r;
@@ -5339,8 +5479,8 @@ function saveLoadedFormat(mode,printAfter=false){
 }
 function viewedClean(fmt){const v=VIEWED[fmt];return !!(v&&!v.dirty&&(HIST[v.tp]||[]).some(x=>x.id===v.id));}
 function markDirty(){if(current&&VIEWED[current])VIEWED[current].dirty=true;}
-document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls"))markDirty();},true);
-document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls"))markDirty();},true);
+document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls,#altaCapture"))markDirty();},true);
+document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest("#paper,#relNav,#view-data,.alta-mobile-controls,#altaCapture"))markDirty();},true);
 document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("#paper .c.cb,#paper .c.pick,#paper [data-gen],[data-alta-toggle],[data-alta-supp],[data-alta-half],[data-alta-text],#relNav [data-preset],#relNav [data-text],#relNav [data-half],#relNav [data-tgt],#btnReset,#clearFmt");if(t)markDirty();},true);
 /* Nota de Alta modificada cuya fecha de egreso ya tiene otra alta guardada: pregunta antes de sobrescribir */
 function altaConflict(){
@@ -5560,12 +5700,14 @@ function prepareClinicalPagination(host){
  try{paginateClinicalNotes(host);}finally{host.style.cssText=previous;if(!wasMeasure)host.classList.remove("clinical-measure");}
 }
 function hideGateSuggestions(){const input=$("residentGateName"),list=$("residentGateSuggestions");list.hidden=true;list.replaceChildren();input.setAttribute("aria-expanded","false");input.removeAttribute("aria-activedescendant");}
+function gateUserMatches(value){
+ const q=normalizeStaffName(value);if(q.replace(/[^A-Z]/g,"").length<3)return [];
+ return [...new Set([...HJM_STAFF.residentes,...HJM_STAFF.adscritos.map(x=>x.nombre)])].filter(name=>q.split(/\s+/).every(term=>normalizeStaffName(name).includes(term)));
+}
 function renderGateSuggestions(){
- const input=$("residentGateName"),list=$("residentGateSuggestions"),q=normalizeStaffName(input.value);
- hideGateSuggestions();if(q.replace(/[^A-Z]/g,"").length<3)return;
- const matches=[...HJM_STAFF.residentes,...HJM_STAFF.adscritos.map(x=>x.nombre)].filter(name=>q.split(/\s+/).every(term=>normalizeStaffName(name).includes(term)));
- if(!matches.length)return;
- list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>Clic o Enter para elegir</small></button>`).join("");
+ const input=$("residentGateName"),list=$("residentGateSuggestions"),matches=gateUserMatches(input.value);
+ hideGateSuggestions();if(!matches.length)return;
+ list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>${matches.length===1?"Enter para ingresar · Clic para elegir":"Clic o Enter para elegir"}</small></button>`).join("");
  list.hidden=false;input.setAttribute("aria-expanded","true");if(matches.length===1)input.setAttribute("aria-activedescendant","gate-user-option-0");
 }
 function chooseGateUser(name){const input=$("residentGateName");input.value=name;hideGateSuggestions();input.dispatchEvent(new Event("change",{bubbles:true}));input.focus();input.setSelectionRange(input.value.length,input.value.length);}
@@ -5575,14 +5717,30 @@ $("residentGateName").addEventListener("blur",hideGateSuggestions);
 $("residentGateSuggestions").addEventListener("pointerdown",e=>e.preventDefault());
 $("residentGateSuggestions").addEventListener("click",e=>{const option=e.target.closest("[data-gate-user]");if(option)chooseGateUser(option.dataset.gateUser);});
 $("residentGateName").addEventListener("keydown",e=>{
- const input=$("residentGateName"),list=$("residentGateSuggestions"),options=[...list.querySelectorAll("[role=option]")];if(list.hidden||!options.length)return;
- let index=options.findIndex(x=>x.getAttribute("aria-selected")==="true");
+ if(e.isComposing)return;
+ const input=$("residentGateName"),list=$("residentGateSuggestions");
  if(e.key==="Escape"){e.preventDefault();e.stopPropagation();hideGateSuggestions();return;}
- if(e.key==="Enter"){e.preventDefault();if(index>=0){chooseGateUser(options[index].dataset.gateUser);return;}index=0;}
- else if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();index=e.key==="ArrowDown"?(index+1)%options.length:(index<=0?options.length-1:index-1);}
- else return;
+ if(e.key==="Enter"){
+   e.preventDefault();e.stopPropagation();const matches=gateUserMatches(input.value);
+   if(matches.length===1){chooseGateUser(matches[0]);$("residentGateForm").requestSubmit($("residentGateSubmit"));return;}
+   if(!matches.length){gateStatus("Para ingresar con un nombre fuera de la lista, presiona Ingresar.");return;}
+   const options=[...list.querySelectorAll("[role=option]")],selected=options.find(x=>x.getAttribute("aria-selected")==="true");
+   chooseGateUser(selected?selected.dataset.gateUser:matches[0]);return;
+ }
+ if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;
+ if(list.hidden)renderGateSuggestions();const options=[...list.querySelectorAll("[role=option]")];if(!options.length)return;
+ e.preventDefault();let index=options.findIndex(x=>x.getAttribute("aria-selected")==="true");
+ index=e.key==="ArrowDown"?(index+1)%options.length:(index<=0?options.length-1:index-1);
  options.forEach((x,i)=>x.setAttribute("aria-selected",String(i===index)));input.setAttribute("aria-activedescendant",options[index].id);options[index].scrollIntoView({block:"nearest"});
 });
+/* Enter en otros campos tampoco permite ingresar un nombre libre implícitamente. */
+$("residentGateForm").addEventListener("keydown",e=>{
+ if(e.key!=="Enter"||e.isComposing||e.defaultPrevented||e.target===$("residentGateName")||e.target.closest("button"))return;
+ e.preventDefault();const matches=gateUserMatches($("residentGateName").value);
+ if(matches.length===1){chooseGateUser(matches[0]);$("residentGateForm").requestSubmit($("residentGateSubmit"));}
+ else gateStatus(matches.length?"Selecciona un usuario de la lista para continuar.":"Para ingresar con un nombre fuera de la lista, presiona Ingresar.");
+});
+
 /* v100 · Controles de Orden vinculados a las celdas y al diagnóstico central. */
 function clearOrderDiagnosisOverrides(){BUILT.ordenHosp?.querySelectorAll('[data-sync="diagnostico"]').forEach(cell=>cell.removeAttribute("data-ov"));}
 function syncOrderControls(){
