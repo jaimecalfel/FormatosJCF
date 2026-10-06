@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="70">
+<meta name="application-version" content="72">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -1967,7 +1967,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v70 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v72 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2417,13 +2417,17 @@ const BUILT={};
 const PICKS={ alta:[{match:"TUMORES MIXTOS",opts:["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA"],editable:true,autoClinic:true,aria:"Mostrar clínicas disponibles"},{sync:"medico",opts:HJM_STAFF.adscritos.map(x=>x.nombre),editable:true,aria:"Mostrar adscritos disponibles"}] };
 function closePick(){ const m=document.querySelector(".pickmenu"); if(m) m.remove(); }
 let _pickT=0;
-function openPick(sp){
+function openPick(sp,query=null){
   closePick(); _pickT=Date.now();
-  { const rr=sp.parentElement.getBoundingClientRect(); if(rr.bottom>innerHeight-260||rr.top<80){ window.scrollBy({top:rr.top-innerHeight/2+rr.height/2,behavior:"instant"}); } }
-  const opts=JSON.parse(sp.dataset.opts||"[]"), r=sp.parentElement.getBoundingClientRect();
+  if(query===null){ const rr=sp.parentElement.getBoundingClientRect(); if(rr.bottom>innerHeight-260||rr.top<80){ window.scrollBy({top:rr.top-innerHeight/2+rr.height/2,behavior:"instant"}); } }
+  const words=query===null?[]:normalizeStaffName(query).split(" ").filter(Boolean);
+  const opts=JSON.parse(sp.dataset.opts||"[]").filter(o=>words.every(w=>normalizeStaffName(o).includes(w))), r=sp.parentElement.getBoundingClientRect();
+  if(!opts.length)return;
   const m=document.createElement("div"); m.className="pickmenu"; m.setAttribute("role","listbox");
+  m._pickSpan=sp;
   m.innerHTML=opts.map(o=>`<button type="button" role="option" aria-selected="${sp.textContent.trim()===o}">${esc(o)}</button>`).join("");
   m.style.left=Math.max(8,Math.min(r.left,innerWidth-Math.min(260,innerWidth-16)-8))+"px"; m.style.visibility="hidden";
+  m.onmousedown=e=>e.preventDefault();
   m.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; sp.textContent=b.textContent; sp.dispatchEvent(new Event("input",{bubbles:true})); shrinkOne(sp.parentElement); closePick(); };
   document.body.appendChild(m);
   /* se abre hacia abajo o hacia arriba según el espacio, y nunca se sale de la pantalla */
@@ -3076,9 +3080,22 @@ function onSheetInput(e){
   shrinkOne(cell); if(cell.classList.contains('fit')) fitOne(cell); if(cell.classList.contains('vj')) vjOne(cell); if(cell.classList.contains('fitdown')||cell.classList.contains('bsfit')) fitDownOne(cell);
   if(cell.dataset.readable==="diagnosis"){fitPaper();}
   if(current) refreshMirror(current);
+  if(current==="alta"&&cell.dataset.sync==="medico"&&cell.classList.contains("pick-editable")){
+    if(normalizeStaffName(sp.textContent))openPick(sp,sp.textContent);else closePick();
+  }
 }
 function onSheetKey(e){
   const sp=e.target.closest(".c > span"); if(!sp) return;
+  const menu=document.querySelector(".pickmenu");
+  if(menu&&menu._pickSpan===sp){
+    const options=[...menu.querySelectorAll('[role="option"]')],index=options.findIndex(b=>b.getAttribute("aria-selected")==="true");
+    if(e.key==="Escape"){e.preventDefault();closePick();return;}
+    if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+      e.preventDefault();const next=index<0?(e.key==="ArrowDown"?0:options.length-1):(index+(e.key==="ArrowDown"?1:-1)+options.length)%options.length;
+      options.forEach((b,i)=>b.setAttribute("aria-selected",String(i===next)));options[next].scrollIntoView({block:"nearest"});return;
+    }
+    if(e.key==="Enter"&&index>=0){e.preventDefault();options[index].click();return;}
+  }
   if(e.key==="Enter"&&!sp.parentElement.classList.contains("w")){e.preventDefault();sp.blur();}
 }
 function onSheetPaste(e){
@@ -3581,8 +3598,8 @@ function autoSaveOnPrint(){
   captureCurrentRecent();
   if(STORE==="drive"&&CAN_DRIVE) driveSaveNow({silent:true}).catch(()=>{});
 }
-$("btnPrint").onclick=()=>{if(loadedFormatRecord()&&!viewedClean(current)){saveLoadedFormat("edit",true);return;}if(loadedFormatRecord()){printFormatNow();return;}confirmAltaOverwrite(printFormatNow);};
-async function printFormatNow(){ document.activeElement&&document.activeElement.blur(); autoSaveOnPrint(); if(current==="alta") await prewarmAltaSupp(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); }
+$("btnPrint").onclick=()=>{if(loadedFormatRecord()){if(current==="repCx"||!viewedClean(current))saveLoadedFormat("edit",true);else printFormatNow();return;}confirmAltaOverwrite(printFormatNow);};
+async function printFormatNow(alreadySaved=false){ document.activeElement&&document.activeElement.blur(); if(!alreadySaved)autoSaveOnPrint(); if(current==="alta") await prewarmAltaSupp(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); }
 addEventListener("resize",()=>{if(current)fitPaper()});
 
 /* ---------- Guardar / abrir paciente (los datos viajan dentro del propio HTML) ---------- */
@@ -4354,8 +4371,7 @@ function saveClinicalRecord(tp,printAfter=false,force=false,mode="save"){
   if(payloads.length===2&&payloads[0].fecha===payloads[1].fecha&&payloads[0].hora===payloads[1].hora){notify("Las dos indicaciones tienen la misma fecha y hora. Cambia la fecha o la hora de una para guardarlas como registros separados.","warn");return;}
   const eid=clinicalEditing[tp],editingIds=[eid,clinicalEditingSecond[tp]],original=(HIST[tp]||[]).find(x=>x.id===eid);
   if(mode==="edit"&&(!original||!original.p||payloads.some((p,i)=>editingIds[i]&&!(HIST[tp]||[]).some(x=>x.id===editingIds[i]&&x.p)))){notify("El registro cargado ya no está disponible. Vuelve a cargarlo antes de editar.","warn");return;}
-  /* Imprimir una copia cargada sin cambios conserva la impresión original. */
-  if(printAfter&&original&&payloads.length===1&&clinicalSnap[tp]===JSON.stringify(payloads[0])){printClinicalSet(tp,[eid]);return;}
+  /* Imprimir desde la captura guarda el registro cargado como Editar, incluso sin cambios. */
   const enc={nombreCompleto:d.nombreCompleto||"",expediente:d.expediente||"",fnac:d.fnac||"",servicio:d.servicio||"",cama:d.cama||"",alergias:d.alergias||""};
   payloads.forEach(p=>p.enc=enc);
   const matches=payloads.map((p,i)=>(HIST[tp]||[]).find(x=>x&&x.p&&x.p.fecha===p.fecha&&x.p.hora===p.hora&&!(mode==="edit"&&x.id===editingIds[i])));
@@ -4560,8 +4576,8 @@ function loadAltaRecent(id,printAfter=false){
   if(printAfter)setTimeout(async()=>{document.activeElement&&document.activeElement.blur();await prewarmAltaSupp();addPrintCopies();window.print();setTimeout(removePrintCopies,1500);},100);
 }
 
-/* v55 · «Ver» en Solicitud de Cirugía, Reporte de Cirugía y Nota de Alta: si no se cambia nada, Imprimir/Guardar
-   reimprime ese mismo registro sin duplicarlo ni moverlo. Cualquier edición (en la hoja, en los controles o en la hoja de datos) lo marca como modificado. */
+/* Registros cargados: Imprimir actualiza Reporte de Cirugía como Editar, incluso sin cambios.
+   Solicitud de Cirugía y Nota de Alta conservan su registro al reimprimir sin cambios. Las ediciones marcan la captura como modificada. */
 const VIEW_FMTS=new Set(["solCx","repCx","alta"]);
 const VIEWED={};let ALTA_OWN=null;
 function markViewed(fmt,tp,id){if(VIEW_FMTS.has(fmt))VIEWED[fmt]={tp,id,dirty:false};syncFormatSaveButtons();}
@@ -4600,7 +4616,7 @@ function saveLoadedFormat(mode,printAfter=false){
   markViewed(key,tp,r.id);if(key==="alta")ALTA_OWN=r.id;
   if(key==="alta")renderRel(key);else renderRecent(key,r.id);
   doSaveNow();notify(mode==="edit"?"Registro cargado actualizado.":"Nuevo registro guardado; el original se conserva.","ok");
-  if(printAfter)printFormatNow();return r;
+  if(printAfter)printFormatNow(true);return r;
 }
 function viewedClean(fmt){const v=VIEWED[fmt];return !!(v&&!v.dirty&&(HIST[v.tp]||[]).some(x=>x.id===v.id));}
 function markDirty(){if(current&&VIEWED[current])VIEWED[current].dirty=true;}
@@ -4619,7 +4635,7 @@ function confirmAltaOverwrite(go){
     {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>{ALTA_OWN=c.id;go();}},{label:"Cancelar",fn:()=>{}}]});
 }
 function captureCurrentRecent(){
-  if((current==="repCx"||current==="alta")&&VIEWED[current])return; // Los cargados solo cambian con Guardar Nuevo o Editar.
+  if((current==="repCx"||current==="alta")&&VIEWED[current])return; // Los cargados se guardan mediante saveLoadedFormat, también al imprimir.
   if(VIEW_FMTS.has(current)&&viewedClean(current))return;      // es el mismo registro que se abrió con «Ver»: no se duplica
   if(current==="alta")captureAltaRecent();
   captureRecent(current,current);
