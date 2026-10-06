@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="90">
+<meta name="application-version" content="91">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2123,7 +2123,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v90 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v91 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -4836,6 +4836,8 @@ function loadedFormatRecord(){
 }
 function syncFormatSaveButtons(){
   const save=$("btnSaveFmt"),edit=$("btnEditFmt");if(!save||!edit)return;
+  const blank=$("btnPrintBlank"),actions=save.parentElement;
+  if(blank){if(current==="repCx")actions.prepend(blank);else actions.appendChild(blank);}
   const loaded=!!loadedFormatRecord();edit.hidden=!loaded;syncLoadedSaveActions(save,edit,loaded);
   save.querySelector(".format-save-label").textContent=loaded?"Guardar Nuevo":"Guardar";
   if(loaded){
