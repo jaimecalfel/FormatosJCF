@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.07">
+<meta name="application-version" content="2.10">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2160,6 +2160,34 @@ body.showing-clinical #view-clinical{display:block}
 @media screen and (max-width:760px){#view-archive .ar-record{grid-template-columns:65px minmax(0,1fr);gap:12px}#view-archive .ar-record-footer{grid-column:1/-1;flex-direction:row;align-items:center;border-left:0;border-top:1px solid #edf1f7;padding:10px 0 0;height:auto;flex-wrap:wrap}#view-archive .ar-latest-label{margin-left:0;margin-top:4px;display:table}}
 @media print{.transfusion-missing-chips{display:none!important}}
 </style>
+<style id="archive-v208">
+@media screen{
+ #view-archive .ar-cols{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+ #view-archive .ar-cols>.ar-panel:only-child{grid-column:1/-1}
+ #view-archive .ar-record{grid-template-columns:65px minmax(0,1fr);gap:10px 14px;grid-template-rows:auto auto}
+ #view-archive .ar-record-footer{grid-column:1/-1;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px;border-left:0;border-top:1px solid #edf1f7;padding:10px 0 0;height:auto}
+ #view-archive .ar-record .ar-act{margin-left:auto}
+ #view-archive .ar-record-kind{letter-spacing:.03em}
+ #view-archive .ar-other-columns{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);align-items:start}
+ #view-archive .ar-content-column,#view-archive .ar-date-column{min-width:0}
+ #view-archive .ar-date-column{border-left:1px solid #e4ebf5;background:#f7faff;align-self:stretch}
+ #view-archive .ar-column-heading{padding:20px 20px 0}
+ #view-archive .ar-column-heading h3{font-size:14px;color:#355071;margin:0}
+ #view-archive .ar-column-heading p{font-size:11px;color:#8796ab;margin:5px 0 0;line-height:1.5}
+ #view-archive .ar-mini-grid{background:transparent}
+ #view-archive .ar-dates-head{border-top:0;padding:20px 16px 10px;gap:8px}
+ #view-archive .ar-dates-head>span{background:#e8f0fb;padding:3px 7px;border-radius:6px;color:#466b9f}
+ #view-archive .ar-dates{grid-template-columns:minmax(0,1fr);padding:8px 12px 16px}
+ #view-archive .ar-date-record{grid-template-columns:22px minmax(0,1fr);gap:6px 8px;padding:12px;background:#fff}
+ #view-archive .ar-date-record-icon{align-self:start}
+ #view-archive .ar-date-record time{grid-column:2;grid-row:1;align-self:start;margin-bottom:4px}
+ #view-archive .ar-date-record>div{grid-column:2;grid-row:2}
+ #view-archive .ar-date-record p{font-size:10px;color:#8392a7}
+ @media(max-width:1000px){#view-archive .ar-other-columns{grid-template-columns:minmax(0,1fr)}#view-archive .ar-date-column{border-left:0;border-top:1px solid #e4ebf5}}
+ @media(max-width:850px){#view-archive .ar-cols{grid-template-columns:minmax(0,1fr)}}
+ @media(max-width:620px){#view-archive .ar-record .ar-act{margin-left:0}#view-archive .ar-column-heading{padding:16px 14px 0}#view-archive .ar-record{padding:12px}#view-archive .ar-dates-head>span{display:block}}
+}
+</style>
 </head>
 <body>
 
@@ -2345,7 +2373,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.07 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión 2.10 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -4899,8 +4927,18 @@ function clinicalOtherToken(input){
   return {start,end:next<0?value.length:next,query:value.slice(start,caret).trim()};
 }
 function hideClinicalOthers(input){const list=$(input.getAttribute("aria-controls"));if(list)list.hidden=true;input.setAttribute("aria-expanded","false");input.removeAttribute("aria-activedescendant");}
+/* Cierra Otros al pulsar fuera, aunque el elemento pulsado no reciba el foco. */
+document.addEventListener("pointerdown",e=>{
+  document.querySelectorAll("#clinicalForm [data-cl-others]").forEach(input=>{
+    const field=input.closest(".clinical-others-field");
+    if(!field||!field.contains(e.target))hideClinicalOthers(input);
+  });
+},true);
+document.addEventListener("focusout",e=>{if(e.target.matches("#clinicalForm [data-cl-others]"))hideClinicalOthers(e.target);});
+document.addEventListener("focusin",e=>{if(e.target.matches("#clinicalForm [data-cl-others]"))suggestClinicalOthers(e.target);});
 function suggestClinicalOthers(input){
   const list=$(input.getAttribute("aria-controls"));if(!list)return;
+  document.querySelectorAll("#clinicalForm [data-cl-others]").forEach(other=>{if(other!==input)hideClinicalOthers(other);});
   const query=normalizeStaffName(clinicalOtherToken(input).query),words=query.split(" ").filter(Boolean);
   const names=[...new Set([...HJM_STAFF.residentes,...HJM_STAFF.adscritos.map(x=>x.nombre)])].filter(name=>words.every(word=>normalizeStaffName(name).includes(word)));
   list.innerHTML=names.map((name,i)=>`<button type="button" role="option" aria-selected="false" tabindex="-1" id="${input.id}-option-${i}" data-cl-other-choice="${esc(name)}" data-cl-other-input="${input.id}">${esc(name)}</button>`).join("");
@@ -4983,7 +5021,6 @@ function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
     input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));
   };
   form.oninput=e=>{if(e.target.matches("[data-cl-others]")){suggestClinicalOthers(e.target);return;}if(e.target.matches("[data-date]")){const dg=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");}else if(e.target.matches("[data-time]"))e.target.value=normalizeClinicalTime(e.target.value,true);};
-  form.onfocusin=e=>{if(e.target.matches("[data-cl-others]"))suggestClinicalOthers(e.target);};
   form.onkeydown=clinicalOthersKeydown;
   form.onchange=e=>{if(e.target.id==="cl-tipo")syncClinicalNoteVitals();};
   form.onfocusout=e=>{if(e.target.matches("[data-cl-others]")){hideClinicalOthers(e.target);return;}if(!e.target.matches("[data-time]"))return;const normalized=normalizeClinicalTime(e.target.value);if(normalized)e.target.value=normalized;};
@@ -5156,8 +5193,8 @@ function arPreview(e){const p=e.r.p||{};return e.detail||arPlain(p.contenido)||[
 function arMatches(e){const q=ARCHIVE_UI.query.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();if(!q)return true;const p=e.r.p||{};const snapshot=Object.values(p.fields||{}).map(v=>arPlain(v&&v.h)).join(" ")+" "+(p.cells||[]).map(v=>Array.isArray(v)?arPlain(v[1]):"").join(" ");const text=[e.fecha,e.hora,e.tipo,e.detail,e.r.t,savedBy(e.r),p.adscrito,p.otros,p.residente,arPreview(e),arPlain(p.soluciones),arPlain(p.cuidados),snapshot].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return q.split(/\s+/).every(w=>text.includes(w));}
 function arFiltered(src){const list=arCollect(src).filter(arMatches);return ARCHIVE_UI.sort==="asc"?list.reverse():list;}
 function arDateTile(fecha,hora){const m=/^(\d{1,2})[./-](\d{1,2})[./-](\d{2}|\d{4})$/.exec(fecha||"");const months=["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];return `<div class="ar-date-tile" title="${esc(fecha||"Sin fecha")}">${m?`<strong>${esc(m[1].padStart(2,"0"))}</strong><span>${months[+m[2]-1]||m[2]} · ${esc(m[3].length===2?"20"+m[3]:m[3])}</span>`:`<strong class="ar-date-text">${esc(fecha||"Sin fecha")}</strong>`}${hora?`<small>${esc(hora)} h</small>`:""}</div>`;}
-function arRowHTML(e,latest=false){const preview=arPreview(e),origin={notas:"Nota médica",prequx:"Prequirúrgica",altas:"Nota de alta",indicaciones:"Indicaciones",solCx:"Solicitud de cirugía",repCx:"Reporte de cirugía",rx:"Rayos X",interconsulta:"Interconsulta",receta:"Receta",consInf:"Consentimiento informado"}[e.tp]||"Documento";
- return `<article class="ar-record${latest?" ar-latest":""}" data-src="${esc(e.tp)}">${arDateTile(e.fecha,e.hora)}<div class="ar-record-main"><span class="ar-record-kind">${esc(origin)}${latest?'<b class="ar-latest-label">Más reciente</b>':""}</span><h3>${esc(e.tipo||origin)}</h3>${preview?`<p class="ar-preview">${esc(preview)}</p>`:""}</div><footer class="ar-record-footer"><div class="ar-author"><span>Elaboró</span><strong>${esc(savedBy(e.r))}</strong></div><div class="ar-act">${arActions(e,true)}</div></footer></article>`;
+function arRowHTML(e,latest=false){const showContent=["solCx","repCx","interconsulta","rx","receta","consInf"].includes(e.tp),preview=showContent?arPreview(e):"",origin={notas:"Nota médica",prequx:"Prequirúrgica",altas:"Nota de alta",indicaciones:"Indicaciones",solCx:"Solicitud de cirugía",repCx:"Reporte de cirugía",rx:"Rayos X",interconsulta:"Interconsulta",receta:"Receta",consInf:"Consentimiento informado"}[e.tp]||"Documento";
+ return `<article class="ar-record${latest?" ar-latest":""}" data-src="${esc(e.tp)}">${arDateTile(e.fecha,e.hora)}<div class="ar-record-main"><span class="ar-record-kind">${esc(origin)}${latest?'<b class="ar-latest-label">Más reciente</b>':""}</span><h3>${esc(e.tp==="notas"||showContent?(e.tipo||origin):origin)}</h3>${preview?`<p class="ar-preview">${esc(preview)}</p>`:""}</div><footer class="ar-record-footer"><div class="ar-author"><span>Elaboró</span><strong>${esc(savedBy(e.r))}</strong></div><div class="ar-act">${arActions(e,true)}</div></footer></article>`;
 }
 function arPanelHTML(pn,mini){const total=arCollect(pn.src).length,list=arFiltered(pn.src);if(mini&&!total)return "";const limit=ARCHIVE_UI.limits[pn.key]||8,newest=arCollect(pn.src)[0];
  return `<section class="ar-panel${mini?" ar-mini":""}" data-panel="${pn.key}"><div class="ar-panel-head"><span class="ar-section-icon">${arIcon(pn.key)}</span><div class="ar-section-title"><h2>${esc(pn.title)}</h2><p>${pn.key==="notas"?"Médicas, prequirúrgicas y de alta":pn.key==="indicaciones"?"Tratamiento y cuidados indicados":pn.key==="solCx"?"Procedimientos solicitados":pn.key==="repCx"?"Procedimientos realizados":"Historial de documentos"}</p></div><span class="ar-count">${list.length}${list.length!==total?` / ${total}`:""}</span></div>`+
@@ -5173,7 +5210,7 @@ function renderArchive(){
  if(ARCHIVE_UI.patient!==patient){ARCHIVE_UI.patient=patient;ARCHIVE_UI.query="";ARCHIVE_UI.group="all";ARCHIVE_UI.sort="desc";ARCHIVE_UI.limits={};$("arSearch").value="";$("arSort").value="desc";}
  const all=arCollect([...AR_PANELS.flatMap(p=>p.src),...AR_MINI.filter(m=>FORMATS[m.key]).flatMap(p=>p.src)]);
  const dates=AR_OTHER.filter(k=>FORMATS[k]&&!AR_MINI.some(m=>m.key===k)).map(k=>[k,arOtherInfo(k)]).filter(x=>x[1]);
- const matchingDates=dates.filter(([k,i])=>arMatches({fecha:i.fecha,hora:"",tipo:(CAT[k]&&CAT[k].tt)||FORMATS[k].title,detail:"",r:{t:"",by:i.by},tp:k}));if(ARCHIVE_UI.sort==="asc")matchingDates.sort((a,b)=>arDateMs(a[1].fecha)-arDateMs(b[1].fecha));else matchingDates.sort((a,b)=>arDateMs(b[1].fecha)-arDateMs(a[1].fecha));
+ const matchingDates=dates.filter(([k,i])=>arMatches({fecha:i.fecha,hora:"",tipo:(CAT[k]&&CAT[k].tt)||FORMATS[k].title,detail:"",r:{t:"",by:i.by},tp:k}));matchingDates.sort((a,b)=>arDateMs(b[1].fecha)-arDateMs(a[1].fecha));
  $("arHeroIcon").innerHTML=arIcon("all");
  $("arPatient").innerHTML=`<h2>${esc(d.nombreCompleto||"Paciente sin nombre")}</h2><div class="ar-patient-tags">${d.expediente?`<span>Expediente <strong>${esc(d.expediente)}</strong></span>`:""}${d.cama?`<span>Cama <strong>${esc(d.cama)}</strong></span>`:""}${d.fnac?`<span>Nacimiento <strong>${esc(d.fnac)}</strong></span>`:""}</div>`;
  $("arStats").innerHTML=`<strong>${all.length}</strong><span>documentos guardados${dates.length?`<small>${dates.length} solicitudes con fecha</small>`:""}</span>`;
@@ -5187,7 +5224,9 @@ function renderArchive(){
  $("arCols").innerHTML=AR_PANELS.filter(p=>chosen==="all"||chosen===p.key).map(p=>arPanelHTML(p,false)).join("");
  $("arOtherSection").hidden=!showOther;$("arOtherCount").textContent=matchingOther;
  if(showOther){const minis=AR_MINI.filter(m=>FORMATS[m.key]).map(m=>arPanelHTML(m,true)).filter(Boolean);
- $("arOther").innerHTML=(minis.length?`<div class="ar-mini-grid">${minis.join("")}</div>`:"")+(matchingDates.length?`<div class="ar-dates-head"><div><h3>Últimas solicitudes</h3><p>Fecha y autor de los formatos que no guardan su contenido.</p></div><span>${matchingDates.length} solicitudes</span></div><div class="ar-dates">`+matchingDates.map(([k,i])=>`<article class="ar-date-record"><span class="ar-date-record-icon">${arIcon("other")}</span><div><h3>${esc((CAT[k]&&CAT[k].tt)||FORMATS[k].title)}</h3><p>Elaboró: <strong>${esc(i.by||"Sin identificar")}</strong></p></div><time>${esc(i.fecha)}</time></article>`).join("")+`</div>`:"")+(!minis.length&&!matchingDates.length?`<div class="ar-empty"><strong>${dates.length?"Sin coincidencias":"Sin otras solicitudes todavía"}</strong><p>${dates.length?"Prueba con otro término de búsqueda.":"Aquí aparecerán los próximos registros."}</p></div>`:"");}
+ const dateCards=matchingDates.map(([k,i])=>`<article class="ar-date-record"><span class="ar-date-record-icon">${arIcon("other")}</span><div><h3>${esc((CAT[k]&&CAT[k].tt)||FORMATS[k].title)}</h3><p>Elaboró: <strong>${esc(i.by||"Sin identificar")}</strong></p></div><time>${esc(i.fecha)}</time></article>`).join("");
+ $("arOther").innerHTML=`<div class="ar-other-columns"><div class="ar-content-column"><div class="ar-column-heading"><h3>Solicitudes con contenido</h3><p>Consulta e imprime el documento guardado.</p></div>${minis.length?`<div class="ar-mini-grid">${minis.join("")}</div>`:`<div class="ar-empty"><strong>Sin solicitudes con contenido${ARCHIVE_UI.query?" que coincidan":" todavía"}</strong></div>`}</div><aside class="ar-date-column" aria-label="Solicitudes que solo registran fecha"><div class="ar-dates-head"><div><h3>Últimas solicitudes</h3><p>De la más reciente a la más antigua.</p></div><span>${matchingDates.length}</span></div>${matchingDates.length?`<div class="ar-dates">${dateCards}</div>`:`<div class="ar-empty"><strong>Sin solicitudes con fecha${ARCHIVE_UI.query?" que coincidan":" todavía"}</strong></div>`}</aside></div>`;}
+
 }
 $("arSearch").addEventListener("input",()=>{ARCHIVE_UI.query=$("arSearch").value;ARCHIVE_UI.limits={};renderArchive();});
 $("arSort").addEventListener("change",()=>{ARCHIVE_UI.sort=$("arSort").value;ARCHIVE_UI.limits={};renderArchive();});
