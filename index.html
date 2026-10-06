@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="91">
+<meta name="application-version" content="97">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -1938,6 +1938,176 @@ body.showing-clinical #view-clinical{display:block}
 #clinicalPrint.clinical-measure .cp-identifiers span{white-space:nowrap;font-weight:400}
 #clinicalPrint.clinical-measure .cp-identifiers strong{white-space:nowrap;font-size:11pt;font-weight:700}
 </style>
+<style id="note-variants-v92">
+@media screen{#view-clinical .clinical-note-vitals[hidden]{display:none!important}}
+@media print{
+ .cp-note-free .cp-free-date{margin:0 0 12pt;font-size:12pt;font-weight:700;line-height:1.15}
+ .cp-note-free .cp-content{margin:0;font-family:Arial,sans-serif;font-size:8.5pt;line-height:1.12;text-align:justify;overflow-wrap:anywhere}
+ .cp-note-free .cp-signatures{margin-top:6pt!important;font-size:7.5pt;line-height:1.3;text-align:right}
+}
+.prequx-original{display:none!important}
+.prequx-note-sheet{font-family:Arial,sans-serif;color:#000}
+.prequx-note-sheet .cp-head{display:grid;grid-template-columns:.72in 1fr .72in;align-items:start}
+.prequx-note-sheet .cp-logo{width:.66in;height:.66in;object-fit:contain}
+.prequx-note-sheet .cp-logo:last-child{justify-self:end}
+.prequx-note-sheet .cp-hospital{text-align:center;font-family:"Times New Roman",serif;font-size:14pt;font-weight:700;line-height:1.1;padding-top:.12in}
+.prequx-note-sheet .cp-patient-v88{display:grid;grid-template-columns:minmax(0,1fr);gap:9pt;margin-top:8pt;font-family:"Times New Roman",serif;font-size:10pt}
+.prequx-note-sheet .cp-name{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.6in);align-items:baseline;gap:14pt}
+.prequx-note-sheet .cp-name>span{white-space:nowrap;font-weight:400}
+.prequx-note-sheet .cp-name>strong{font-size:14pt;font-weight:700;overflow-wrap:anywhere}
+.prequx-note-sheet .cp-allergies{min-width:0;text-align:right;font-size:8pt;line-height:1.2;overflow-wrap:anywhere}
+.prequx-note-sheet .cp-allergies>span{white-space:nowrap;font-weight:400}
+.prequx-note-sheet .cp-allergies>strong{font-size:8pt;font-weight:700}
+.prequx-note-sheet .cp-identifiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12pt;align-items:baseline}
+.prequx-note-sheet .cp-identifiers>div{display:flex;align-items:baseline;gap:7pt;min-width:0}
+.prequx-note-sheet .cp-identifiers>div:nth-child(2){justify-content:center}
+.prequx-note-sheet .cp-identifiers>div:last-child{justify-content:flex-end}
+.prequx-note-sheet .cp-identifiers span{white-space:nowrap;font-weight:400}
+.prequx-note-sheet .cp-identifiers strong{white-space:nowrap;font-size:11pt;font-weight:700}
+.prequx-note-sheet .cp-note-table{width:100%;margin-top:.12in;border-collapse:collapse;table-layout:fixed;border:1pt solid #000}
+.prequx-note-sheet .cp-note-meta-col{width:15.5%}
+.prequx-note-sheet .cp-note-table th,.prequx-note-sheet .cp-note-table td{border:1pt solid #000;box-sizing:border-box}
+.prequx-note-sheet .cp-note-table th{height:.48in;padding:7pt 4pt;text-align:center;vertical-align:middle;font-size:9pt;line-height:1.2}
+.prequx-note-sheet .cp-title{margin:0;font-family:"Times New Roman",serif;font-size:14pt;line-height:1.2}
+.prequx-note-sheet .cp-note-table td{height:7.8in;padding:12pt 7pt;vertical-align:top}
+.prequx-note-sheet .cp-content{margin:0;font-family:Arial,sans-serif;font-size:8.5pt;line-height:1.12;text-align:justify;overflow-wrap:anywhere}
+.prequx-note-sheet .prequx-note-row,.prequx-note-sheet .cp-content p,.prequx-note-sheet .cp-content div{margin:0!important;padding:0;line-height:1.12}
+.prequx-note-sheet .c.prequx-note-value,.prequx-note-sheet .c.prequx-note-date,.prequx-note-sheet .c.prequx-note-signature{position:static!important;display:inline!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;padding:0!important;margin:0!important;clip-path:none!important;background:transparent!important;overflow:visible!important;font-family:Arial,sans-serif!important;font-size:8.5pt!important;line-height:1.12!important}
+.prequx-note-sheet .c.prequx-note-value>span{display:inline!important;width:auto!important;white-space:normal!important;padding:0!important;font-size:8.5pt!important;line-height:1.12!important}
+.prequx-note-sheet .c.prequx-note-date{display:block!important;font-size:12pt!important;font-weight:700!important;text-align:center!important;line-height:1.15!important}
+.prequx-note-sheet .cp-signatures{width:auto;max-width:100%;margin:6pt 0 0!important;text-align:right;font-size:7.5pt;line-height:1.3}
+.prequx-note-sheet .c.prequx-note-signature{display:block!important;font-size:7.5pt!important;text-align:right!important;line-height:1.3!important}
+.prequx-note-sheet .c.prequx-note-signature>span{font-size:7.5pt!important}
+</style>
+<style id="note-pagination-v93">
+#restoreSurgicalRisks{margin-left:auto;padding:3px 8px;border:1px solid #b8cbea;border-radius:6px;background:#eef3fb;color:#315e9b;font:inherit;font-size:10px;font-weight:700;cursor:pointer}
+#restoreSurgicalRisks:hover{background:#dfe8f7}
+.prequx-note-sheet .prequx-note-row+.prequx-note-row{margin-top:8.5pt!important}
+.prequx-note-sheet .cp-note-table td{height:6.8in}
+@media print{
+ #clinicalPrint .cp-note.cp-paginated{height:11in;min-height:11in;max-height:11in;padding:.12in .42in .4in;overflow:visible;break-inside:avoid;page-break-inside:avoid}
+ #clinicalPrint .cp-paginated .cp-note-table{margin-bottom:0;border:1pt solid #000;break-inside:avoid;page-break-inside:avoid}
+ #clinicalPrint .cp-paginated .cp-note-table td{height:auto}
+ #clinicalPrint .cp-paginated .cp-content{min-height:0}
+ #clinicalPrint .cp-paginated .cp-signatures{break-inside:avoid}
+}
+</style>
+<style id="archive-design-v94">
+@media screen{
+#view-archive{padding:24px clamp(12px,3vw,44px) 56px;background:#f3f6fb;color:#203653}
+#view-archive [hidden]{display:none!important}
+#view-archive .ar-shell{max-width:1320px;margin:auto}
+#view-archive svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+#view-archive .ar-hero{padding:24px 28px;background:linear-gradient(115deg,#192f52,#2d5487);border:1px solid #253f64;border-radius:20px;color:white;box-shadow:0 8px 24px #19335213}
+#view-archive .ar-hero-top{display:flex;justify-content:space-between;align-items:center;gap:20px}
+#view-archive .ar-hero-title{display:flex;gap:13px;align-items:center}
+#view-archive .ar-hero-icon{display:grid;place-items:center;width:48px;height:48px;background:#ffffff14;border:1px solid #ffffff25;border-radius:14px}
+#view-archive .ar-hero-icon svg{width:27px;height:27px}
+#view-archive .ar-eyebrow{font-size:10px;color:#c5d6ef;letter-spacing:.13em;font-weight:750}
+#view-archive h1{font-size:25px;letter-spacing:-.035em;margin:3px 0 0;line-height:1.2;color:white}
+#view-archive .ar-hero-stat{display:flex;gap:12px;align-items:center;text-align:left;padding-left:20px;border-left:1px solid #ffffff26}
+#view-archive .ar-hero-stat>strong{font-size:32px;line-height:1;font-weight:750;letter-spacing:-.04em}
+#view-archive .ar-hero-stat>span{font-size:12px;color:#d2def1;line-height:1.6}
+#view-archive .ar-hero-stat small{display:block;font-size:11px;color:#b3c8e8}
+#view-archive .ar-patient{margin-top:23px;padding-top:19px;border-top:1px solid #ffffff26}
+#view-archive .ar-patient h2{font-size:19px;line-height:1.35;letter-spacing:.01em;margin:0 0 10px;color:#fff;overflow-wrap:anywhere}
+#view-archive .ar-patient-tags{display:flex;flex-wrap:wrap;gap:8px 26px;font-size:12px;color:#c1d2ec}
+#view-archive .ar-patient-tags strong{color:white;margin-left:6px;font-weight:750}
+#view-archive .ar-tools{display:flex;gap:12px;align-items:center;margin:20px 0 15px}
+#view-archive .ar-search{display:flex;align-items:center;gap:11px;flex:1;min-width:0;height:46px;padding:0 14px;border:1px solid #d6e0ed;border-radius:12px;background:#fff;color:#778ca8;box-shadow:0 2px 5px #23466b04}
+#view-archive .ar-search:focus-within{border-color:#527db5;box-shadow:0 0 0 3px #527db516}
+#view-archive .ar-search input{min-width:0;width:100%;padding:0;border:0;outline:0;box-shadow:none;background:transparent;font:inherit;font-size:13px;color:#243e61;height:100%;text-transform:none}
+#view-archive .ar-search input::placeholder{color:#7d8fa6}
+#view-archive .ar-order{display:flex;align-items:center;gap:8px;font-size:11px;color:#6b7e98;font-weight:650}
+#view-archive .ar-order select{height:46px;border:1px solid #d6e0ed;border-radius:12px;padding:0 30px 0 12px;background:#fff;color:#314c70;font-size:12px;font-family:inherit}
+#view-archive .ar-clear{background:transparent;border:0;color:#3c6397;font:inherit;font-size:11px;font-weight:700;padding:8px;cursor:pointer}
+#view-archive .ar-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+#view-archive .ar-nav-item{display:flex;align-items:center;gap:7px;padding:10px 13px;background:#fff;color:#526784;border:1px solid #dce4ef;border-radius:10px;font:inherit;font-size:12px;font-weight:650;cursor:pointer;transition:background .15s,border-color .15s}
+#view-archive .ar-nav-item svg{width:17px;height:17px}
+#view-archive .ar-nav-item b{background:#edf2f8;color:#62799a;border-radius:6px;padding:2px 5px;font-size:10px;min-width:19px;text-align:center}
+#view-archive .ar-nav-item:hover{background:#edf3fc;border-color:#b8cce8}
+#view-archive .ar-nav-item.active{background:#315e9b;border-color:#315e9b;color:white;box-shadow:0 3px 8px #315e9b16}
+#view-archive .ar-nav-item.active b{background:#ffffff24;color:#fff}
+#view-archive .ar-results-line{display:flex;align-items:center;justify-content:space-between;margin:0 2px 14px;color:#8492a7;font-size:10.5px;gap:12px}
+#view-archive .ar-results-line>span:first-child{color:#526a8a;font-size:12px;font-weight:700}
+#view-archive .ar-cols{max-width:none;gap:20px}
+#view-archive .ar-panel{background:#fff;border:1px solid #dce5f0;border-radius:16px;box-shadow:0 3px 12px #203d6405;container-type:normal}
+#view-archive .ar-panel-head{background:#fff;color:#233f65;padding:18px 20px;border-bottom:1px solid #eaf0f7;gap:12px}
+#view-archive .ar-section-icon{display:grid;place-items:center;width:40px;height:40px;border:1px solid #dbe6f5;border-radius:11px;background:#edf3fb;color:#416ca3}
+#view-archive .ar-section-title{flex:1;min-width:0}
+#view-archive .ar-panel-head h2{font-size:16px;letter-spacing:-.015em;color:#233f65}
+#view-archive .ar-panel-head p{font-size:11px;color:#8190a6;margin:4px 0 0;line-height:1.4}
+#view-archive .ar-count{background:#edf3fb;border:1px solid #e0e8f3;color:#466b9f;font-size:12px;padding:4px 9px;border-radius:8px}
+#view-archive .ar-records{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}
+#view-archive .ar-record{display:grid;grid-template-columns:76px minmax(0,1fr);grid-template-rows:1fr auto;gap:14px;min-width:0;padding:15px;border:1px solid #e1e8f2;border-radius:12px;background:#fff;transition:border-color .15s,box-shadow .15s}
+#view-archive .ar-record:hover{border-color:#b9cde9;box-shadow:0 3px 12px #315e9b0b}
+#view-archive .ar-date-tile{display:flex;align-items:center;flex-direction:column;align-self:start;padding:10px 3px 8px;background:#f0f5fc;border:1px solid #e0e9f6;border-radius:10px;color:#355b8c;text-align:center}
+#view-archive .ar-date-tile>strong{font-size:25px;font-weight:750;letter-spacing:-.04em;line-height:1.1}
+#view-archive .ar-date-tile>span{font-size:9px;font-weight:750;letter-spacing:.02em;margin-top:4px;white-space:nowrap}
+#view-archive .ar-date-tile>small{margin-top:7px;padding-top:6px;border-top:1px solid #dae5f5;width:90%;font-size:10px;color:#6c82a0;font-weight:650}
+#view-archive .ar-date-tile>.ar-date-text{font-size:11px;letter-spacing:0;overflow-wrap:anywhere}
+#view-archive .ar-record-main{min-width:0;padding-top:1px}
+#view-archive .ar-record-kind{display:block;font-size:9px;font-weight:750;letter-spacing:.075em;color:#7790b0;text-transform:uppercase;margin-bottom:6px}
+#view-archive .ar-record h3{font-size:13px;line-height:1.45;color:#29466e;margin:0;font-weight:750;overflow-wrap:anywhere}
+#view-archive .ar-preview{font-size:12px;line-height:1.6;color:#75859c;margin:6px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+#view-archive .ar-record-footer{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;align-items:center;padding-top:12px;border-top:1px solid #edf1f7;min-width:0}
+#view-archive .ar-author{min-width:0;flex:1}
+#view-archive .ar-author>span{display:block;font-size:9px;color:#8a98ac;font-weight:650;margin-bottom:3px}
+#view-archive .ar-author>strong{display:block;font-size:11px;line-height:1.4;font-weight:650;color:#546c8b;overflow-wrap:anywhere}
+#view-archive .ar-act{flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;gap:5px}
+#view-archive .ar-act .rb{min-height:29px;border-radius:7px;padding:5px 7px!important;font-size:10px!important;font-weight:650!important;box-shadow:none!important}
+#view-archive .ar-act .rb svg{width:13px;height:13px}
+#view-archive .ar-act .rb-view{background:#edf3fc!important;border-color:#d4e1f5!important;color:#315e9b!important}
+#view-archive .ar-act .rb-print{background:#315e9b!important;border-color:#315e9b!important;color:#fff!important}
+#view-archive .ar-act .rb-del{background:#fff!important;border-color:#eddde0!important;color:#aa6570!important}
+#view-archive .ar-act .rb-del:hover{background:#fff0f1!important;border-color:#e4b9c0!important;color:#a33145!important}
+#view-archive .ar-more{width:100%;display:flex;justify-content:center;align-items:center;gap:12px;border:0;border-top:1px solid #edf1f7;background:#fbfcfe;padding:13px;font:inherit;font-size:12px;color:#416da6;font-weight:700;cursor:pointer}
+#view-archive .ar-more>span:first-child{font-size:10px;color:#889ab0;font-weight:500}
+#view-archive .ar-more:hover{background:#eef4fc}
+#view-archive .ar-empty{display:flex;align-items:center;flex-direction:column;padding:26px 14px;color:#8898ad}
+#view-archive .ar-empty>span{margin-bottom:8px;color:#b2c3dc}
+#view-archive .ar-empty>strong{font-size:12px;color:#6e849f}
+#view-archive .ar-empty p{margin:5px 0 0;font-size:11px;line-height:1.5}
+#view-archive .ar-other{max-width:none;margin-top:20px;background:#fff;border:1px solid #dce5f0;border-radius:16px}
+#view-archive .ar-other-head{display:flex;justify-content:space-between;align-items:center;padding:20px;background:#fff;border-bottom:1px solid #eaf0f7}
+#view-archive .ar-section-kicker{font-size:9px;color:#8599b6;letter-spacing:.1em;font-weight:750}
+#view-archive .ar-other-head h2{font-size:17px;color:#233f65;margin-top:4px}
+#view-archive .ar-other-head p{color:#8190a6;margin-top:5px;font-size:11px}
+#view-archive .ar-other-list{display:block}
+#view-archive .ar-mini-grid{display:grid;grid-template-columns:1fr;gap:16px;padding:16px;background:#fafcfe}
+#view-archive .ar-mini{box-shadow:none;border-radius:12px}
+#view-archive .ar-mini .ar-panel-head{padding:14px 16px}
+#view-archive .ar-mini .ar-panel-head h2{font-size:14px}
+#view-archive .ar-mini .ar-section-icon{width:32px;height:32px;border-radius:9px}
+#view-archive .ar-dates-head{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 10px;border-top:1px solid #eaf0f7}
+#view-archive .ar-dates-head h3{font-size:14px;margin:0;color:#355071}
+#view-archive .ar-dates-head p{font-size:11px;margin:5px 0 0;color:#8796ab;line-height:1.5}
+#view-archive .ar-dates-head>span{font-size:10px;white-space:nowrap;color:#8a9bb3}
+#view-archive .ar-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px 16px 20px}
+#view-archive .ar-date-record{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid #e5ecf6;border-radius:10px;padding:13px;background:#fcfdff}
+#view-archive .ar-date-record-icon{color:#8aa3c4}
+#view-archive .ar-date-record h3{font-size:11px;color:#486485;margin:0;line-height:1.4}
+#view-archive .ar-date-record p{font-size:9px;color:#94a1b5;margin:4px 0 0;line-height:1.45}
+#view-archive .ar-date-record strong{color:#7488a4;font-weight:600;overflow-wrap:anywhere}
+#view-archive .ar-date-record time{font-size:11px;color:#456a9a;font-weight:750;white-space:nowrap}
+#view-archive button:focus-visible,#view-archive select:focus-visible{outline:3px solid #89b0e4;outline-offset:3px}
+@media(max-width:1000px){#view-archive .ar-records{grid-template-columns:1fr}#view-archive .ar-tools{flex-wrap:wrap}#view-archive .ar-search{flex-basis:60%}#view-archive .ar-clear{margin-left:auto}}
+@media(max-width:620px){#view-archive{padding:14px 10px 40px}#view-archive .ar-hero{padding:18px;border-radius:15px}#view-archive .ar-hero-top{gap:12px;align-items:flex-start}#view-archive .ar-hero-icon{width:36px;height:36px;border-radius:11px}#view-archive .ar-hero-icon svg{width:21px;height:21px}#view-archive .ar-hero-title{gap:9px}#view-archive h1{font-size:20px}#view-archive .ar-eyebrow{font-size:8px;letter-spacing:.06em}#view-archive .ar-hero-stat{padding-left:10px;gap:6px}#view-archive .ar-hero-stat>strong{font-size:23px}#view-archive .ar-hero-stat>span{font-size:9px;max-width:68px}#view-archive .ar-hero-stat small{font-size:8px}#view-archive .ar-patient{margin-top:17px;padding-top:15px}#view-archive .ar-patient h2{font-size:16px}#view-archive .ar-patient-tags{gap:8px 15px;font-size:10px}#view-archive .ar-tools{gap:9px;margin-top:15px}#view-archive .ar-search{flex-basis:100%;height:44px}#view-archive .ar-search input{font-size:12px}#view-archive .ar-order select{height:37px;font-size:11px}#view-archive .ar-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#view-archive .ar-nav-item{padding:9px 8px;font-size:10px;gap:5px}#view-archive .ar-nav-item svg{width:14px;height:14px}#view-archive .ar-nav-item>span{flex:1;text-align:left;min-width:0}#view-archive .ar-results-line>span:last-child{display:none}#view-archive .ar-panel-head{padding:14px;gap:9px}#view-archive .ar-panel-head h2{font-size:14px}#view-archive .ar-section-icon{width:33px;height:33px}#view-archive .ar-records{padding:10px;gap:10px}#view-archive .ar-record{padding:12px;grid-template-columns:64px minmax(0,1fr);gap:11px}#view-archive .ar-record-footer{flex-wrap:wrap;gap:10px}#view-archive .ar-author{flex-basis:100%}#view-archive .ar-act{justify-content:flex-start}#view-archive .ar-act .rb{min-height:32px;font-size:11px!important;padding:6px 10px!important}#view-archive .ar-date-tile>span{font-size:8px}#view-archive .ar-dates{grid-template-columns:1fr;padding:10px}#view-archive .ar-date-record{padding:12px;grid-template-columns:24px minmax(0,1fr) auto;gap:8px}#view-archive .ar-mini-grid{padding:10px}#view-archive .ar-other-head{padding:16px}#view-archive .ar-dates-head{padding:16px 14px 8px;gap:12px}#view-archive .ar-dates-head>span{display:none}}
+}
+</style>
+<style id="gate-suggestions-v95">
+.resident-gate-field:has(#residentGateName){position:relative}
+#residentGateSuggestions[hidden]{display:none!important}
+#residentGateSuggestions{position:absolute;left:0;right:0;top:100%;z-index:5;margin-top:5px;padding:5px;background:white;border:1px solid #c8d7eb;border-radius:10px;box-shadow:0 9px 25px #203d6426;max-height:230px;overflow-y:auto}
+#residentGateSuggestions button{display:block;width:100%;padding:10px 12px;border:0;border-radius:6px;background:white;color:#2e507f;font:inherit;font-size:12px;font-weight:650;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+#residentGateSuggestions button:hover,#residentGateSuggestions button[aria-selected=true]{background:#edf3fc;color:#254e86}
+</style>
+<style id="single-user-v97">
+#residentGateSingle[hidden]{display:none!important}
+#residentGateSingle{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:3px;padding:8px 10px;border-radius:7px;background:#edf3fc;color:#426a9e}
+#residentGateSingle strong{font-size:11px;font-weight:650;line-height:1.4;overflow-wrap:anywhere}
+#residentGateSingle small{font-size:10px;color:#7d93b0;font-weight:500}
+</style>
 </head>
 <body>
 
@@ -1967,7 +2137,7 @@ body.showing-clinical #view-clinical{display:block}
     <span class="resident-gate-logo crab"><img data-logo="crab" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Cirugía Oncológica"></span>
   </div>
   <form class="resident-gate-body" id="residentGateForm" autocomplete="off">
-    <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" list="hjm-usuarios" autocomplete="off" placeholder="Escribe o elige un usuario" required></label>
+    <label class="resident-gate-field"><span>USUARIO ACTUAL</span><input id="residentGateName" autocomplete="off" placeholder="Escribe tu nombre" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="residentGateSuggestions" required><div id="residentGateSuggestions" class="gate-suggestions" role="listbox" aria-label="Usuarios coincidentes" hidden></div><span id="residentGateSingle" class="gate-single" aria-live="polite" hidden></span></label>
     <div class="resident-gate-clinic" id="residentGateClinic" hidden aria-live="polite"><small id="residentGateClinicLbl"></small><b id="residentGateClinicVal"></b></div>
     <label class="resident-gate-field" id="residentGateKeyRow" hidden><span class="resident-key-label"><img class="resident-drive-logo" data-drive-logo alt="Google Drive"><b>CLAVE DE DRIVE</b></span><input id="residentGateKey" type="password" autocomplete="current-password" placeholder="Clave del Servicio de Oncología"></label>
     <a class="resident-gate-request" id="residentGateRequest" href="https://docs.google.com/document/d/1Effsqt0pE4AqIOkhyP8eYwJw8J79aVuK4P7YhaMTlx8/edit?usp=sharing" target="_blank" rel="noopener noreferrer" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M16 6l3 3M14 8l2 2"/></svg>Solicitar Clave</a>
@@ -2038,7 +2208,7 @@ body.showing-clinical #view-clinical{display:block}
           <div class="f s6"><label for="cirugia">Cirugía programada / plan <span class="cnt"></span></label><input id="cirugia" class="up" data-max="120"></div>
           <div class="f s3"><label for="tipoCx">Tipo de cirugía</label><select id="tipoCx"><option value=""></option><option>ELECTIVA</option><option>URGENCIA</option></select></div>
           <div class="f s3"><label for="fPlan">Fecha de cirugía</label><input id="fPlan" data-date inputmode="numeric" placeholder="DD.MM.AA"></div>
-          <div class="f s6"><label for="riesgos">Riesgos (consentimiento quirúrgico) <span class="cnt"></span></label><textarea id="riesgos" class="up" data-max="320" rows="4"></textarea></div>
+          <div class="f s6"><label for="riesgos">Riesgos (consentimiento quirúrgico) <span class="cnt"></span><button type="button" id="restoreSurgicalRisks" title="Restaurar los riesgos quirúrgicos predeterminados">Restaurar</button></label><textarea id="riesgos" class="up" data-max="320" rows="4"></textarea></div>
         </div>
       </fieldset>
       <fieldset id="fsTransfusion">
@@ -2123,7 +2293,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v91 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v97 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2187,9 +2357,14 @@ body.showing-clinical #view-clinical{display:block}
 </dialog>
 
 <section id="view-archive" aria-label="Archivo clínico del paciente">
-  <div class="ar-head"><div class="ftitle"><span>Archivo Clínico</span><h1>Registros del paciente</h1></div><p id="arPatient"></p></div>
+ <div class="ar-shell">
+  <header class="ar-hero"><div class="ar-hero-top"><div class="ar-hero-title"><span class="ar-hero-icon" id="arHeroIcon"></span><div><span class="ar-eyebrow">EXPEDIENTE DEL PACIENTE</span><h1>Archivo clínico</h1></div></div><div class="ar-hero-stat" id="arStats"></div></div><div id="arPatient" class="ar-patient"></div></header>
+  <div class="ar-tools"><label class="ar-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input id="arSearch" type="search" placeholder="Buscar fecha, autor o contenido…" aria-label="Buscar en el archivo clínico" autocomplete="off"></label><label class="ar-order"><span>Ordenar</span><select id="arSort"><option value="desc">Más recientes primero</option><option value="asc">Más antiguos primero</option></select></label><button type="button" id="arClear" class="ar-clear" hidden>Limpiar filtros</button></div>
+  <nav id="arNav" class="ar-nav" aria-label="Filtrar por grupo de documentos"></nav>
+  <div class="ar-results-line"><span id="arResults" role="status" aria-live="polite"></span><span>Fecha del documento · Elaboró · Acciones</span></div>
   <div class="ar-cols" id="arCols"></div>
-  <section class="ar-other"><div class="ar-other-head"><h2>Otras solicitudes previas</h2><p>Solo se muestran las que tienen registro.</p></div><div class="ar-other-list" id="arOther"></div></section>
+  <section class="ar-other" id="arOtherSection"><div class="ar-other-head"><div><span class="ar-section-kicker">SOLICITUDES Y TRÁMITES</span><h2>Otras solicitudes previas</h2><p>Registros de estudios, recetas, interconsultas y consentimientos.</p></div><span class="ar-count" id="arOtherCount"></span></div><div class="ar-other-list" id="arOther"></div></section>
+ </div>
 </section>
 <section id="view-format" aria-label="Formato">
   <div class="fbar">
@@ -2392,6 +2567,7 @@ const HJM_STAFF=Object.freeze({
     "CLAUDIA ALMENDAREZ R6CO",
     "DIEGO CARVAJAL R6CO",
     "JUAN MANUEL NARVAEZ R6CO",
+    "JHON ERIK SANABRIA R6OCYC",
     "CARLOS PEREZ R6CO",
     "JENNIFFER PLAZA R6CO",
     "URIEL REYES R7CO",
@@ -2927,6 +3103,28 @@ function fitClinicalText(el){
   else {if(el.title===el.dataset.textCapacity)el.removeAttribute("title");delete el.dataset.textCapacity;}
 }
 
+function customizePrequxNote(wrap){
+  const sheet=wrap.querySelector(".sheet"),pos=sheet.parentElement,cells=[...sheet.querySelectorAll(".c")];
+  const byRef=ref=>sheet.querySelector(`[data-x="${ref}"]`),at=y=>cells.find(c=>Math.abs(parseFloat(c.style.top)-y)<.3&&parseFloat(c.style.left)>=56.25&&!c.dataset.x);
+  const content=document.createElement("div");content.className="cp-content prequx-note-content";
+  const rows=[["Diagnóstico Preoperatorio:",byRef("C12")],["Procedimiento Planeado:",byRef("C13")],["Cirujano:",byRef("C14")],["Ayudantes:",at(287.4)],["Antibiótico Profiláctico:",at(309.55)],["Tiempo Quirúrgico Estimado:",at(331.7)],["Tipo de Anestesia Planeada:",at(353.85)],["Tipo de Procedimiento:",byRef("C19")],["Sangrado Estimado:",at(398.15)],["Riesgo Quirúrgico:",byRef("A22")],["Plan Preoperatorio:",cells.find(c=>Math.abs(parseFloat(c.style.top)-556.45)<.3)]];
+  const signatures=[byRef("C25"),byRef("C26")],date=byRef("A9"),time=cells.find(c=>Math.abs(parseFloat(c.style.top)-177.1)<.3);
+  [...sheet.children].forEach(c=>c.classList.add("prequx-original"));
+  const table=document.createElement("table");table.className="cp-note-table prequx-note-table";
+  table.innerHTML='<colgroup><col class="cp-note-meta-col"><col></colgroup><thead><tr><th scope="col">FECHA Y HORA</th><th scope="col"><h1 class="cp-title">NOTA PREQUIRÚRGICA</h1></th></tr></thead><tbody><tr><td class="cp-note-meta"></td><td class="cp-note-text"></td></tr></tbody>';
+  rows.forEach(([label,cell])=>{const row=document.createElement("div"),title=document.createElement("strong");row.className="prequx-note-row";title.textContent=label+" ";row.appendChild(title);if(cell){cell.classList.remove("prequx-original","fit","fitdown");cell.classList.add("prequx-note-value");Object.keys(cell.dataset).filter(k=>/^(diagnosis|readable)/.test(k)).forEach(k=>delete cell.dataset[k]);cell.querySelectorAll(".diagnosis-layout").forEach(layer=>layer.remove());cell.firstElementChild?.removeAttribute("style");row.appendChild(cell);}content.appendChild(row);});
+  [date,time].forEach(cell=>{if(cell){cell.classList.remove("prequx-original","fit","fitdown");cell.classList.add("prequx-note-date");table.querySelector(".cp-note-meta").appendChild(cell);}});
+  const sig=document.createElement("div");sig.className="cp-signatures";signatures.forEach(cell=>{if(cell){cell.classList.remove("prequx-original","fit","fitdown");cell.classList.add("prequx-note-signature");sig.appendChild(cell);}});
+  table.querySelector(".cp-note-text").append(content,sig);
+  const header=document.createElement("div");header.className="prequx-patient-header";sheet.append(header,table);
+  sheet.classList.add("prequx-note-sheet");sheet.style.width="551.52pt";sheet.style.zoom="1";
+  pos.style.left="30.24pt";pos.style.top="8.64pt";pos.style.width="551.52pt";
+}
+function refreshPrequxHeader(root,d){
+  const header=root.querySelector(".prequx-patient-header");if(!header)return;
+  const value=ref=>root.querySelector(`[data-x="${ref}"] > span`)?.textContent||"";
+  header.innerHTML=patientPrintHeader({...d,nombreCompleto:value("C4"),expediente:value("E5"),cama:value("E6"),fnac:value("G6")});
+}
 function buildFormat(key){
   const F=FORMATS[key];
   const wrap=document.createElement("div"); wrap.className="pages";
@@ -2960,6 +3158,7 @@ function buildFormat(key){
   const saved=SAVED_FMT[key]; if(saved&&saved.__half){ HALF[key]=saved.__half; HALF_AUTO[key]=!!saved.__auto; }
   if(saved){ wrap.querySelectorAll(".c > span[data-i]").forEach(sp=>{const v=saved[sp.dataset.i]; if(v!==undefined){ if(sp.parentElement.dataset.x){ if(typeof v==="string"){ sp.textContent=v; sp.parentElement.setAttribute("data-ov",""); } } else if(typeof v==="object"){ sp.innerHTML=v.h; sp.classList.toggle("on",!!v.on); } else sp.textContent=v; }}); }
   (PICKS[key]||[]).forEach(pk=>{ const sp=pk.sync?wrap.querySelector(`.c[data-sync="${pk.sync}"] > span`):[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; const cell=sp.parentElement,hadSaved=!!(saved&&Object.prototype.hasOwnProperty.call(saved,sp.dataset.i)); cell.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); if(pk.autoClinic){cell.dataset.autoClinic="1";if(!hadSaved)sp.textContent=clinicForAdscrito($("medico").value);} if(pk.editable){sp.setAttribute("contenteditable","true");cell.classList.add("pick-editable");const trigger=document.createElement("button");trigger.type="button";trigger.className="pick-trigger";trigger.setAttribute("aria-label",pk.aria||"Mostrar opciones disponibles");trigger.textContent="▼";cell.appendChild(trigger);}else sp.removeAttribute("contenteditable"); });
+  if(key==="prequx")customizePrequxNote(wrap);
   return wrap;
 }
 /* ---------- Distribución de media hoja (Laboratorios Urgencias, Receta, Pase) ---------- */
@@ -3182,6 +3381,7 @@ function renderFormat(key){
   BUILT[key].querySelectorAll(".alta-attach").forEach(page=>fillCells([...page.querySelectorAll("[data-x]:not(.summary-line-underlay)")].filter(el=>!el.closest(".emb")),evalSheet(FORMATS[page.dataset.altaFmt],d)));
   BUILT[key].querySelectorAll(".emb").forEach(e=>fillCells(e.querySelectorAll("[data-x]:not(.summary-line-underlay)"),evalSheet(FORMATS[e.dataset.fmt],d)));
   if(key==="alta"){applyAltaDates();syncAltaDateControls();}
+  if(key==="prequx")refreshPrequxHeader(BUILT[key],d);
   if(key==="ordenHosp")applyOrderDates();
   applyGender(BUILT[key],d);
   shrink(paper);
@@ -3246,7 +3446,7 @@ function onSheetKey(e){
       e.preventDefault();const next=index<0?(e.key==="ArrowDown"?0:options.length-1):(index+(e.key==="ArrowDown"?1:-1)+options.length)%options.length;
       options.forEach((b,i)=>b.setAttribute("aria-selected",String(i===next)));options[next].scrollIntoView({block:"nearest"});return;
     }
-    if(e.key==="Enter"&&index>=0){e.preventDefault();options[index].click();return;}
+    if(e.key==="Enter"){e.preventDefault();if(index>=0)options[index].click();else{options[0].setAttribute("aria-selected","true");input.setAttribute("aria-activedescendant",options[0].id);}return;}
   }
   if(e.key==="Enter"&&!sp.parentElement.classList.contains("w")){e.preventDefault();sp.blur();}
 }
@@ -3911,6 +4111,7 @@ function openResidentGate(opt={}){
   $("residentGateKeyRow").hidden=!needsKey;$("residentGateRequest").hidden=!needsKey;$("residentGateKey").required=false;
   $("residentGateOffline").hidden=!needsKey||!CAN_DRIVE;
   $("residentGateKey").value="";$("residentGateName").value=opt.keepName?sessionUserName():"";$("residentGateMsg").textContent="";$("residentGateMsg").classList.remove("ok","info");
+  hideGateSuggestions();
   if(!dlg.open)dlg.showModal();
   updateGateClinic();
   setTimeout(()=>$("residentGateName").focus(),80);
@@ -4488,6 +4689,8 @@ const NOTE_VITAL_FIELDS=[
   {key:"so2",label:"SO2 (%)",print:"SO2",placeholder:"97",mode:"numeric",unit:"%"},
   {key:"uresis",label:"Uresis",print:"Uresis",placeholder:"0.8",mode:"decimal",unit:"mL/kg/h"}
 ];
+function clinicalNoteUsesTable(tipo){return !["Nota de Ingreso","Nota de Defunción"].includes(normalizedNoteType(tipo));}
+function syncClinicalNoteVitals(){const vitals=$("clinicalForm").querySelector(".clinical-note-vitals");if(vitals)vitals.hidden=!clinicalNoteUsesTable($("cl-tipo").value);}
 function clinicalNoteVitals(v){
   const signs=v.signos||{};
   return `<fieldset class="clinical-note-vitals"><legend>Signos vitales <small>Solo se imprimen los campos llenos</small></legend><div class="clinical-vitals-grid">${NOTE_VITAL_FIELDS.map(f=>`<label for="cl-sv-${f.key}">${f.label}<input id="cl-sv-${f.key}" inputmode="${f.mode}" maxlength="40" value="${esc(signs[f.key]??"")}"></label>`).join("")}</div></fieldset>`;
@@ -4532,7 +4735,7 @@ function clinicalFields(tp,v,opt={}){
   const slot=opt.slot===2?2:1,prefix=slot===2?"cl2":"cl",noteType=normalizedNoteType(v.tipo);
   if(tp==="notas") return `<div class="clinical-grid" data-kind="notas">
     ${clinicalDateTimeFields("cl",v)}
-    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Preoperatoria","Nota Postoperatoria","Nota de Ingreso","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
+    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Postoperatoria","Nota de Ingreso","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
     ${clinicalNoteVitals(v)}
     ${clinicalRichField("cl-contenido","Contenido",v.contenido,{content:true})}
     ${clinicalResponsibleFields("cl",v)}
@@ -4583,11 +4786,12 @@ function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
   form.oninput=e=>{if(e.target.matches("[data-cl-others]")){suggestClinicalOthers(e.target);return;}if(e.target.matches("[data-date]")){const dg=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");}else if(e.target.matches("[data-time]"))e.target.value=normalizeClinicalTime(e.target.value,true);};
   form.onfocusin=e=>{if(e.target.matches("[data-cl-others]"))suggestClinicalOthers(e.target);};
   form.onkeydown=clinicalOthersKeydown;
+  form.onchange=e=>{if(e.target.id==="cl-tipo")syncClinicalNoteVitals();};
   form.onfocusout=e=>{if(e.target.matches("[data-cl-others]")){hideClinicalOthers(e.target);return;}if(!e.target.matches("[data-time]"))return;const normalized=normalizeClinicalTime(e.target.value);if(normalized)e.target.value=normalized;};
   form.onmousedown=e=>{if(e.target.closest("[data-cl-other-choice]")){e.preventDefault();return;}const b=e.target.closest("[data-rich-command]");if(!b)return;e.preventDefault();const editor=$(b.dataset.richEditor);if(!editor)return;editor.focus();document.execCommand("styleWithCSS",false,false);document.execCommand(b.dataset.richCommand,false,null);};
   form.onpaste=e=>{if(!e.target.closest(".rich-editor"))return;e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text"));};
   form.onsubmit=e=>{e.preventDefault();saveClinicalRecord(tp,false,false,clinicalEditing[tp]?"new":"save");};
-  syncClinicalDoubleButton();syncClinicalSaveButtons();
+  syncClinicalNoteVitals();syncClinicalDoubleButton();syncClinicalSaveButtons();
 }
 function clinicalRichValue(id){const el=$(id);return el?clinicalRichHTML(el.innerHTML).trim():"";}
 function clinicalRichHasText(value){const d=document.createElement("div");d.innerHTML=clinicalRichHTML(value);return !!d.textContent.trim();}
@@ -4670,6 +4874,7 @@ function clinicalNoteVitalRows(p){
 }
 function clinicalPrintHTML(tp,p,d){
   if(p&&p.enc)d=Object.assign({},d,p.enc);
+  if(tp==="notas"&&!clinicalNoteUsesTable(p.tipo))return `<div class="cp-page cp-note cp-note-free">${patientPrintHeader(d)}<h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1><div class="cp-free-date"><div>${esc(p.fecha)}</div><div>${esc(p.hora)}</div></div><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</div>`;
   if(tp==="notas")return `<div class="cp-page cp-note">${patientPrintHeader(d)}<table class="cp-note-table"><colgroup><col class="cp-note-meta-col"><col></colgroup><thead><tr><th scope="col">FECHA, HORA Y<br>SIGNOS VITALES</th><th scope="col"><h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1></th></tr></thead><tbody><tr><td class="cp-note-meta"><div class="cp-note-meta-row cp-note-date-time">${esc(p.fecha)}</div><div class="cp-note-meta-row cp-note-date-time">${esc(p.hora)}</div>${clinicalNoteVitalRows(p)}</td><td class="cp-note-text"><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</td></tr></tbody></table></div>`;
   return `<div class="cp-page cp-indications">${patientPrintHeader(d)}<h1 class="cp-title">INDICACIONES MÉDICAS</h1><div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><ul class="cp-sections">${clinicalIndicationSections(p)}</ul></div>${clinicalSignatures(p)}</div>`;
 }
@@ -4677,9 +4882,12 @@ function clinicalDoublePrintHTML(first,second,d){
   if(first&&first.enc)d=Object.assign({},d,first.enc);
   return `<div class="cp-page cp-indications cp-indications-double">${patientPrintHeader(d)}<h1 class="cp-title">INDICACIONES MÉDICAS</h1>${clinicalIndicationEntry(first,0)}${clinicalIndicationEntry(second,2)}</div>`;
 }
-function startClinicalPrint(host){
+async function startClinicalPrint(host){
+  await document.fonts.ready;await waitForPrintImages(host);
+  prepareClinicalPagination(host);
   host.classList.remove("clinical-measure");host.setAttribute("aria-hidden","false");document.body.classList.add("printing-clinical");
-  const clean=()=>{document.body.classList.remove("printing-clinical");host.setAttribute("aria-hidden","true");host.replaceChildren();};window.addEventListener("afterprint",clean,{once:true});setTimeout(()=>window.print(),60);
+  const clean=()=>{document.body.classList.remove("printing-clinical");host.setAttribute("aria-hidden","true");host.replaceChildren();};window.addEventListener("afterprint",clean,{once:true});
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));window.print();
 }
 async function printClinicalSet(tp,ids){
   const records=(ids||[]).map(id=>(HIST[tp]||[]).find(x=>x.id===id)).filter(r=>r&&r.p);if(!records.length)return;
@@ -4689,7 +4897,7 @@ async function printClinicalSet(tp,ids){
     const page=host.querySelector(".cp-page"),fits=page&&page.scrollHeight<=page.clientHeight+2;host.classList.remove("clinical-measure");
     host.innerHTML=fits?combined:records.map(r=>clinicalPrintHTML("indicaciones",r.p,d)).join("");
   }else host.innerHTML=clinicalPrintHTML(tp,records[0].p,d);
-  startClinicalPrint(host);
+  return startClinicalPrint(host);
 }
 function printClinical(tp,id){return printClinicalSet(tp,[id]);}
 document.querySelectorAll("[data-clinical]").forEach(b=>b.onclick=()=>{
@@ -4741,13 +4949,20 @@ function arEntry(tp,r){
 }
 function arCollect(src){return src.flatMap(tp=>(HIST[tp]||[]).map(r=>arEntry(tp,r))).sort((a,b)=>(b.ms-a.ms)||((b.r.ts||0)-(a.r.ts||0)));}
 function arActions(e,allowDelete=false){const a=`data-ar-tp="${esc(e.tp)}" data-ar-id="${esc(e.r.id)}"`;return rbBtn("view","Ver",a+' data-ar="view"')+rbBtn("print","Imprimir",a+' data-ar="print"')+(allowDelete?rbBtn("del","Borrar",a+' data-ar="del"'):"");}
-function arRowHTML(e){
-  return `<div class="ar-tr" data-src="${esc(e.tp)}"><div class="ar-td ar-when"><strong>${esc(e.fecha||"Sin fecha")}</strong>${e.hora?`<small>${esc(e.hora)} hrs</small>`:""}</div><div class="ar-td ar-type"><span class="ar-tag t-${esc(e.tp)}">${esc(e.tipo||"Registro")}</span>${e.detail?`<small>${esc(e.detail)}</small>`:""}</div><div class="ar-td ar-by"><span>Elaboró:</span>${esc(savedBy(e.r))}</div><div class="ar-td ar-act">${arActions(e,true)}</div></div>`;
+const ARCHIVE_UI={patient:"",query:"",group:"all",sort:"desc",limits:{}};
+const AR_ICON_PATHS={all:'<path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 10h18"/>',notas:'<path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h7"/>',indicaciones:'<rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m8 11 1 1 2-2M13 11h3m-8 6 1 1 2-2M13 17h3"/>',solCx:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v5m-2.5-2.5h5"/>',repCx:'<path d="m18 3 3 3-8 8-3-3zM10 11 3 21m2-2 3 2 6-7"/>',other:'<path d="M4 4h12v16H4zM8 8h5m-5 4h5m-5 4h3M16 7h4v15H8"/>'};
+function arIcon(key){return `<svg viewBox="0 0 24 24" aria-hidden="true">${AR_ICON_PATHS[key]||AR_ICON_PATHS.other}</svg>`;}
+function arPlain(value){const div=document.createElement("div");div.innerHTML=clinicalRichHTML(value||"");div.querySelectorAll("p,div,li").forEach(e=>e.appendChild(document.createTextNode(" ")));div.querySelectorAll("br").forEach(e=>e.replaceWith(document.createTextNode(" ")));return div.textContent.replace(/\s+/g," ").trim();}
+function arPreview(e){const p=e.r.p||{};return e.detail||arPlain(p.contenido)||[p.dieta,p.medicamentos,p.cuidados].map(arPlain).filter(Boolean).join(" · ")||"";}
+function arMatches(e){const q=ARCHIVE_UI.query.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();if(!q)return true;const p=e.r.p||{};const snapshot=Object.values(p.fields||{}).map(v=>arPlain(v&&v.h)).join(" ")+" "+(p.cells||[]).map(v=>Array.isArray(v)?arPlain(v[1]):"").join(" ");const text=[e.fecha,e.hora,e.tipo,e.detail,e.r.t,savedBy(e.r),p.adscrito,p.otros,p.residente,arPreview(e),arPlain(p.soluciones),arPlain(p.cuidados),snapshot].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return q.split(/\s+/).every(w=>text.includes(w));}
+function arFiltered(src){const list=arCollect(src).filter(arMatches);return ARCHIVE_UI.sort==="asc"?list.reverse():list;}
+function arDateTile(fecha,hora){const m=/^(\d{1,2})[./-](\d{1,2})[./-](\d{2}|\d{4})$/.exec(fecha||"");const months=["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];return `<div class="ar-date-tile" title="${esc(fecha||"Sin fecha")}">${m?`<strong>${esc(m[1].padStart(2,"0"))}</strong><span>${months[+m[2]-1]||m[2]} · ${esc(m[3].length===2?"20"+m[3]:m[3])}</span>`:`<strong class="ar-date-text">${esc(fecha||"Sin fecha")}</strong>`}${hora?`<small>${esc(hora)} h</small>`:""}</div>`;}
+function arRowHTML(e){const preview=arPreview(e),origin={notas:"Nota médica",prequx:"Prequirúrgica",altas:"Nota de alta",indicaciones:"Indicaciones",solCx:"Solicitud de cirugía",repCx:"Reporte de cirugía",rx:"Rayos X",interconsulta:"Interconsulta",receta:"Receta",consInf:"Consentimiento informado"}[e.tp]||"Documento";
+ return `<article class="ar-record" data-src="${esc(e.tp)}">${arDateTile(e.fecha,e.hora)}<div class="ar-record-main"><span class="ar-record-kind">${esc(origin)}</span><h3>${esc(e.tipo||origin)}</h3>${preview?`<p class="ar-preview">${esc(preview)}</p>`:""}</div><footer class="ar-record-footer"><div class="ar-author"><span>Elaboró</span><strong>${esc(savedBy(e.r))}</strong></div><div class="ar-act">${arActions(e,true)}</div></footer></article>`;
 }
-function arPanelHTML(pn,mini){
-  const list=arCollect(pn.src);if(mini&&!list.length)return "";
-  return `<section class="ar-panel${mini?" ar-mini":""}" data-panel="${pn.key}"><div class="ar-panel-head"><h2>${esc(pn.title)}</h2><span class="ar-count">${list.length}</span></div>`+
-    (list.length?`<div class="ar-table"><div class="ar-tr ar-th"><div class="ar-td">Fecha</div><div class="ar-td">${esc(pn.col2)}</div><div class="ar-td">Elaboró</div><div class="ar-td"></div></div><div class="ar-tbody">${list.map(arRowHTML).join("")}</div></div>`:`<div class="ar-empty">Sin registros guardados.</div>`)+`</section>`;
+function arPanelHTML(pn,mini){const total=arCollect(pn.src).length,list=arFiltered(pn.src);if(mini&&!total)return "";const limit=ARCHIVE_UI.limits[pn.key]||8;
+ return `<section class="ar-panel${mini?" ar-mini":""}" data-panel="${pn.key}"><div class="ar-panel-head"><span class="ar-section-icon">${arIcon(pn.key)}</span><div class="ar-section-title"><h2>${esc(pn.title)}</h2><p>${pn.key==="notas"?"Médicas, prequirúrgicas y de alta":pn.key==="indicaciones"?"Tratamiento y cuidados indicados":pn.key==="solCx"?"Procedimientos solicitados":pn.key==="repCx"?"Procedimientos realizados":"Historial de documentos"}</p></div><span class="ar-count">${list.length}${list.length!==total?` / ${total}`:""}</span></div>`+
+ (list.length?`<div class="ar-records">${list.slice(0,limit).map(arRowHTML).join("")}</div>${list.length>limit?`<button class="ar-more" type="button" data-ar-more="${esc(pn.key)}">Mostrar más <span>${Math.min(limit,list.length)} de ${list.length} registros</span><span aria-hidden="true">↓</span></button>`:""}`:`<div class="ar-empty"><span>${arIcon(pn.key)}</span><strong>${total?"Sin coincidencias en este grupo":"Sin registros todavía"}</strong><p>${total?"Prueba con otro nombre, fecha o contenido.":"Los documentos guardados aparecerán aquí."}</p></div>`)+`</section>`;
 }
 function arOtherInfo(k){
   if(LAST_REQUEST_KEYS.has(k)){const i=lastRequestInfo(k);return i.fecha?{fecha:i.fecha,by:i.residente,role:"Elaboró"}:null;}
@@ -4755,15 +4970,30 @@ function arOtherInfo(k){
   return {fecha:e.fecha,by:savedBy(e.r),role:"Elaboró",n:list.length,id:e.r.id};
 }
 function renderArchive(){
-  const d=data();
-  $("arPatient").innerHTML=d.nombreCompleto||d.expediente?`<b>${esc(d.nombreCompleto||"")}</b>${d.expediente?` · Exp. ${esc(d.expediente)}`:""}${d.cama?` · Cama ${esc(d.cama)}`:""}`:"Sin paciente seleccionado";
-  $("arCols").innerHTML=AR_PANELS.map(pn=>arPanelHTML(pn,false)).join("");
-  const minis=AR_MINI.filter(m=>FORMATS[m.key]).map(m=>arPanelHTML(m,true)).filter(Boolean);
-  const rows=AR_OTHER.filter(k=>FORMATS[k]&&!AR_MINI.some(m=>m.key===k)).map(k=>[k,arOtherInfo(k)]).filter(x=>x[1]);
-  $("arOther").innerHTML=(minis.length?`<div class="ar-mini-grid">${minis.join("")}</div>`:"")+(rows.length?`<div class="ar-dates-head">Solo fecha de la última solicitud <small>Estos formatos no guardan su contenido, solo cuándo y quién los imprimió.</small></div><div class="ar-dates">`+rows.map(([k,i])=>{const tt=(CAT[k]&&CAT[k].tt)||FORMATS[k].title;
-    return `<div class="ar-o"><div class="ar-o-name">${esc(tt)}${i.n>1?`<small>${i.n} registros</small>`:""}</div><div class="ar-o-date"><span>Última fecha</span><strong>${esc(i.fecha)}</strong><small>${esc(i.role)}: ${esc(i.by||"Sin identificar")}</small></div></div>`;}).join("")+`</div>`:"")
-    +(!minis.length&&!rows.length?`<div class="ar-empty">Todavía no hay otras solicitudes registradas para este paciente.</div>`:"");
+ const d=data(),patient=d.expediente||d.nombreCompleto||"";
+ if(ARCHIVE_UI.patient!==patient){ARCHIVE_UI.patient=patient;ARCHIVE_UI.query="";ARCHIVE_UI.group="all";ARCHIVE_UI.sort="desc";ARCHIVE_UI.limits={};$("arSearch").value="";$("arSort").value="desc";}
+ const all=arCollect([...AR_PANELS.flatMap(p=>p.src),...AR_MINI.filter(m=>FORMATS[m.key]).flatMap(p=>p.src)]);
+ const dates=AR_OTHER.filter(k=>FORMATS[k]&&!AR_MINI.some(m=>m.key===k)).map(k=>[k,arOtherInfo(k)]).filter(x=>x[1]);
+ const matchingDates=dates.filter(([k,i])=>arMatches({fecha:i.fecha,hora:"",tipo:(CAT[k]&&CAT[k].tt)||FORMATS[k].title,detail:"",r:{t:"",by:i.by},tp:k}));if(ARCHIVE_UI.sort==="asc")matchingDates.sort((a,b)=>arDateMs(a[1].fecha)-arDateMs(b[1].fecha));else matchingDates.sort((a,b)=>arDateMs(b[1].fecha)-arDateMs(a[1].fecha));
+ $("arHeroIcon").innerHTML=arIcon("all");
+ $("arPatient").innerHTML=`<h2>${esc(d.nombreCompleto||"Paciente sin nombre")}</h2><div class="ar-patient-tags">${d.expediente?`<span>Expediente <strong>${esc(d.expediente)}</strong></span>`:""}${d.cama?`<span>Cama <strong>${esc(d.cama)}</strong></span>`:""}${d.fnac?`<span>Nacimiento <strong>${esc(d.fnac)}</strong></span>`:""}</div>`;
+ $("arStats").innerHTML=`<strong>${all.length}</strong><span>documentos guardados${dates.length?`<small>${dates.length} solicitudes con fecha</small>`:""}</span>`;
+ const groups=[{key:"all",title:"Todo",n:all.length+dates.length},...AR_PANELS.map(p=>({key:p.key,title:p.title,n:arCollect(p.src).length})),{key:"other",title:"Otras solicitudes",n:arCollect(AR_MINI.filter(m=>FORMATS[m.key]).flatMap(p=>p.src)).length+dates.length}];
+ $("arNav").innerHTML=groups.map(p=>`<button type="button" class="ar-nav-item${ARCHIVE_UI.group===p.key?" active":""}" data-ar-group="${p.key}" aria-pressed="${ARCHIVE_UI.group===p.key}">${arIcon(p.key)}<span>${esc(p.title)}</span><b>${p.n}</b></button>`).join("");
+ $("arClear").hidden=!ARCHIVE_UI.query&&ARCHIVE_UI.group==="all"&&ARCHIVE_UI.sort==="desc";
+ const chosen=ARCHIVE_UI.group,showOther=chosen==="all"||chosen==="other";
+ const matchingMain=AR_PANELS.filter(p=>chosen==="all"||chosen===p.key).reduce((n,p)=>n+arFiltered(p.src).length,0);
+ const matchingOther=showOther?AR_MINI.filter(p=>FORMATS[p.key]).reduce((n,p)=>n+arFiltered(p.src).length,0)+matchingDates.length:0;
+ $("arResults").textContent=`${matchingMain+matchingOther} ${matchingMain+matchingOther===1?"registro":"registros"}${ARCHIVE_UI.query?" encontrados":" disponibles"}`;
+ $("arCols").innerHTML=AR_PANELS.filter(p=>chosen==="all"||chosen===p.key).map(p=>arPanelHTML(p,false)).join("");
+ $("arOtherSection").hidden=!showOther;$("arOtherCount").textContent=matchingOther;
+ if(showOther){const minis=AR_MINI.filter(m=>FORMATS[m.key]).map(m=>arPanelHTML(m,true)).filter(Boolean);
+ $("arOther").innerHTML=(minis.length?`<div class="ar-mini-grid">${minis.join("")}</div>`:"")+(matchingDates.length?`<div class="ar-dates-head"><div><h3>Últimas solicitudes</h3><p>Fecha y autor de los formatos que no guardan su contenido.</p></div><span>${matchingDates.length} solicitudes</span></div><div class="ar-dates">`+matchingDates.map(([k,i])=>`<article class="ar-date-record"><span class="ar-date-record-icon">${arIcon("other")}</span><div><h3>${esc((CAT[k]&&CAT[k].tt)||FORMATS[k].title)}</h3><p>Elaboró: <strong>${esc(i.by||"Sin identificar")}</strong></p></div><time>${esc(i.fecha)}</time></article>`).join("")+`</div>`:"")+(!minis.length&&!matchingDates.length?`<div class="ar-empty"><strong>${dates.length?"Sin coincidencias":"Sin otras solicitudes todavía"}</strong><p>${dates.length?"Prueba con otro término de búsqueda.":"Aquí aparecerán los próximos registros."}</p></div>`:"");}
 }
+$("arSearch").addEventListener("input",()=>{ARCHIVE_UI.query=$("arSearch").value;ARCHIVE_UI.limits={};renderArchive();});
+$("arSort").addEventListener("change",()=>{ARCHIVE_UI.sort=$("arSort").value;ARCHIVE_UI.limits={};renderArchive();});
+$("arClear").onclick=()=>{ARCHIVE_UI.query="";ARCHIVE_UI.group="all";ARCHIVE_UI.sort="desc";ARCHIVE_UI.limits={};$("arSearch").value="";$("arSort").value="desc";renderArchive();};
+$("view-archive").addEventListener("click",e=>{const group=e.target.closest("[data-ar-group]");if(group){ARCHIVE_UI.group=group.dataset.arGroup;renderArchive();return;}const more=e.target.closest("[data-ar-more]");if(more){const k=more.dataset.arMore;ARCHIVE_UI.limits[k]=(ARCHIVE_UI.limits[k]||8)+8;renderArchive();}});
 function openArchive(){
   if(!hasSelectedPatient()){notify("Primero selecciona o captura un paciente. Es suficiente con expediente, apellido paterno, apellido materno o nombre.","warn",{center:true,ms:4800});return;}
   if(current)captureCurrentRecent();
@@ -4991,6 +5221,139 @@ setStore(STORE); initDrive();
 let initial=null; try{initial=JSON.parse(document.getElementById("saved-data").textContent);}catch(_){}
 if(!(initial&&restore(initial))) fill(DEFAULTS());
 openResidentGate();
+/* v93 · Páginas clínicas explícitas: repetir encabezado y mantener el texto dentro del margen y de su tabla. */
+$("restoreSurgicalRisks").onclick=()=>{
+  const field=$("riesgos");field.value=RIESGOS_DEF;
+  field.dispatchEvent(new Event("input",{bubbles:true}));
+  field.dispatchEvent(new Event("change",{bubbles:true}));
+};
+function paginateClinicalNotes(host){
+  for(const original of [...host.querySelectorAll(".cp-note:not(.cp-paginated)")]){
+    const source=original.querySelector(".cp-content")?.cloneNode(true);if(!source)continue;
+    // Fijar numeración en la copia permite que una lista ordenada continúe con su número real.
+    source.querySelectorAll("ol").forEach(ol=>{
+      const items=[...ol.children].filter(e=>e.tagName==="LI"),step=ol.hasAttribute("reversed")?-1:1;
+      let number=ol.hasAttribute("start")?Number(ol.getAttribute("start")):(step<0?items.length:1);
+      items.forEach(li=>{if(li.hasAttribute("value"))number=Number(li.getAttribute("value"));li.setAttribute("value",number);number+=step;});
+    });
+    const signatures=original.querySelector(".cp-signatures")?.cloneNode(true);
+    const template=original.cloneNode(true);template.classList.add("cp-paginated");
+    template.querySelector(".cp-content").replaceChildren();template.querySelector(".cp-signatures")?.remove();
+    // Range conserva negritas, párrafos y listas al dividir, sin reescribir el contenido guardado.
+    const points=[{node:source,offset:0}],walker=document.createTreeWalker(source,NodeFilter.SHOW_TEXT);
+    while(walker.nextNode()){
+      const node=walker.currentNode;let match;const re=/\S+\s*/g;
+      while((match=re.exec(node.data)))points.push({node,offset:match.index+match[0].length});
+    }
+    points.push({node:source,offset:source.childNodes.length});
+    const fragment=(start,end)=>{const r=document.createRange();r.setStart(points[start].node,points[start].offset);r.setEnd(points[end].node,points[end].offset);return r.cloneContents();};
+    let start=0;
+    do{
+      const page=template.cloneNode(true);original.before(page);
+      const content=page.querySelector(".cp-content"),target=content.parentElement;
+      const bottom=()=>page.getBoundingClientRect().bottom-parseFloat(getComputedStyle(page).paddingBottom)-2;
+      const table=page.querySelector(".cp-note-table");
+      if(table){
+        const bodyHeight=bottom()-table.getBoundingClientRect().top-table.querySelector("thead").getBoundingClientRect().height-2;
+        table.querySelectorAll("tbody td").forEach(td=>td.style.height=Math.max(0,bodyHeight)+"px");
+      }
+      const fits=end=>{
+        content.replaceChildren(fragment(start,end));target.querySelector(".cp-signatures")?.remove();
+        if(signatures)target.appendChild(signatures.cloneNode(true));
+        const last=target.querySelector(".cp-signatures")||content;
+        const reserve=table?parseFloat(getComputedStyle(content.closest("td")).paddingBottom)+2:0;
+        return last.getBoundingClientRect().bottom<=bottom()-reserve;
+      };
+      const final=points.length-1;let end=final;
+      if(!fits(final)){
+        let lo=start,hi=final;
+        while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(fits(mid))lo=mid;else hi=mid;}
+        end=lo;
+        // Un único token excepcionalmente largo también debe poder continuar entre páginas.
+        if(end===start){
+          const next=points[start+1];
+          if(next?.node.nodeType===Node.TEXT_NODE){
+            const previous=points[start],from=previous.node===next.node?previous.offset:0;let a=from,z=next.offset;
+            while(a+1<z){const mid=Math.floor((a+z)/2);points.splice(start+1,0,{node:next.node,offset:mid});const ok=fits(start+1);points.splice(start+1,1);if(ok)a=mid;else z=mid;}
+            if(a>from){points.splice(start+1,0,{node:next.node,offset:a});end=start+1;}
+          }
+          if(end===start){page.remove();throw new Error("No hay espacio disponible en la página para continuar la nota.");}
+        }
+        fits(end);target.querySelector(".cp-signatures")?.remove();
+      }
+      page.dataset.notePage=String(host.querySelectorAll(".cp-paginated").length);
+      start=end;
+    }while(start<points.length-1);
+    original.remove();
+  }
+}
+let prequxPrintActive=false;
+addEventListener("beforeprint",()=>{
+  if(document.body.classList.contains("printing-blank")||document.body.classList.contains("printing-direct"))return;
+  const host=$("clinicalPrint");
+  if(!document.body.classList.contains("printing-clinical")&&current==="prequx"){
+    const sheet=BUILT.prequx?.querySelector(".prequx-note-sheet");if(!sheet)return;
+    const page=document.createElement("div");page.className="cp-page cp-note prequx-note-sheet";
+    page.append(sheet.querySelector(".prequx-patient-header").cloneNode(true),sheet.querySelector(".cp-note-table").cloneNode(true));
+    page.querySelectorAll("[contenteditable]").forEach(el=>el.removeAttribute("contenteditable"));
+    host.replaceChildren(page);host.setAttribute("aria-hidden","false");document.body.classList.add("printing-clinical");prequxPrintActive=true;
+  }
+  if(document.body.classList.contains("printing-clinical"))prepareClinicalPagination(host);
+});
+addEventListener("afterprint",()=>{
+  if(!prequxPrintActive)return;prequxPrintActive=false;document.body.classList.remove("printing-clinical");
+  $("clinicalPrint").replaceChildren();$("clinicalPrint").setAttribute("aria-hidden","true");
+});
+/* v95 · Medir con los estilos finales antes del diálogo, aunque beforeprint se dispare todavía en modo pantalla. */
+function installClinicalMeasureRules(){
+ if($("clinicalPrintMeasureRules"))return;
+ const css=[],walk=(rules,printing=false)=>{for(const rule of rules){
+  if(rule.selectorText&&printing){const selectors=rule.selectorText.split(",").map(x=>x.trim()).filter(x=>x.startsWith(".cp-")||x.startsWith("#clinicalPrint"));
+   if(selectors.length)css.push(selectors.map(x=>x.includes("#clinicalPrint")?x.replace("#clinicalPrint","#clinicalPrint.clinical-measure"):"#clinicalPrint.clinical-measure "+x).join(",")+"{"+rule.style.cssText+"}");
+  }else if(rule.cssRules)walk(rule.cssRules,printing||!!(rule.media&&/\bprint\b/.test(rule.media.mediaText)));
+ }};
+ for(const sheet of [...document.styleSheets]){try{walk(sheet.cssRules);}catch(_){/* Las fuentes externas no contienen reglas del formato. */}}
+ const style=document.createElement("style");style.id="clinicalPrintMeasureRules";style.textContent=css.join("\n");document.head.appendChild(style);
+}
+function prepareClinicalPagination(host){
+ if(!host.querySelector(".cp-note:not(.cp-paginated)"))return;
+ installClinicalMeasureRules();const previous=host.style.cssText,wasMeasure=host.classList.contains("clinical-measure");
+ host.classList.add("clinical-measure");host.style.cssText="display:block!important;position:absolute!important;left:-10000px!important;top:0!important;width:8.5in!important;height:auto!important;visibility:hidden!important;overflow:visible!important";
+ try{paginateClinicalNotes(host);}finally{host.style.cssText=previous;if(!wasMeasure)host.classList.remove("clinical-measure");}
+}
+function hideGateSuggestions(){const input=$("residentGateName"),list=$("residentGateSuggestions");list.hidden=true;list.replaceChildren();input.setAttribute("aria-expanded","false");input.removeAttribute("aria-activedescendant");input.removeAttribute("aria-describedby");delete input.dataset.suggestedUser;$("residentGateSingle").hidden=true;$("residentGateSingle").replaceChildren();}
+function renderGateSuggestions(){
+ const input=$("residentGateName"),list=$("residentGateSuggestions"),q=normalizeStaffName(input.value);
+ if(q.replace(/[^A-Z]/g,"").length<3){hideGateSuggestions();return;}
+ const matches=[...HJM_STAFF.residentes,...HJM_STAFF.adscritos.map(x=>x.nombre)].filter(name=>q.split(/\s+/).every(term=>normalizeStaffName(name).includes(term)));
+ hideGateSuggestions();
+ if(!matches.length)return;
+ if(matches.length===1){
+  input.dataset.suggestedUser=matches[0];input.setAttribute("aria-describedby","residentGateSingle");
+  const single=$("residentGateSingle");single.innerHTML=`<strong>${esc(matches[0])}</strong><small>↵ Enter para completar</small>`;single.hidden=false;return;
+ }
+ list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="false" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}">${esc(name)}</button>`).join("");
+ list.hidden=false;input.setAttribute("aria-expanded","true");input.removeAttribute("aria-activedescendant");
+}
+$("residentGateName").addEventListener("input",renderGateSuggestions);
+$("residentGateName").addEventListener("focus",hideGateSuggestions);
+$("residentGateName").addEventListener("blur",hideGateSuggestions);
+$("residentGateSuggestions").addEventListener("pointerdown",e=>e.preventDefault());
+$("residentGateSuggestions").addEventListener("click",e=>{const option=e.target.closest("[data-gate-user]");if(!option)return;$("residentGateName").value=option.dataset.gateUser;hideGateSuggestions();$("residentGateName").dispatchEvent(new Event("change",{bubbles:true}));$("residentGateName").focus();});
+$("residentGateName").addEventListener("keydown",e=>{
+ const input=$("residentGateName");
+ if(input.dataset.suggestedUser){
+  if(e.key==="Escape"){e.preventDefault();e.stopPropagation();hideGateSuggestions();return;}
+  if(e.key==="Enter"){e.preventDefault();input.value=input.dataset.suggestedUser;hideGateSuggestions();input.dispatchEvent(new Event("change",{bubbles:true}));input.setSelectionRange(input.value.length,input.value.length);return;}
+ }
+ const list=$("residentGateSuggestions"),options=[...list.querySelectorAll("[role=option]")];if(list.hidden||!options.length)return;
+ let index=options.findIndex(x=>x.getAttribute("aria-selected")==="true");
+ if(e.key==="Escape"){e.preventDefault();e.stopPropagation();hideGateSuggestions();return;}
+ if(e.key==="Enter"){e.preventDefault();if(index>=0)options[index].click();else{options[0].setAttribute("aria-selected","true");input.setAttribute("aria-activedescendant",options[0].id);}return;}
+ if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;e.preventDefault();
+ index=e.key==="ArrowDown"?(index+1)%options.length:(index<=0?options.length-1:index-1);
+ options.forEach((x,i)=>x.setAttribute("aria-selected",String(i===index)));$("residentGateName").setAttribute("aria-activedescendant",options[index].id);options[index].scrollIntoView({block:"nearest"});
+});
 </script>
 </body>
 </html>
