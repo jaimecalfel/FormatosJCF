@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="72">
+<meta name="application-version" content="73">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -1967,7 +1967,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v72 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v73 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2368,7 +2368,7 @@ function fixPlt(){const el=$("plt");if(!el)return;const v=normalizePlt(el.value)
 document.addEventListener("focusout",e=>{if(e.target&&(e.target.id==="plt"||(e.target.closest&&e.target.closest('[data-sync="plt"]'))))setTimeout(fixPlt,0);});
 
 function fill(obj){inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";FOLIO_LAST_BY=obj.folioUltimaResidente||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";LABSURG_LAST_BY=obj.labsUrgUltimaResidente||"";EXTRA_LAST_REQUESTS=extraLastRequestsFrom(obj.ultimasSolicitudes);for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
-$("btnClear").onclick=()=>{ fill(DEFAULTS()); toast("Hoja de datos limpia"); };
+$("btnClear").onclick=()=>{ fill(DEFAULTS()); $("ppSearch").value=""; PP_AUTO=false; renderPP(); $("ppList").scrollLeft=0; toast("Hoja de datos limpia"); };
 $("btnNegados").onclick=()=>{["internamiento","hta","dm","otrasEnfHC","tumores","qtrt"].forEach(id=>{if(!$(id).value.trim())$(id).value="NEGADO"});refresh();};
 $("btnDesc").onclick=()=>{
   const V={alergias:"SE DESCONOCEN",otrasEnfHF:"SE DESCONOCEN",edoCivil:"SE DESCONOCE",religion:"SE DESCONOCE",ocupacion:"SE DESCONOCE",escolaridad:"SE DESCONOCE",lugarNac:"SE DESCONOCE",direccion:"SE DESCONOCE",bjPato:"SE DESCONOCE"};
