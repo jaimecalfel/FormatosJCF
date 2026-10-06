@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="73">
+<meta name="application-version" content="80">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -1782,6 +1782,42 @@ body.showing-clinical #view-clinical{display:block}
 #view-clinical .clinical-shortcuts button:focus-visible{outline:2px solid #315e9b;outline-offset:2px}
 }
 </style>
+<style id="v74-note-table">
+@media screen{
+  .clinical-note-vitals{grid-column:1/-1;min-width:0;margin:0;padding:6px 10px 8px;border:1px solid #dbe4f0;border-radius:10px;background:#f7faff}
+  .clinical-note-vitals legend{padding:0 5px;color:var(--navy);font-size:12px;font-weight:800}
+  .clinical-note-vitals legend small{margin-left:8px;font-size:11px;font-weight:500;color:#526580}
+  .clinical-vitals-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px 10px}
+  #view-clinical .clinical-note-vitals label{gap:3px;font-size:11px;line-height:1.2}
+  #view-clinical .clinical-note-vitals input{height:32px;min-height:32px;padding:5px 7px;border-radius:6px;background:#fff}
+}
+@media screen and (max-width:1000px){.clinical-vitals-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media screen and (max-width:560px){.clinical-note-vitals legend small{display:block;margin:2px 0 0}.clinical-note-vitals{padding:5px 8px 7px}.clinical-vitals-grid{gap:6px 8px}}
+@media print{
+  .cp-note-table{width:100%;margin-top:.12in;border-collapse:collapse;table-layout:fixed;border:1pt solid #000}
+  .cp-note-meta-col{width:15.5%}
+  .cp-note-table th,.cp-note-table td{border:1pt solid #000;box-sizing:border-box}
+  .cp-note-table th{height:.48in;padding:7pt 4pt;text-align:center;vertical-align:middle;font-size:9pt;line-height:1.2}
+  .cp-note-table .cp-title{margin:0;font-size:14pt;line-height:1.2}
+  .cp-note-table thead{display:table-header-group;break-inside:avoid}
+  .cp-note-table td{height:7.8in;padding:12pt 7pt;vertical-align:top;font-family:Arial,sans-serif;font-size:10pt}
+  .cp-note-meta-row{margin:0 0 12pt;line-height:1.3;overflow-wrap:anywhere;break-inside:avoid}
+  .cp-note-date-time{font-size:12pt;font-weight:700;text-align:center;line-height:1.15}
+  .cp-note-date-time:first-child{margin-bottom:0}
+  .cp-note-date-time+.cp-note-date-time{margin-bottom:24pt}
+  .cp-note-meta-row:last-child{margin-bottom:0}
+  .cp-note-table .cp-content{margin:0;font-size:8.5pt;line-height:1.12;text-align:justify;overflow-wrap:anywhere}
+  .cp-note .cp-note-table .cp-signatures{width:auto;max-width:100%;font-size:7.5pt;line-height:1.3;margin-top:6pt!important;break-inside:avoid;overflow-wrap:anywhere}
+}
+</style>
+<style id="loaded-actions-v80">
+@media screen{
+  #clinicalEditTop.loaded-edit,#btnEditFmt.loaded-edit{background:#315e9b!important;border-color:#315e9b!important;color:#fff!important;box-shadow:0 3px 8px rgba(49,94,155,.15)!important}
+  #clinicalEditTop.loaded-edit:hover,#btnEditFmt.loaded-edit:hover{background:#254e86!important;border-color:#254e86!important}
+  #clinicalSaveTop.loaded-new,#btnSaveFmt.loaded-new{background:#eaf0fa!important;border-color:#c5d5ed!important;color:#315e9b!important;box-shadow:none!important}
+  #clinicalSaveTop.loaded-new:hover,#btnSaveFmt.loaded-new:hover{background:#dfe8f7!important;border-color:#a9bfdf!important}
+}
+</style>
 </head>
 <body>
 
@@ -1967,7 +2003,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión v73 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión v80 · Fecha de publicación: 06.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -4295,11 +4331,24 @@ function clinicalDateTimeFields(prefix,v){
   <div class="clinical-field clinical-time-field"><div class="clinical-shortcut-head"><label for="${prefix}-hora">Hora</label><span class="clinical-shortcuts" role="group" aria-label="Elegir hora">${["07:00"].map(h=>`<button type="button" data-cl-time="${prefix}-hora" data-cl-hour="${h}" aria-label="Establecer hora ${h}">${h}</button>`).join("")}</span></div>${clinicalTimeInput(prefix+"-hora",v.hora)}</div>`;
 }
 
+const NOTE_VITAL_FIELDS=[
+  {key:"fc",label:"FC",print:"FC",placeholder:"75",mode:"numeric"},
+  {key:"fr",label:"FR",print:"FR",placeholder:"20",mode:"numeric"},
+  {key:"ta",label:"TA",print:"TA",placeholder:"117/76",mode:"text"},
+  {key:"temp",label:"Temp (°C)",print:"T",placeholder:"36.5",mode:"decimal",unit:"°C"},
+  {key:"so2",label:"SO2 (%)",print:"SO2",placeholder:"97",mode:"numeric",unit:"%"},
+  {key:"uresis",label:"Uresis",print:"Uresis",placeholder:"0.8",mode:"decimal",unit:"mL/kg/h"}
+];
+function clinicalNoteVitals(v){
+  const signs=v.signos||{};
+  return `<fieldset class="clinical-note-vitals"><legend>Signos vitales <small>Solo se imprimen los campos llenos</small></legend><div class="clinical-vitals-grid">${NOTE_VITAL_FIELDS.map(f=>`<label for="cl-sv-${f.key}">${f.label}<input id="cl-sv-${f.key}" inputmode="${f.mode}" maxlength="40" value="${esc(signs[f.key]??"")}"></label>`).join("")}</div></fieldset>`;
+}
 function clinicalFields(tp,v,opt={}){
   const slot=opt.slot===2?2:1,prefix=slot===2?"cl2":"cl",noteType=normalizedNoteType(v.tipo);
   if(tp==="notas") return `<div class="clinical-grid" data-kind="notas">
     ${clinicalDateTimeFields("cl",v)}
     <label class="note-type">Tipo de nota<select id="cl-tipo">${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Preoperatoria","Nota Postoperatoria","Nota de Ingreso","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
+    ${clinicalNoteVitals(v)}
     ${clinicalRichField("cl-contenido","Contenido",v.contenido,{content:true})}
     <label class="signature">Adscrito<input id="cl-adscrito" list="hjm-adscritos" autocomplete="off" value="${esc(v.adscrito||"")}"></label><label class="signature">Residente<input id="cl-residente" list="hjm-residentes" autocomplete="off" value="${esc(v.residente||"")}"></label>
     <label class="signature signature-wide">Otros residentes<input id="cl-otros" list="hjm-residentes" autocomplete="off" placeholder="Escribe o elige un residente" value="${esc(v.otros||"")}"></label>
@@ -4319,11 +4368,16 @@ function syncClinicalDoubleButton(){
   b.hidden=!show;b.classList.toggle("active",show&&indicationsDouble);b.setAttribute("aria-pressed",String(show&&indicationsDouble));
   const label=b.querySelector("span:last-child");if(label)label.textContent=indicationsDouble?"Indicaciones sencillas":"Indicaciones dobles";
 }
+function syncLoadedSaveActions(save,edit,loaded){
+  save.classList.toggle("loaded-new",loaded);edit.classList.toggle("loaded-edit",loaded);
+  if(loaded){if(edit.nextElementSibling!==save)save.before(edit);}
+  else if(save.nextElementSibling!==edit)edit.before(save);
+}
 function syncClinicalSaveButtons(){
   const loaded=!!clinicalEditing[currentClinical],save=$("clinicalSaveTop"),edit=$("clinicalEditTop");
   if(!save||!edit)return;
   save.querySelector(".clinical-save-label").textContent=loaded?"Guardar Nuevo":"Guardar";
-  edit.hidden=!loaded;
+  edit.hidden=!loaded;syncLoadedSaveActions(save,edit,loaded);
   if(loaded){
     save.querySelector(".sv-ic").innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3H5v18h14V9l-6-6zM13 3v6h6M8 15h8M12 11v8"/></svg>';
     save.title="Crear un registro nuevo sin modificar el registro cargado";save.setAttribute("aria-label",save.title);
@@ -4353,7 +4407,7 @@ function clinicalRichHasText(value){const d=document.createElement("div");d.inne
 function clinicalPayload(tp,slot=1){
   const prefix=slot===2?"cl2":"cl",value=id=>{const el=$(prefix+"-"+id);return el?el.value.trim():"";};
   const base={fecha:value("fecha"),hora:normalizeClinicalTime(value("hora")),adscrito:value("adscrito"),otros:value("otros"),residente:value("residente")};
-  return tp==="notas"?{...base,tipo:$("cl-tipo").value,contenido:clinicalRichValue("cl-contenido")}:{...base,tipo:"Indicaciones",dieta:clinicalRichValue(prefix+"-dieta"),soluciones:clinicalRichValue(prefix+"-soluciones"),medicamentos:clinicalRichValue(prefix+"-medicamentos"),cuidados:clinicalRichValue(prefix+"-cuidados")};
+  return tp==="notas"?{...base,tipo:$("cl-tipo").value,signos:Object.fromEntries(NOTE_VITAL_FIELDS.map(f=>[f.key,value("sv-"+f.key)])),contenido:clinicalRichValue("cl-contenido")}:{...base,tipo:"Indicaciones",dieta:clinicalRichValue(prefix+"-dieta"),soluciones:clinicalRichValue(prefix+"-soluciones"),medicamentos:clinicalRichValue(prefix+"-medicamentos"),cuidados:clinicalRichValue(prefix+"-cuidados")};
 }
 function clinicalMissing(tp,p){
   const required=tp==="notas"?["fecha","hora","contenido"]:["fecha","hora","dieta","soluciones","medicamentos","cuidados"];
@@ -4418,9 +4472,18 @@ function clinicalIndicationSections(p){
 function clinicalIndicationEntry(p,number=0){
   return `<section class="cp-double-entry" data-entry="${number}">${number?`<h1 class="cp-title">INDICACIONES MÉDICAS</h1>`:""}<div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><ul class="cp-sections">${clinicalIndicationSections(p)}</ul></div>${clinicalSignatures(p)}</section>`;
 }
+function clinicalNoteVitalRows(p){
+  const signs=p.signos||{};
+  return NOTE_VITAL_FIELDS.map(f=>{
+    let value=String(signs[f.key]??"").trim();if(!value)return "";
+    if((f.key==="temp"||f.key==="uresis")&&/^\d+(?:[.,]\d+)?$/.test(value))value=value.replace(",",".");
+    if(f.unit&&/^\d+(?:[.,]\d+)?$/.test(value))value+=" "+f.unit;
+    return `<div class="cp-note-meta-row" data-vital="${f.key}">${f.print}: ${esc(value)}</div>`;
+  }).join("");
+}
 function clinicalPrintHTML(tp,p,d){
   if(p&&p.enc)d=Object.assign({},d,p.enc);
-  if(tp==="notas")return `<div class="cp-page cp-note">${patientPrintHeader(d)}<h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1><div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><div class="cp-content">${clinicalRichHTML(p.contenido)}</div></div>${clinicalSignatures(p)}</div>`;
+  if(tp==="notas")return `<div class="cp-page cp-note">${patientPrintHeader(d)}<table class="cp-note-table"><colgroup><col class="cp-note-meta-col"><col></colgroup><thead><tr><th scope="col">FECHA, HORA Y<br>SIGNOS VITALES</th><th scope="col"><h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1></th></tr></thead><tbody><tr><td class="cp-note-meta"><div class="cp-note-meta-row cp-note-date-time">${esc(p.fecha)}</div><div class="cp-note-meta-row cp-note-date-time">${esc(p.hora)}</div>${clinicalNoteVitalRows(p)}</td><td class="cp-note-text"><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</td></tr></tbody></table></div>`;
   return `<div class="cp-page cp-indications">${patientPrintHeader(d)}<h1 class="cp-title">INDICACIONES MÉDICAS</h1><div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><ul class="cp-sections">${clinicalIndicationSections(p)}</ul></div>${clinicalSignatures(p)}</div>`;
 }
 function clinicalDoublePrintHTML(first,second,d){
@@ -4587,7 +4650,7 @@ function loadedFormatRecord(){
 }
 function syncFormatSaveButtons(){
   const save=$("btnSaveFmt"),edit=$("btnEditFmt");if(!save||!edit)return;
-  const loaded=!!loadedFormatRecord();edit.hidden=!loaded;
+  const loaded=!!loadedFormatRecord();edit.hidden=!loaded;syncLoadedSaveActions(save,edit,loaded);
   save.querySelector(".format-save-label").textContent=loaded?"Guardar Nuevo":"Guardar";
   if(loaded){
     save.querySelector(".sv-ic").innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3H5v18h14V9l-6-6zM13 3v6h6M8 15h8M12 11v8"/></svg>';
