@@ -1993,7 +1993,7 @@ let SESSION_RESIDENT="",SESSION_ADSCRITO="";
 function currentResidentName(){return String(SESSION_ADSCRITO||SESSION_RESIDENT||($("residente")&&$("residente").value)||"").trim();}
 function sessionUserName(){return String(SESSION_ADSCRITO||SESSION_RESIDENT||"").trim();}
 function currentAuthorRole(){return SESSION_ADSCRITO||staffAdscrito(currentResidentName())?"adscrito":"residente";}
-function authorRoleForName(value){return staffAdscrito(value)?"adscrito":"residente";}
+function authorRoleForName(value){return staffAdscritoLoose(value)?"adscrito":"residente";}
 function applySessionResident(){
   const resident=$("residente"),medico=$("medico");
   /* Usuario adscrito: residente en blanco y el adscrito queda fijo en cada paciente.
@@ -2880,7 +2880,7 @@ function lastRequestInfo(key){
   return {fecha:item.fecha,residente:item.residente,nota:`Se actualiza al imprimir ${title}.`};
 }
 function lastRequestCardHTML(key){
-  const item=lastRequestInfo(key);return `<div class="folio-last" data-last-request="${esc(key)}"><div class="folio-last-grid"><div><span>Fecha última solicitud</span><strong data-last-date>${esc(item.fecha||"Sin registro")}</strong></div><div><span data-last-role>${authorRoleForName(item.residente)==="adscrito"?"Adscrito":"Residente"}</span><strong data-last-resident>${esc(item.residente||"Sin registro")}</strong></div></div><small>${esc(item.nota)}</small></div>`;
+  const item=lastRequestInfo(key);return `<div class="folio-last" data-last-request="${esc(key)}"><div class="folio-last-grid"><div><span>Fecha última solicitud</span><strong data-last-date>${esc(item.fecha||"Sin registro")}</strong></div><div><span data-last-role>${savedRoleLabel({by:item.residente})}</span><strong data-last-resident>${esc(item.residente||"Sin registro")}</strong></div></div><small>${esc(item.nota)}</small></div>`;
 }
 function appendLastRequestCard(key){
   if(!LAST_REQUEST_KEYS.has(key))return;const nav=$("relNav");nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.insertAdjacentHTML("beforeend",lastRequestCardHTML(key));
@@ -3772,14 +3772,23 @@ function addMinutes(hhmm,amount=1){
   const total=(Number(m[1])*60+Number(m[2])+amount+1440)%1440;
   return String(Math.floor(total/60)).padStart(2,"0")+":"+String(total%60).padStart(2,"0");
 }
-function clinicalDefaults(tp,minuteOffset=0){
+function addClinicalDays(fecha,amount=1){
+  const m=/^(\d{2})\.(\d{2})\.(\d{2})$/.exec(String(fecha||""));if(!m)return fecha;
+  const d=new Date(2000+Number(m[3]),Number(m[2])-1,Number(m[1]),12);
+  if(d.getDate()!==Number(m[1])||d.getMonth()!==Number(m[2])-1)return fecha;
+  d.setDate(d.getDate()+amount);
+  return [d.getDate(),d.getMonth()+1,d.getFullYear()%100].map(n=>String(n).padStart(2,"0")).join(".");
+}
+function duplicateIndications(first){return {...first,fecha:addClinicalDays(first.fecha,1)};}
+function clinicalDefaults(tp,dayOffset=0){
   const linked={adscrito:$("medico").value||"",residente:$("residente").value||""};
-  /* v53 · Siempre con la fecha y hora actuales. El texto es el del último registro guardado del paciente (si lo hay);
+  /* Notas con fecha y hora actuales; indicaciones a las 07:00. El texto es el del último registro guardado del paciente (si lo hay);
      en indicaciones, si no hay ninguno, el texto predeterminado. Nada se guarda hasta presionar Guardar o Imprimir. */
   const last=arCollect([tp])[0],lp=last&&last.r&&last.r.p;
+  linked.otros=(lp&&lp.otros)||"";
   if(tp==="notas")return {fecha:todayStr(),hora:nowTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
   const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&clinicalRichHasText(lp[k]))?lp[k]:INDICATION_DEFAULTS[k];
-  return {fecha:todayStr(),hora:addMinutes(nowTime(),minuteOffset),...txt,...linked};
+  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,...linked};
 }
 function clinicalRichHTML(value){
   const raw=String(value||""), hasMarkup=/<\/?(?:b|strong|u|ul|ol|li|br|div|p)\b/i.test(raw), t=document.createElement("template");
@@ -3822,7 +3831,7 @@ function syncClinicalDoubleButton(){
 }
 function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
   const form=$("clinicalForm"),isNote=tp==="notas";
-  const second=!isNote&&indicationsDouble?(v2||clinicalDefaults("indicaciones",1)):null;
+  const second=!isNote&&indicationsDouble?(v2||duplicateIndications(v)):null;
   form.dataset.type=tp;form.classList.toggle("double-indications",!!second);
   form.innerHTML=`<div class="clinical-form-title"><div><h2>${isNote?"Captura de nota médica":second?"Captura de indicaciones dobles":"Captura de indicaciones médicas"}</h2><p>${isNote?"Redacta, guarda o imprime una nueva nota.":second?"Cada bloque se guardará por separado dentro del historial del paciente.":"Revisa y ajusta cada apartado antes de guardar."}</p></div></div>`+clinicalFields(tp,v,{slot:1})+(second?clinicalFields(tp,second,{slot:2}):"");
   form.oninput=e=>{if(e.target.matches("[data-date]")){const dg=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");}else if(e.target.matches("[data-time]"))e.target.value=normalizeClinicalTime(e.target.value,true);};
@@ -3852,20 +3861,20 @@ function saveClinicalRecord(tp,printAfter=false,force=false){
   const d=data();if(warnMissing(d))return;
   const payloads=[clinicalPayload(tp,1)];if(tp==="indicaciones"&&indicationsDouble)payloads.push(clinicalPayload(tp,2));
   if(payloads.some(p=>clinicalMissing(tp,p).length)){notify("Completa los campos vacíos antes de guardar.","warn");return;}
-  if(payloads.length===2&&payloads[0].fecha===payloads[1].fecha&&payloads[0].hora===payloads[1].hora){payloads[1].hora=addMinutes(payloads[1].hora,1);const el=$("cl2-hora");if(el)el.value=payloads[1].hora;}
+  if(payloads.length===2&&payloads[0].fecha===payloads[1].fecha&&payloads[0].hora===payloads[1].hora){notify("Las dos indicaciones tienen la misma fecha y hora. Cambia la fecha o la hora de una para guardarlas como registros separados.","warn");return;}
+  const enc=(()=>{const d=data();return {nombreCompleto:d.nombreCompleto||"",expediente:d.expediente||"",fnac:d.fnac||"",servicio:d.servicio||"",cama:d.cama||"",alergias:d.alergias||""};})();
   /* v54 · Abierta con «Ver» y sin ningún cambio: es la misma nota; se imprime tal cual, sin preguntar ni duplicar */
-  const eid=clinicalEditing[tp];
-  if(eid&&payloads.length===1&&clinicalSnap[tp]&&JSON.stringify(payloads[0])===clinicalSnap[tp]&&(HIST[tp]||[]).some(x=>x.id===eid)){
+  const eid=clinicalEditing[tp],original=(HIST[tp]||[]).find(x=>x.id===eid);
+  if(eid&&payloads.length===1&&clinicalSnap[tp]&&JSON.stringify(payloads[0])===clinicalSnap[tp]&&original&&(!original.p.enc||Object.keys(enc).every(k=>enc[k]===(original.p.enc[k]||"")))){
     if(printAfter)printClinicalSet(tp,[eid]);else notify(tp==="notas"?"Sin cambios: la nota ya está guardada.":"Sin cambios: las indicaciones ya están guardadas.","ok");
     return;
   }
-  const enc=(()=>{const d=data();return {nombreCompleto:d.nombreCompleto||"",expediente:d.expediente||"",fnac:d.fnac||"",servicio:d.servicio||"",cama:d.cama||"",alergias:d.alergias||""};})();
   payloads.forEach(p=>p.enc=enc);
   if(!force){
     const hit=payloads.find(p=>(HIST[tp]||[]).some(x=>x&&x.p&&x.p.fecha===p.fecha&&x.p.hora===p.hora));
     if(hit){
       const what=tp==="notas"?"una nota":"unas indicaciones",nueva=tp==="notas"?"una nota nueva":"indicaciones nuevas";
-      notify(`Ya existe ${what} con fecha ${hit.fecha} a las ${hit.hora} hrs. ¿Quieres sobrescribirla? Si quieres crear ${nueva}, cambia la fecha y la hora antes de guardar.`,"warn",
+      notify(`Ya existe ${what} con fecha ${hit.fecha} a las ${hit.hora} hrs. ¿Quieres sobrescribirla? Si quieres crear ${nueva}, cambia la fecha o la hora antes de guardar.`,"warn",
         {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>saveClinicalRecord(tp,printAfter,true)},{label:"Cancelar",fn:()=>{const el=$("cl-hora")||document.querySelector("#clinicalForm [name=hora], #clinicalForm input[id$=hora]");if(el)el.focus();}}]});
       return;
     }
@@ -3879,7 +3888,7 @@ function renderClinicalRecents(tp){
   const list=arCollect(tp==="notas"?["notas","prequx","altas"]:["indicaciones"]);
   $("clinicalRecentList").innerHTML=list.length?`<table class="clinical-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${list.map(e=>{const r=e.r,own=e.tp===tp;
     const acts=own?`${rbBtn("view","Ver",`data-cl-edit="${esc(r.id)}"`)}${rbBtn("print","Imprimir",`data-cl-print="${esc(r.id)}"`)}${rbBtn("del","Borrar",`data-cl-delete="${esc(r.id)}"`)}`:arActions(e);
-    return `<tr data-src="${esc(e.tp)}"><td><strong>${esc(e.fecha||"")}</strong><small>${esc(e.hora||"")}</small></td><td>${esc(own?((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones")):e.tipo)}${!own&&e.detail?`<small class="clinical-detail">${esc(e.detail)}</small>`:""}<small class="clinical-saved-by">${savedRoleLabel(r)}: ${esc(savedBy(r))}</small></td><td>${acts}</td></tr>`;}).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
+    return `<tr data-src="${esc(e.tp)}"><td><strong>${esc(e.fecha||"")}</strong><small>${esc(e.hora||"")}</small></td><td>${esc(own?((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones")):e.tipo)}${!own&&e.detail?`<small class="clinical-detail">${esc(e.detail)}</small>`:""}<small class="clinical-saved-by">${savedChangeLabel(r)}: ${esc(savedBy(r))}</small></td><td>${acts}</td></tr>`;}).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
 }
 function openClinical(tp){
   current=null;currentClinical=tp;indicationsDouble=false;document.body.classList.remove("showing-format","rec-side","showing-archive");document.body.classList.add("showing-clinical");$("recPanel").hidden=true;$("bandIdx").hidden=true;$("bandBack").hidden=false;$("clinicalTitle").textContent=tp==="notas"?"Notas Médicas":"Indicaciones Médicas";document.querySelectorAll(".clinical-switch").forEach(b=>{const on=b.dataset.clinical===tp;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));});clinicalEditing[tp]=null;renderClinicalForm(tp);renderClinicalRecents(tp);window.scrollTo(0,0);
@@ -3971,15 +3980,15 @@ function arEntry(tp,r){
 function arCollect(src){return src.flatMap(tp=>(HIST[tp]||[]).map(r=>arEntry(tp,r))).sort((a,b)=>(b.ms-a.ms)||((b.r.ts||0)-(a.r.ts||0)));}
 function arActions(e){const a=`data-ar-tp="${esc(e.tp)}" data-ar-id="${esc(e.r.id)}"`;return rbBtn("view","Ver",a+' data-ar="view"')+rbBtn("print","Imprimir",a+' data-ar="print"')+rbBtn("del","Borrar",a+' data-ar="del"');}
 function arRowHTML(e){
-  return `<div class="ar-tr" data-src="${esc(e.tp)}"><div class="ar-td ar-when"><strong>${esc(e.fecha||"Sin fecha")}</strong>${e.hora?`<small>${esc(e.hora)} hrs</small>`:""}</div><div class="ar-td ar-type"><span class="ar-tag t-${esc(e.tp)}">${esc(e.tipo||"Registro")}</span>${e.detail?`<small>${esc(e.detail)}</small>`:""}</div><div class="ar-td ar-by"><span>${savedRoleLabel(e.r)}</span>${esc(savedBy(e.r))}</div><div class="ar-td ar-act">${arActions(e)}</div></div>`;
+  return `<div class="ar-tr" data-src="${esc(e.tp)}"><div class="ar-td ar-when"><strong>${esc(e.fecha||"Sin fecha")}</strong>${e.hora?`<small>${esc(e.hora)} hrs</small>`:""}</div><div class="ar-td ar-type"><span class="ar-tag t-${esc(e.tp)}">${esc(e.tipo||"Registro")}</span>${e.detail?`<small>${esc(e.detail)}</small>`:""}</div><div class="ar-td ar-by"><span>Último cambio por (${savedRoleLabel(e.r)})</span>${esc(savedBy(e.r))}</div><div class="ar-td ar-act">${arActions(e)}</div></div>`;
 }
 function arPanelHTML(pn,mini){
   const list=arCollect(pn.src);if(mini&&!list.length)return "";
   return `<section class="ar-panel${mini?" ar-mini":""}" data-panel="${pn.key}"><div class="ar-panel-head"><h2>${esc(pn.title)}</h2><span class="ar-count">${list.length}</span></div>`+
-    (list.length?`<div class="ar-table"><div class="ar-tr ar-th"><div class="ar-td">Fecha</div><div class="ar-td">${esc(pn.col2)}</div><div class="ar-td">Elaboró</div><div class="ar-td"></div></div><div class="ar-tbody">${list.map(arRowHTML).join("")}</div></div>`:`<div class="ar-empty">Sin registros guardados.</div>`)+`</section>`;
+    (list.length?`<div class="ar-table"><div class="ar-tr ar-th"><div class="ar-td">Fecha</div><div class="ar-td">${esc(pn.col2)}</div><div class="ar-td">Último cambio por</div><div class="ar-td"></div></div><div class="ar-tbody">${list.map(arRowHTML).join("")}</div></div>`:`<div class="ar-empty">Sin registros guardados.</div>`)+`</section>`;
 }
 function arOtherInfo(k){
-  if(LAST_REQUEST_KEYS.has(k)){const i=lastRequestInfo(k);return i.fecha?{fecha:i.fecha,by:i.residente,role:authorRoleForName(i.residente)==="adscrito"?"Adscrito":"Residente"}:null;}
+  if(LAST_REQUEST_KEYS.has(k)){const i=lastRequestInfo(k);return i.fecha?{fecha:i.fecha,by:i.residente,role:savedRoleLabel({by:i.residente})}:null;}
   const list=arCollect([k]);if(!list.length)return null;const e=list[0];
   return {fecha:e.fecha,by:savedBy(e.r),role:savedRoleLabel(e.r),n:list.length,id:e.r.id};
 }
@@ -4014,7 +4023,14 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-ar]");if(!b)return;arAct(b.dataset.arTp,b.dataset.arId,b.dataset.ar,b);
 });
 $("clinicalNewTop").onclick=()=>{if(!currentClinical)return;clinicalEditing[currentClinical]=null;renderClinicalForm(currentClinical);};
-$("clinicalDoubleTop").onclick=()=>{if(currentClinical!=="indicaciones")return;const first=clinicalPayload("indicaciones",1);let second=null;if(indicationsDouble)second=clinicalPayload("indicaciones",2);indicationsDouble=!indicationsDouble;renderClinicalForm("indicaciones",first,indicationsDouble?(second||clinicalDefaults("indicaciones",1)):null);};
+$("clinicalDoubleTop").onclick=()=>{
+  if(currentClinical!=="indicaciones")return;
+  const first=clinicalPayload("indicaciones",1);
+  indicationsDouble=!indicationsDouble;
+  /* Copia independiente del borrador visible para el día siguiente, con la misma hora. */
+  const second=indicationsDouble?duplicateIndications(first):null;
+  renderClinicalForm("indicaciones",first,second);
+};
 $("clinicalSaveTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical);};
 $("clinicalPrintTop").onclick=()=>{if(currentClinical)saveClinicalRecord(currentClinical,true);};
 $("clinicalRecentList").onclick=e=>{const edit=e.target.closest("[data-cl-edit]"),print=e.target.closest("[data-cl-print]");if(edit)editClinical(currentClinical,edit.dataset.clEdit);if(print)printClinical(currentClinical,print.dataset.clPrint);const del=e.target.closest("[data-cl-delete]");if(del&&rbArm(del)){histDelete(currentClinical,del.dataset.clDelete);if(clinicalEditing[currentClinical]===del.dataset.clDelete)clinicalEditing[currentClinical]=null;renderClinicalRecents(currentClinical);saveAfterDelete();}};
@@ -4069,13 +4085,19 @@ function captureCurrentRecent(){
   if(current==="alta"&&ALTA_COMPOSE.receta){captureRecent("receta","alta-receta");if(ALTA_COMPOSE.pase&&altaMode("pase")==="otro")captureRecent("receta","alta-pase");}
 }
 function relTime(ts){ const m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora"; if(m<60) return "hace "+m+" min"; const h=Math.round(m/60); if(h<24) return "hace "+h+" h"; return new Date(ts).toLocaleDateString("es-MX",{day:"2-digit",month:"short"}); }
-function savedBy(r){return String((r&&r.by)||(r&&r.p&&r.p.residente)||(r&&r.p&&r.p.adscrito)||"Sin identificar").trim();}
-function savedRoleLabel(r){const role=(r&&r.byRole)||authorRoleForName(savedBy(r));return role==="adscrito"?"Adscrito":"Residente";}
+function savedBy(r){return [r&&r.by,r&&r.p&&r.p.residente,r&&r.p&&r.p.adscrito].map(v=>String(v||"").trim()).find(Boolean)||"Sin identificar";}
+function savedRoleLabel(r){
+  const role=String((r&&r.byRole)||"").trim().toLowerCase();
+  if(role==="adscrito")return "Adscrito";
+  if(role==="residente")return "Residente";
+  const name=savedBy(r);return name==="Sin identificar"?"Usuario":authorRoleForName(name)==="adscrito"?"Adscrito":"Residente";
+}
+function savedChangeLabel(r){return "Último cambio por ("+savedRoleLabel(r)+")";}
 function recentsHTML(tp,newId,owner=current){
   const C=RECENT_CFG[tp], R={list:HIST[tp]}, two=tp==="receta"&&recFields(owner).length>1;
   const trash='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
   return `<div class="rc-head"><h2>${C.title}</h2><small>Historial de este paciente · se guarda en su archivo</small></div><div class="rc-list">`
-   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedRoleLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?rbBtn("view","Ver 1",'data-ra="use" data-n="0"')+rbBtn("view","Ver 2",'data-ra="use" data-n="1"'):rbBtn("view","Ver",'data-ra="use" data-n="0"')}${rbBtn("print","Imprimir",'data-ra="print" data-n="0"')}${rbBtn("del","Borrar",'data-ra="del" title="Borrar"')}</div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
+   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedChangeLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?rbBtn("view","Ver 1",'data-ra="use" data-n="0"')+rbBtn("view","Ver 2",'data-ra="use" data-n="1"'):rbBtn("view","Ver",'data-ra="use" data-n="0"')}${rbBtn("print","Imprimir",'data-ra="print" data-n="0"')}${rbBtn("del","Borrar",'data-ra="del" title="Borrar"')}</div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
    +'</div>';
 }
 function renderRecent(tp,newId){
