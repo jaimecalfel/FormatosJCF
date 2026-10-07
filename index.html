@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.18">
+<meta name="application-version" content="2.21">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2223,6 +2223,24 @@ body.showing-clinical #view-clinical{display:block}
 @media print{#altaCapture{display:none!important}.alta-capture-workspace .sheet .c > span ul,.alta-capture-workspace .sheet .c > span ol{margin:3pt 0;padding-left:16pt}.alta-capture-workspace .sheet .c > span li{margin:0}}
 </style>
 <style>.clinical-others-hint{display:block;font-size:10px;font-weight:400;line-height:1.35;color:#657b98;text-transform:none;letter-spacing:0;margin-top:2px}</style>
+<style>
+@media screen{
+.capture-panel[data-capture-format="repCx"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.capture-panel[data-capture-format="repCx"]>label{grid-column:1 / -1}
+.capture-panel[data-capture-format="repCx"]>label.report-capture-half{grid-column:auto;align-content:start}
+.capture-panel[data-capture-format="repCx"] .report-capture-half .capture-label{min-height:29px;line-height:1.3;align-items:flex-end}
+.capture-panel[data-capture-format="repCx"] textarea.report-capture-repFindings{min-height:160px}
+.capture-panel[data-capture-format="repCx"] textarea.report-capture-repTechnique{min-height:240px}
+}
+</style>
+<style>
+@media screen{
+/* A clipped lower sheet must not intercept clicks in the upper document. */
+.sheetpos.emb{pointer-events:none}
+.sheetpos.emb > .sheet{pointer-events:auto}
+.sheet .diagnosis-continuation-underlay{pointer-events:none}
+}
+</style>
 </head>
 <body>
 
@@ -2408,7 +2426,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.18 · Fecha de publicación: 07.10.26</div>
+  <div class="app-footer-version">Versión 2.21 · Fecha de publicación: 07.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2761,6 +2779,7 @@ function lookup(d,key){
 
 /* v102 · Captura lateral vinculada al formato y a la Hoja de Datos. */
 const CAPTURE_FIELDS={
+ repCx:['fPlan','@repSurgeons','@repAnesthetist','@repInstrument','@repCirculating','@repRoom','@repDuration','@repInRoom','@repAnestStart','@repSurgeryStart','@repSurgeryEnd','@repAnestEnd','@repOutRoom','@repBleeding','cirugia','@repFindings','@repTechnique'],
  rx:['fecha','@study','diagnostico'],labsUrg:['fecha','diagnostico'],folio:['fecha','diagnostico'],folioB:['fecha','diagnostico'],medNuc:['fecha','diagnostico'],antibiotico:['fecha','diagnostico','resumen'],
  contrastados:['fecha'],consInterv:['fecha'],consTransf:['fecha'],receta:['fecha','diagnostico'],pase:['fecha','diagnostico'],
  bancoSangre:['fecha','diagnostico','resumen','@bloodRisk'],
@@ -2768,8 +2787,35 @@ const CAPTURE_FIELDS={
  solCx:['fPlan','diagnostico','cirugia','medico'],consInf:['fPlan','diagnostico','cirugia','medico'],cj:['fPlan','diagnostico'],bj:['fPlan','diagnostico']
 };
 const CAPTURE_LABELS={fecha:'Fecha actual',fPlan:'Fecha de cirugía',diagnostico:'Diagnóstico',cirugia:'Cirugía a realizar',medico:'Adscrito',resumen:'Resumen clínico','@study':'Estudio solicitado','@bloodRisk':'Factores de riesgo',indicacion:'Indicación de transfusión',peso:'Peso',hb:'HB',hto:'HTO',plt:'PLT',tp:'TP',inr:'INR',tpt:'TPT'};
+// Reporte de Cirugía: existing cells and identifiers are retained for historical copies.
+const REPORT_CAPTURE_CELLS={repSurgeons:'H13',repAnesthetist:'M15',repInstrument:'I16',repCirculating:'W16',repRoom:'O18',repDuration:'U18',repInRoom:'B21',repAnestStart:'E21',repSurgeryStart:'K21',repSurgeryEnd:'P21',repAnestEnd:'U21',repOutRoom:'AA21',repBleeding:'C24',repFindings:'J29',repTechnique:'B33'};
+const REPORT_CAPTURE_LABELS={fPlan:'Fecha de realización',repSurgeons:'Cirujanos y Ayudantes',repAnesthetist:'Anestesiólogo',repInstrument:'Instrumentista',repCirculating:'Circulante',repRoom:'Sala',repDuration:'Duración',repInRoom:'Ingreso a Sala',repAnestStart:'Inicio de Anestesia',repSurgeryStart:'Inicio de Cirugía',repSurgeryEnd:'Término de Cirugía',repAnestEnd:'Término de Anestesia',repOutRoom:'Salida de Sala',repBleeding:'Sangrado',cirugia:'Cirugía Realizada',repFindings:'Hallazgos',repTechnique:'Descripción de la técnica'};
+const REPORT_CAPTURE_PAIRS=new Set(['repInstrument','repCirculating','repRoom','repDuration','repInRoom','repAnestStart','repSurgeryStart','repSurgeryEnd','repAnestEnd','repOutRoom']);
+function reportDateValue(){
+ const root=BUILT.repCx,part=ref=>root?.querySelector('[data-c="'+ref+'"] > span')?.textContent.trim()||'';
+ const dd=part('F18'),mm=part('H18'),yy=part('J18');return dd||mm||yy?[dd,mm,yy.slice(-2)].join('.'):'';
+}
+function reportCaptureFieldHTML(field){
+ const local=field.replace('@',''),value=captureValue('repCx',field),id='capture-repCx-'+local,multi=['repSurgeons','repAnesthetist','cirugia','repFindings','repTechnique'].includes(local),large=['repFindings','repTechnique'].includes(local);
+ const date=field==='fPlan',time=/^rep(?:InRoom|AnestStart|SurgeryStart|SurgeryEnd|AnestEnd|OutRoom)$/.test(local),max=field==='cirugia'?+$('cirugia').dataset.max:0;
+ const attrs='id="'+id+'" data-side-field="'+field+'"'+(date?' data-date inputmode="numeric" placeholder="DD.MM.AA"':time?' inputmode="numeric" placeholder="HH:MM"':local==='repBleeding'?' inputmode="decimal"':'');
+ const count=max?'<span class="cnt'+(value.length>max?' over':'')+'" data-side-count>'+ (value.length?value.length+'/'+max:'máx. '+max)+'</span>':'';
+ return '<label for="'+id+'"'+(REPORT_CAPTURE_PAIRS.has(local)?' class="report-capture-half"':'')+'><span class="capture-label">'+REPORT_CAPTURE_LABELS[local]+count+'</span>'+(multi?'<textarea '+attrs+' rows="'+(local==='repTechnique'?10:large?6:2)+'"'+(large?' class="report-capture-'+local+'"':'')+'>'+esc(value)+'</textarea>':'<input '+attrs+' value="'+esc(value)+'">')+'</label>';
+}
+// An explicit change in Hoja de Datos updates these linked report fields, including loaded copies.
+document.addEventListener('input',e=>{const field=e.target.id;if(field!=='fPlan'&&field!=='cirugia')return;BUILT.repCx?.querySelectorAll('[data-report-linked="'+field+'"]').forEach(cell=>cell.removeAttribute('data-ov'));},true);
+function fillReportLinkedCells(root,d){
+ root.querySelectorAll('[data-report-linked]').forEach(cell=>{
+  if(cell.hasAttribute('data-ov')||cell.firstElementChild===document.activeElement)return;
+  let value=d[cell.dataset.reportLinked]||'';
+  if(cell.dataset.sideDatePart){const date=parts(value||d.fecha);value=date?(cell.dataset.sideDatePart==='yyyy'?'20'+date.yy:date[cell.dataset.sideDatePart]):'';}
+  cell.firstElementChild.textContent=value;
+ });
+}
 function captureValue(key,field){
- if(field.startsWith('@'))return BUILT[key]?.querySelector('[data-side-local="'+field.slice(1)+'"] > span')?.textContent||'';
+ if(key==='repCx'&&field==='fPlan')return reportDateValue();
+ if(key==='repCx'&&field==='cirugia')return BUILT.repCx?.querySelector('[data-c="H28"] > span')?.innerText||'';
+ if(field.startsWith('@')){const sp=BUILT[key]?.querySelector('[data-side-local="'+field.slice(1)+'"] > span');return sp?(key==='repCx'?sp.innerText:sp.textContent)||'':'';}
  if(key==='consInf'&&field==='medico')return $('medico').value||'';
  const root=BUILT[key],override=root&&[...root.querySelectorAll('[data-sync="'+field+'"]')].find(c=>c.hasAttribute('data-ov')&&!c.dataset.part&&!c.dataset.sideDatePart&&!c.closest('.emb,.hf-mirror'));
  if(override)return override.firstElementChild.textContent;
@@ -2781,7 +2827,7 @@ function captureFieldHTML(key,field){
  const attrs='id="'+id+'" data-side-field="'+field+'"'+(date?' data-date inputmode="numeric" placeholder="DD.MM.AA"':'')+(field==='medico'?' list="hjm-adscritos" autocomplete="off"':'')+(['peso','hb','hto','plt','tp','inr','tpt'].includes(field)?' inputmode="decimal"':'');
  return '<label for="'+id+'"><span class="capture-label">'+CAPTURE_LABELS[field]+(limit?'<span class="cnt'+(value.length>limit?' over':'')+'" data-side-count>'+ (value.length?value.length+'/'+limit:'máx. '+limit)+'</span>':'')+'</span>'+(multi?'<textarea '+attrs+' rows="'+(field==='resumen'?8:field==='indicacion'||field==='diagnostico'?3:2)+'"'+(field==='resumen'?' class="capture-summary"':'')+'>'+esc(value)+'</textarea>':'<input '+attrs+' value="'+esc(value)+'">')+'</label>';
 }
-function capturePanelHTML(key){return CAPTURE_FIELDS[key]?'<div class="capture-panel" data-capture-format="'+key+'">'+CAPTURE_FIELDS[key].map(f=>captureFieldHTML(key,f)).join('')+'</div>':'';}
+function capturePanelHTML(key){return CAPTURE_FIELDS[key]?'<div class="capture-panel" data-capture-format="'+key+'">'+CAPTURE_FIELDS[key].map(f=>key==='repCx'?reportCaptureFieldHTML(f):captureFieldHTML(key,f)).join('')+'</div>':'';}
 function syncCaptureControls(){
  document.querySelectorAll('[data-capture-format]').forEach(panel=>panel.querySelectorAll('[data-side-field]').forEach(el=>{
   const field=el.dataset.sideField,value=captureValue(panel.dataset.captureFormat,field);if(el.value!==value)el.value=value;
@@ -2794,6 +2840,12 @@ function clearLinkedOverrides(field){
  Object.values(BUILT).forEach(root=>root.querySelectorAll('[data-sync]').forEach(cell=>{if(aliases.includes(cell.dataset.sync)&&!(cell.dataset.independentAdscrito&&cell.hasAttribute('data-ov')))cell.removeAttribute('data-ov');}));
 }
 function bindCaptureCells(key,root){
+ if(key==='repCx'){
+  Object.entries(REPORT_CAPTURE_CELLS).forEach(([field,ref])=>root.querySelector('[data-c="'+ref+'"]')?.setAttribute('data-side-local',field));
+  for(const [ref,part] of [['F18','dd'],['H18','mm'],['J18','yyyy']]){const cell=root.querySelector('[data-c="'+ref+'"]');if(cell){cell.dataset.sync='fPlan';cell.dataset.sideDatePart=part;cell.dataset.reportLinked='fPlan';}}
+  const surgery=root.querySelector('[data-c="H28"]');if(surgery){surgery.dataset.sync='cirugia';surgery.dataset.reportLinked='cirugia';}
+ }
+
  const dates={solCx:{B61:'full'},consInf:{AK6:'dd',AO6:'mm',AZ6:'yy'},cj:{V10:'dd',Y10:'monthName',AH10:'yyyy'},bj:{V10:'dd',Z10:'monthName',AH10:'yyyy'}};
  Object.entries(dates[key]||{}).forEach(([ref,part])=>{const cell=root.querySelector('[data-x="'+ref+'"]');if(cell){cell.dataset.sync='fPlan';cell.dataset.sideDatePart=part;}});
  root.querySelectorAll('[data-sync="mes"],[data-sync="anio"]').forEach(cell=>{cell.dataset.sideDateField='fecha';cell.dataset.sideDatePart=cell.dataset.sync==='mes'?'monthName':'yyyy';});
@@ -2803,9 +2855,11 @@ function bindCaptureCells(key,root){
  if(key==='defuncion')root.querySelectorAll('.c.ed').forEach(cell=>{if(Math.abs(parseFloat(cell.style.left)-52.5)<.1&&[152.2,526.3].some(y=>Math.abs(parseFloat(cell.style.top)-y)<.1))cell.firstElementChild.textContent='1ro Norte';});
 }
 function handleCaptureSheetInput(sp,cell){
+ if(cell.dataset.reportLinked&&!cell.dataset.sideDatePart){const source=$(cell.dataset.reportLinked);source.value=sp.innerText.toUpperCase();clearLinkedOverrides(source.id);source.dispatchEvent(new Event('input',{bubbles:true}));return true;}
+
  if(cell.dataset.sideLocal){
   const value=sp.innerText.toUpperCase();BUILT[current].querySelectorAll('[data-side-local="'+cell.dataset.sideLocal+'"] > span').forEach(other=>{if(other!==sp)other.textContent=value;other.parentElement.setAttribute('data-ov','');shrinkOne(other.parentElement);});
-  syncCaptureControls();refreshMirror(current);return true;
+  syncCaptureControls();if(current==='repCx')renderFormat(current);else refreshMirror(current);return true;
  }
  const part=cell.dataset.sideDatePart;if(!part)return false;
  const field=cell.dataset.sideDateField||cell.dataset.sync,source=$(field);if(!source)return false;
@@ -2824,7 +2878,7 @@ document.addEventListener('input',e=>{
  const panel=el.closest('[data-capture-format]'),key=panel.dataset.captureFormat,field=el.dataset.sideField;
  if(field.startsWith('@')){
   const value=el.value.toUpperCase(),pos=el.selectionStart;el.value=value;el.setSelectionRange(pos,pos);
-  BUILT[key]?.querySelectorAll('[data-side-local="'+field.slice(1)+'"] > span').forEach(sp=>{sp.textContent=value;sp.parentElement.setAttribute('data-ov','');shrinkOne(sp.parentElement);});refreshMirror(key);return;
+  BUILT[key]?.querySelectorAll('[data-side-local="'+field.slice(1)+'"] > span').forEach(sp=>{sp.textContent=value;sp.parentElement.setAttribute('data-ov','');shrinkOne(sp.parentElement);});if(key==='repCx')renderFormat(key);else refreshMirror(key);return;
  }
  const source=$(field);source.value=el.value;clearLinkedOverrides(field);source.dispatchEvent(new Event('input',{bubbles:true}));if(el.value!==source.value)el.value=source.value;
 });
@@ -3223,7 +3277,13 @@ function prepareDiagnosisGeometry(cell){
   if(key==='interconsulta')bands=[box(x,y,w,h,false,'bottom'),box(x,y+h,w,h,false,'bottom')];
   if(key==='rx')bands=[box(x,y,w,h,false,'bottom'),box(x,y+h,w,h,false,'bottom')];
   if(key==='marcaje')bands=[box(x,y,w,h,false,'bottom'),box(0,250.3,484.5,14.1,false,'bottom')];
-  if(key==='pase')bands=[box(8.25,y+24,513.75,14.25,true,'bottom')];
+  if(key==='pase'){
+    bands=[box(x,y,w,h,false,'bottom'),box(8.25,y+24,513.75,14.25,false,'bottom')];
+    // The lower diagnosis line is part of this single editor, not an overlapping blank editor.
+    const sheet=cell.closest('.sheet');sheet?.querySelectorAll(':scope > .c.ed:not([data-sync])').forEach(other=>{
+      if(Math.abs(num(other,'top')-(y+24))<.1&&Math.abs(num(other,'left')-8.25)<.1){other.classList.add('diagnosis-continuation-underlay');other.classList.remove('ed');other.firstElementChild?.removeAttribute('contenteditable');}
+    });
+  }
   if(key==='ordenHosp')bands=[box(x,232.5,w,19.5,true,'bottom'),box(262.5,253,252,7.4,true,'bottom')];
   if(key==='cj')bands=[box(x,y,w,11.1,true,'bottom'),box(x,196.5,w,17.3,true,'top')];
   if(key==='solCx')bands=[box(x,195.3,w,18,true,'center')];
@@ -3392,6 +3452,7 @@ function buildFormat(key){
   const saved=SAVED_FMT[key]; if(saved&&saved.__half){ HALF[key]=saved.__half; HALF_AUTO[key]=!!saved.__auto; }
   if(saved){ wrap.querySelectorAll(".c > span[data-i]").forEach(sp=>{const v=saved[sp.dataset.i]; if(v!==undefined){ if(sp.parentElement.dataset.x){ if(typeof v==="string"){ sp.textContent=v; sp.parentElement.setAttribute("data-ov",""); } } else if(typeof v==="object"){ sp.innerHTML=v.h; sp.classList.toggle("on",!!v.on); } else sp.textContent=v; }}); }
   if(key==='consInf'&&saved)wrap.querySelectorAll('[data-independent-adscrito] > span').forEach(sp=>{const v=saved[sp.dataset.i];if(v&&typeof v==='object'&&typeof v.h==='string'){sp.innerHTML=v.h;sp.parentElement.setAttribute('data-ov','');}});
+  if(key==='repCx'&&saved)wrap.querySelectorAll('[data-report-linked] > span[data-i]').forEach(sp=>{if(Object.prototype.hasOwnProperty.call(saved,sp.dataset.i))sp.parentElement.setAttribute('data-ov','');});
   (PICKS[key]||[]).forEach(pk=>{ const sp=pk.sync?wrap.querySelector(`.c[data-sync="${pk.sync}"] > span`):[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; const cell=sp.parentElement,hadSaved=!!(saved&&Object.prototype.hasOwnProperty.call(saved,sp.dataset.i)); cell.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); if(pk.autoClinic){cell.dataset.autoClinic="1";if(!hadSaved)sp.textContent=clinicForAdscrito($("medico").value);} if(pk.editable){sp.setAttribute("contenteditable","true");cell.classList.add("pick-editable");const trigger=document.createElement("button");trigger.type="button";trigger.className="pick-trigger";trigger.setAttribute("aria-label",pk.aria||"Mostrar opciones disponibles");trigger.textContent="▼";cell.appendChild(trigger);}else sp.removeAttribute("contenteditable"); });
   if(key==="prequx")customizePrequxNote(wrap);
   if(key==="alta"){
@@ -3428,7 +3489,7 @@ function buildEmbed(key,other){
   if(other==="pase")prepareClinicalTextAreas(other,pos);
   pos.querySelectorAll("img[data-img]").forEach(im=>im.src=IMGS[im.dataset.img]);
   const saved=SAVED_FMT[key]||{};
-  pos.querySelectorAll(".c > span").forEach((sp,i)=>{ if(!sp.classList.contains("tg")) sp.setAttribute("contenteditable","true"); sp.dataset.i="e"+i; if(!sp.parentElement.dataset.x) sp.dataset.o=sp.innerHTML;
+  pos.querySelectorAll(".c > span").forEach((sp,i)=>{ if(!sp.classList.contains("tg")&&sp.parentElement.classList.contains("ed")) sp.setAttribute("contenteditable","true"); sp.dataset.i="e"+i; if(!sp.parentElement.dataset.x) sp.dataset.o=sp.innerHTML;
     const v=saved["e"+i]; if(v===undefined) return;
     if(sp.parentElement.dataset.x){ if(typeof v==="string"){ sp.textContent=v; sp.parentElement.setAttribute("data-ov",""); } }
     else if(typeof v==="object"){ sp.innerHTML=v.h; if(v.on) sp.classList.add("on"); } });
@@ -3545,12 +3606,14 @@ function buildAltaOwnedPage(fmt){
   page.className="paper alta-attach alta-"+fmt;page.dataset.altaFmt=fmt;page.style.width=F.pw+"in";page.style.height=F.ph+"in";
   const pos=document.createElement("div");pos.className="sheetpos";pos.style.cssText=`left:${F.offx}pt;top:${pg.offy}pt;width:${F.W*F.k}pt;height:${pg.H*F.k}pt`;
   const sheet=document.createElement("div");sheet.className="sheet";sheet.style.cssText=`width:${F.W}pt;height:${pg.H}pt;zoom:${F.k}`;sheet.innerHTML=pg.html;pos.appendChild(sheet);page.appendChild(pos);
+  if(fmt==="pase")prepareClinicalTextAreas(fmt,page);
   page.querySelectorAll("img[data-img]").forEach(im=>im.src=IMGS[im.dataset.img]);hydrateAltaCells(page,altaPrefix(fmt));return page;
 }
 function buildAltaEmbed(ownerFmt,other){
   const F=FORMATS[other],pg=F.pages[0],pos=document.createElement("div");pos.className="sheetpos emb alta-emb";pos.dataset.fmt=other;
   pos.style.cssText=`left:${F.offx}pt;top:${pg.offy}pt;width:${F.W*F.k}pt;height:${pg.H*F.k}pt`;
   const sheet=document.createElement("div");sheet.className="sheet";sheet.style.cssText=`width:${F.W}pt;height:${pg.H}pt;zoom:${F.k};clip-path:inset(${F.half.split}pt -2pt -2pt -2pt)`;sheet.innerHTML=pg.html;pos.appendChild(sheet);
+  if(other==="pase")prepareClinicalTextAreas(other,pos);
   pos.querySelectorAll("img[data-img]").forEach(im=>im.src=IMGS[im.dataset.img]);hydrateAltaCells(pos,altaPrefix(ownerFmt,true));return pos;
 }
 function altaPage(fmt){const root=BUILT.alta;return root&&root.querySelector(`:scope > .paper[data-alta-fmt="${fmt}"]`);}
@@ -3565,7 +3628,8 @@ function ensureAltaAttachments(){
   const wrap=BUILT.alta;if(!wrap)return;if(ALTA_COMPOSE.pase)ALTA_COMPOSE.receta=true;
   let receta=altaPage("receta"),pase=altaPage("pase");
   if(ALTA_COMPOSE.receta&&!receta){receta=buildAltaOwnedPage("receta");wrap.appendChild(receta);}if(ALTA_COMPOSE.pase&&!pase){pase=buildAltaOwnedPage("pase");wrap.appendChild(pase);}
-  if(receta){receta.hidden=!ALTA_COMPOSE.receta;applyAltaHalf("receta");wrap.appendChild(receta);}if(pase){pase.hidden=!ALTA_COMPOSE.pase;applyAltaHalf("pase");wrap.appendChild(pase);}
+  // Keep existing attachment pages in place while typing: moving them loses focus and the caret.
+  if(receta){receta.hidden=!ALTA_COMPOSE.receta;applyAltaHalf("receta");}if(pase){pase.hidden=!ALTA_COMPOSE.pase;applyAltaHalf("pase");}
 }
 function setAltaAttach(fmt,on){
   if(fmt==="receta"){ALTA_COMPOSE.receta=on;if(!on)ALTA_COMPOSE.pase=false;}else{ALTA_COMPOSE.pase=on;if(on)ALTA_COMPOSE.receta=true;}
@@ -3708,6 +3772,7 @@ function renderFormat(key){
   if(key==="alta"){applyAltaDates();syncAltaDateControls();syncAltaCaptureForm();}
   if(key==="prequx")refreshPrequxHeader(BUILT[key],d);
   if(key==="ordenHosp"){applyOrderDates();syncOrderControls();}
+  if(key==='repCx')fillReportLinkedCells(BUILT[key],d);
   syncCaptureControls();
   applyGender(BUILT[key],d);
   shrink(paper);
@@ -3764,7 +3829,7 @@ function onSheetInput(e){
     refresh();
   }
   shrinkOne(cell); if(cell.classList.contains('fit')) fitOne(cell); if(cell.classList.contains('vj')) vjOne(cell); if(cell.classList.contains('fitdown')||cell.classList.contains('bsfit')) fitDownOne(cell);
-  if(cell.dataset.readable==="diagnosis"){fitPaper();}
+  if(cell.dataset.readable==="diagnosis"&&current!=="alta"){fitPaper();}
   if(current) refreshMirror(current);
   if(current==="alta"&&cell.dataset.sync==="medico"&&cell.classList.contains("pick-editable")){
     if(normalizeStaffName(sp.textContent))openPick(sp,sp.textContent);else closePick();
@@ -4141,7 +4206,7 @@ function clearFormatOnOpen(key){
 }
 function openFormat(key){
   clearFormatOnOpen(key);delete VIEWED[key];if(key==="alta")ALTA_OWN=null;
-  if(["solCx","consInf","cj","bj"].includes(key)&&!$("fPlan").value)$("fPlan").value=$("fecha").value||todayStr();
+  if(["solCx","consInf","cj","bj","repCx"].includes(key)&&!$("fPlan").value)$("fPlan").value=$("fecha").value||todayStr();
   currentClinical=null; current=key; $("btnPrintBlank").hidden=!BLANKS[key]; $("fmtTitle").textContent=(CAT[key]&&CAT[key].tt)||FORMATS[key].title; $("fmtCat").textContent=(CAT[key]&&CAT[key].g)||""; renderRel(key);
   document.body.classList.remove("showing-clinical","showing-archive"); document.body.classList.add("showing-format"); $("bandIdx").hidden=true; $("bandBack").hidden=false; renderFormat(key); if(key==="alta")renderRel(key); updateFormatNotice(key);
   const recentSide=!!RECENT_CFG[key]&&key!=="rx";
@@ -4852,11 +4917,11 @@ function recFields(owner=current){                  // receta principal o receta
     const page=altaPage("receta");if(!page)return[];const all=[...page.querySelectorAll(":scope > .sheetpos:not(.emb) .c.big > span")];return altaMode("receta")==="copia"?all.slice(0,2):all.slice(0,1);
   }
   if(owner==="alta-pase"&&altaMode("pase")==="otro"){
-    const page=altaPage("pase"),emb=page&&page.querySelector(':scope > .emb[data-fmt="receta"]:not([hidden])');return emb?[...emb.querySelectorAll(".c.big > span")].slice(0,1):[];
+    const page=altaPage("pase"),emb=page&&page.querySelector(':scope > .emb[data-fmt="receta"]:not([hidden])');return emb?[...emb.querySelectorAll(".c.big > span")].filter(sp=>parseFloat(sp.parentElement.style.top)>=FORMATS.receta.half.split).slice(0,1):[];
   }
   if(owner==="pase"&&halfMode("pase")==="otro"){
     const root=BUILT.pase, emb=root&&root.querySelector('.emb[data-fmt="receta"]');
-    return emb?[...emb.querySelectorAll(".c.big > span")].slice(0,1):[];
+    return emb?[...emb.querySelectorAll(".c.big > span")].filter(sp=>parseFloat(sp.parentElement.style.top)>=FORMATS.receta.half.split).slice(0,1):[];
   }
   const root=BUILT.receta; if(!root) return [];
   const all=[...root.querySelectorAll(".paper > .sheetpos:not(.emb) .c.big > span")];
@@ -4884,7 +4949,7 @@ function surgerySnapshot(fmt){
     const cell=sp.parentElement;
     if(cell.classList.contains("summary-line-underlay")||cell.dataset.gen||sp.querySelector("[data-gen]")) return;
     if(!cell.classList.contains("ed")&&!cell.classList.contains("cb")&&!cell.classList.contains("pick")) return;
-    if(cell.dataset.sync&&cell.dataset.sync!=="cirugia") return;
+    if(cell.dataset.sync&&cell.dataset.sync!=="cirugia"&&!(fmt==="repCx"&&cell.dataset.sideDatePart)) return;
     fields[sp.dataset.i]={h:sp.innerHTML,on:sp.classList.contains("on"),ov:cell.hasAttribute("data-ov")};
   });
   return {fields,inputs:fmt==="solCx"?{cirugia:$("cirugia").value,tipoCx:$("tipoCx").value,fPlan:$("fPlan").value}:undefined,cells:snapCells(root)};
@@ -4901,7 +4966,7 @@ function applySurgerySnapshot(fmt,payload){
   Object.entries(payload.fields).forEach(([id,value])=>{
     const sp=root.querySelector(`.c > span[data-i="${id}"]`); if(!sp) return;
     const cell=sp.parentElement; sp.innerHTML=value&&typeof value.h==="string"?value.h:""; sp.classList.toggle("on",!!(value&&value.on));
-    cell.toggleAttribute("data-ov",!!(value&&value.ov));
+    cell.toggleAttribute("data-ov",!!(value&&value.ov)||!!(fmt==="repCx"&&cell.dataset.reportLinked));
   });
   refresh();
   if(payload.cells)applySnapCells(root,payload.cells);
