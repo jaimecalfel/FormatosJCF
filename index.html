@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.21">
+<meta name="application-version" content="2.23">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2225,10 +2225,13 @@ body.showing-clinical #view-clinical{display:block}
 <style>.clinical-others-hint{display:block;font-size:10px;font-weight:400;line-height:1.35;color:#657b98;text-transform:none;letter-spacing:0;margin-top:2px}</style>
 <style>
 @media screen{
-.capture-panel[data-capture-format="repCx"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.capture-panel[data-capture-format="repCx"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;margin-bottom:12px}
+.capture-panel[data-capture-format="repCx"]>label{gap:1px}
+.capture-panel[data-capture-format="repCx"] .capture-label{line-height:1.3}
 .capture-panel[data-capture-format="repCx"]>label{grid-column:1 / -1}
 .capture-panel[data-capture-format="repCx"]>label.report-capture-half{grid-column:auto;align-content:start}
-.capture-panel[data-capture-format="repCx"] .report-capture-half .capture-label{min-height:29px;line-height:1.3;align-items:flex-end}
+.capture-panel[data-capture-format="repCx"] .report-capture-half .capture-label{min-height:16px;line-height:1.3;align-items:flex-end}
+.capture-panel[data-capture-format="repCx"] label[for="capture-repCx-repAnestEnd"] .capture-label,.capture-panel[data-capture-format="repCx"] label[for="capture-repCx-repOutRoom"] .capture-label{min-height:29px}
 .capture-panel[data-capture-format="repCx"] textarea.report-capture-repFindings{min-height:160px}
 .capture-panel[data-capture-format="repCx"] textarea.report-capture-repTechnique{min-height:240px}
 }
@@ -2239,6 +2242,16 @@ body.showing-clinical #view-clinical{display:block}
 .sheetpos.emb{pointer-events:none}
 .sheetpos.emb > .sheet{pointer-events:auto}
 .sheet .diagnosis-continuation-underlay{pointer-events:none}
+}
+</style>
+<style>
+@media screen{
+#altaCapture .alta-capture-checks{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;margin:0}
+#altaCapture .alta-check-label{display:block;font-size:11px;font-weight:750;color:#315e9b;margin-bottom:5px}
+#altaCapture .alta-check-options{display:flex;flex-wrap:wrap;gap:6px 10px}
+#altaCapture .alta-check-options label{display:flex;flex-direction:row;width:auto;min-width:0;padding:0;border:0;background:none;align-items:center;gap:5px;font-size:11px;font-weight:500;color:#29466d;cursor:pointer}
+#altaCapture .alta-check-options input[type="checkbox"]{width:14px;height:14px;min-height:14px;padding:0;margin:0;accent-color:#315e9b;flex-shrink:0}
+@media(max-width:520px){#altaCapture .alta-capture-checks{grid-template-columns:minmax(0,1fr);gap:8px}}
 }
 </style>
 </head>
@@ -2426,7 +2439,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.21 · Fecha de publicación: 07.10.26</div>
+  <div class="app-footer-version">Versión 2.23 · Fecha de publicación: 07.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3648,12 +3661,17 @@ function altaCaptureSpan(root,field){
   const selector={diagnosticoIngreso:'[data-x="D15"] > span',diagnosticoEgreso:'[data-x="D17"] > span',resumen:'[data-x="_alta_resumen"] > span',indicaciones:'.c > span[data-i="33"]',clinica:'.c > span[data-i="42"]',adscrito:'[data-x="B42"] > span',residente:'[data-x="B44"] > span'}[field];
   return selector?root?.querySelector(':scope > .paper:not(.alta-attach):not(.print-copy) '+selector):null;
 }
+const ALTA_CHECK_GROUPS={tratamiento:[['quirurgico','Trat. Quirúrgico','E13'],['medico','Médico','H13'],['quimio','Quimio','K13']],tipoEgreso:[['mejoria','Mejoría','E34'],['maximoBeneficio','Máximo Beneficio','E35'],['voluntaria','Voluntaria','E36']]};
+function altaCheckboxSpan(root,ref){return root?.querySelector(':scope > .paper:not(.alta-attach):not(.print-copy) [data-cell="'+ref+'"] > span');}
+function altaCaptureChecksHTML(){return '<div class="alta-capture-checks">'+Object.entries(ALTA_CHECK_GROUPS).map(([group,items])=>'<div role="group" aria-label="'+(group==='tratamiento'?'Tratamiento':'Tipo de egreso')+'"><span class="alta-check-label">'+(group==='tratamiento'?'Tratamiento':'Tipo de egreso')+'</span><div class="alta-check-options">'+items.map(([key,label])=>'<label><input type="checkbox" data-alta-checkbox="'+group+':'+key+'">'+label+'</label>').join('')+'</div></div>').join('')+'</div>';}
 function readAltaCapture(){
   const root=BUILT.alta,out={ingreso:ALTA_DATES.ingreso||"",egreso:ALTA_DATES.egreso||""};
   for(const field of ["diagnosticoIngreso","diagnosticoEgreso","resumen","indicaciones","clinica","adscrito","residente"]){const sp=altaCaptureSpan(root,field);out[field]=sp?(["resumen","indicaciones"].includes(field)?clinicalRichHTML(sp.innerHTML):field==="residente"?sp.textContent.replace(/^RESIDENTE:\s*/i,""):sp.textContent):"";}
+  for(const [group,items] of Object.entries(ALTA_CHECK_GROUPS))out[group]=Object.fromEntries(items.map(([key,label,ref])=>[key,!!altaCheckboxSpan(root,ref)?.classList.contains('on')]));
   return out;
 }
 function applyNativeAltaCapture(root,values){
+  for(const [group,items] of Object.entries(ALTA_CHECK_GROUPS)){if(!values[group])continue;for(const [key,label,ref] of items){if(values[group][key]!==undefined)altaCheckboxSpan(root,ref)?.classList.toggle('on',!!values[group][key]);}}
   for(const field of ["diagnosticoIngreso","diagnosticoEgreso","resumen","indicaciones","clinica","adscrito","residente"]){
     if(values[field]===undefined)continue;const sp=altaCaptureSpan(root,field);if(!sp)continue;
     if(field==="resumen"||field==="indicaciones")sp.innerHTML=clinicalRichHTML(values[field]);else sp.textContent=field==="residente"&&values[field]?"RESIDENTE: "+String(values[field]).replace(/^RESIDENTE:\s*/i,""):values[field];
@@ -3669,11 +3687,12 @@ function syncAltaCaptureForm(){
     form.innerHTML='<div class="clinical-form-title"><div><h2>Captura de nota de alta</h2></div></div><div class="clinical-grid alta-capture-grid">'+
       '<label>Fecha de Ingreso<input id="alta-ingreso" data-alta-date="ingreso" data-date inputmode="numeric" placeholder="DD.MM.AA"></label><label>Fecha de Egreso<input id="alta-egreso" data-alta-date="egreso" data-date inputmode="numeric" placeholder="DD.MM.AA"></label>'+
       '<label class="wide alta-diagnosis">Diagnóstico de Ingreso<textarea id="alta-diagnosticoIngreso" data-alta-capture="diagnosticoIngreso" rows="2"></textarea></label><label class="wide alta-diagnosis">Diagnóstico de Egreso<textarea id="alta-diagnosticoEgreso" data-alta-capture="diagnosticoEgreso" rows="2"></textarea></label>'+
-      clinicalRichField('alta-resumen','Resumen','',{content:true})+clinicalRichField('alta-indicaciones','Indicaciones','',{large:true})+
+      clinicalRichField('alta-resumen','Resumen','',{content:true})+clinicalRichField('alta-indicaciones','Indicaciones','',{large:true})+altaCaptureChecksHTML()+
       '<div class="alta-capture-responsibles"><label>Clínica<input id="alta-clinica" data-alta-capture="clinica" list="alta-clinicas" autocomplete="off"></label><label>Adscrito<input id="alta-adscrito" data-alta-capture="adscrito" list="hjm-adscritos" autocomplete="off"></label><label>Residente<input id="alta-residente" data-alta-capture="residente" list="hjm-residentes" autocomplete="off"></label></div><datalist id="alta-clinicas">'+PICKS.alta[0].opts.map(v=>'<option value="'+esc(v)+'"></option>').join('')+'</datalist></div>';
     $('holder').before(form);observeAltaCapture(form);
     form.addEventListener('submit',e=>e.preventDefault());
     form.addEventListener('input',e=>{
+      if(e.target.dataset.altaCheckbox){const [group,key]=e.target.dataset.altaCheckbox.split(':');applyNativeAltaCapture(BUILT.alta,{[group]:{[key]:e.target.checked}});markDirty();return;}
       const field=e.target.dataset.altaCapture||(e.target.id==='alta-resumen'?'resumen':e.target.id==='alta-indicaciones'?'indicaciones':null);
       if(!field)return;
       const before=readAltaCapture(),value=e.target.isContentEditable?clinicalRichHTML(e.target.innerHTML):e.target.value;
@@ -3690,6 +3709,7 @@ function syncAltaCaptureForm(){
     if(el.isContentEditable){const html=clinicalRichHTML(values[field]);if(el.innerHTML!==html)el.innerHTML=html;}
     else if(el.value!==values[field])el.value=values[field];
   }
+  form.querySelectorAll('[data-alta-checkbox]').forEach(el=>{const [group,key]=el.dataset.altaCheckbox.split(':');el.checked=!!values[group][key];});
   $('view-format').classList.toggle('has-alta-attachments',!!(ALTA_COMPOSE.receta||ALTA_COMPOSE.pase));
 }
 /* v2.14 · Alinea cada panel de receta/pase con su página, solo en pantalla. */
@@ -5459,6 +5479,7 @@ function captureRecent(tp,owner=current){
   const entries=RECENT_CFG[tp].capture(owner).filter(Boolean).map(value=>typeof value==="string"?{text:value}:value).filter(value=>value&&value.text);
   if(!entries.length) return;
   let last=null; for(const entry of entries.slice().reverse()) last=histAdd(tp,entry.text,entry.payload);
+  if(tp==="repCx"&&owner===current&&last)markViewed("repCx","repCx",last.id);
   renderRecent(tp,last&&last.id);
 }
 
@@ -5486,7 +5507,7 @@ function captureAltaRecent(){
   if(current!=="alta"||!BUILT.alta)return null;
   const p=altaRecordPayload(),fecha=p.fecha,a=HIST.altas||[],v=VIEWED.alta,mine=id=>id===ALTA_OWN||(v&&v.id===id),i=a.findIndex(r=>r&&r.p&&r.p.fecha===fecha&&mine(r.id));let r;
   if(i>=0){r=a.splice(i,1)[0];r.t=fecha;r.p=p;r.by=currentResidentName();r.byRole=currentAuthorRole();r.ts=Date.now();a.unshift(r);}else r=histAdd("altas",fecha,p);
-  if(r){ALTA_OWN=r.id;if(v){v.id=r.id;v.dirty=false;}}
+  if(r){ALTA_OWN=r.id;markViewed("alta","altas",r.id);renderRel("alta");}
   return r;
 }
 function loadAltaRecent(id,printAfter=false){
@@ -5512,22 +5533,28 @@ function loadedFormatRecord(){
 function syncFormatSaveButtons(){
   const save=$("btnSaveFmt"),edit=$("btnEditFmt");if(!save||!edit)return;
   const blank=$("btnPrintBlank"),actions=save.parentElement;
-  if(blank){if(current==="repCx")actions.prepend(blank);else actions.appendChild(blank);}
+  if(blank){if(["repCx","solCx","consInf"].includes(current))actions.prepend(blank);else actions.appendChild(blank);}
   const loaded=!!loadedFormatRecord();edit.hidden=!loaded;syncLoadedSaveActions(save,edit,loaded);
-  save.querySelector(".format-save-label").textContent=loaded||current==="alta"?"Guardar Nuevo":"Guardar";
+  save.querySelector(".format-save-label").textContent=loaded||["alta","repCx"].includes(current)?"Guardar Nuevo":"Guardar";
   if(loaded){
     save.querySelector(".sv-ic").innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3H5v18h14V9l-6-6zM13 3v6h6M8 15h8M12 11v8"/></svg>';
     save.title="Crear un registro nuevo sin modificar el cargado";save.setAttribute("aria-label",save.title);
   }else updateSaveFmt();
 }
-function saveLoadedFormat(mode,printAfter=false){
-  const original=loadedFormatRecord();
+function saveLoadedFormat(mode,printAfter=false,overwriteId=null){
+  const original=overwriteId?(HIST.altas||[]).find(r=>r.id===overwriteId):loadedFormatRecord();
   if(!original){notify("Vuelve a cargar el registro antes de guardarlo.","warn");return;}
   const d=data();if(warnMissing(d))return;
   document.activeElement&&document.activeElement.blur();
   const key=current,tp=VIEWED[key].tp;let entry;
   if(key==="alta"){
-    const payload=altaRecordPayload();entry={text:payload.fecha,payload};
+    const payload=altaRecordPayload();
+    const collision=(HIST.altas||[]).find(r=>r.p?.fecha===payload.fecha&&(mode!=='edit'||r.id!==original.id));
+    if(collision&&!overwriteId){
+      if(mode==='edit'){notify('Ya existe otra Nota de Alta con esa fecha de egreso. Cambia la fecha para editar este registro.','warn',{center:true});return;}
+      notify('Ya existe una Nota de Alta con fecha '+payload.fecha+'. ¿Quieres sobrescribirla? Para guardar una nueva, cambia la fecha de egreso.','warn',{center:true,ms:60000,actions:[{label:'Sobrescribir',fn:()=>saveLoadedFormat('edit',printAfter,collision.id)},{label:'Cancelar',fn:()=>{}}]});return;
+    }
+    entry={text:payload.fecha,payload};
   }else entry=surgeryEntry(key);
   if(!entry||!entry.payload)return;
   const a=HIST[tp],ts=Math.max(Date.now(),a.reduce((m,r)=>Math.max(m,r.ts||0),0)+1);let r;
