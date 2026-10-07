@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.23">
+<meta name="application-version" content="2.24">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2225,7 +2225,7 @@ body.showing-clinical #view-clinical{display:block}
 <style>.clinical-others-hint{display:block;font-size:10px;font-weight:400;line-height:1.35;color:#657b98;text-transform:none;letter-spacing:0;margin-top:2px}</style>
 <style>
 @media screen{
-.capture-panel[data-capture-format="repCx"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;margin-bottom:12px}
+.capture-panel[data-capture-format="repCx"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;margin-bottom:0}
 .capture-panel[data-capture-format="repCx"]>label{gap:1px}
 .capture-panel[data-capture-format="repCx"] .capture-label{line-height:1.3}
 .capture-panel[data-capture-format="repCx"]>label{grid-column:1 / -1}
@@ -2254,7 +2254,19 @@ body.showing-clinical #view-clinical{display:block}
 @media(max-width:520px){#altaCapture .alta-capture-checks{grid-template-columns:minmax(0,1fr);gap:8px}}
 }
 </style>
-</head>
+<style>
+@media screen{
+.capture-panel[data-capture-format="repCx"] label[for="capture-repCx-repBleeding"] .capture-label,.capture-panel[data-capture-format="repCx"] label[for="capture-repCx-cirugia"] .capture-label{min-height:29px}
+.capture-panel[data-capture-format="repCx"] textarea[data-side-field="diagnostico"]{min-height:65px;height:65px}
+body.report-capture-workspace #recPanel{overflow:visible;max-height:none}
+.report-recents-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.report-recents-table th,.report-recents-table td{padding:8px 10px;text-align:left;overflow-wrap:anywhere;border-bottom:1px solid #d8e2eb}
+.report-recents-table th{color:#315e9b;font-size:11px}.report-recents-table th:first-child{width:38%}.report-recents-table th:last-child{width:180px}
+.report-recents-table .rc-item{border-radius:0;background:none}.report-recents-table td:last-child button{margin:2px}
+@media(min-width:1040px){body.report-capture-workspace.rel-side.rec-side .fbody{grid-template-areas:"recs recs" "main side";grid-template-rows:auto auto;align-items:start}}
+@media(max-width:1039px){body.report-capture-workspace #recPanel{order:-1;width:100%;box-sizing:border-box}.report-recents-table{font-size:10px}.report-recents-table th,.report-recents-table td{padding:5px 4px}.report-recents-table th:last-child{width:75px}}
+}
+</style></head>
 <body>
 
 <header class="top">
@@ -2439,7 +2451,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.23 · Fecha de publicación: 07.10.26</div>
+  <div class="app-footer-version">Versión 2.24 · Fecha de publicación: 07.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2792,7 +2804,7 @@ function lookup(d,key){
 
 /* v102 · Captura lateral vinculada al formato y a la Hoja de Datos. */
 const CAPTURE_FIELDS={
- repCx:['fPlan','@repSurgeons','@repAnesthetist','@repInstrument','@repCirculating','@repRoom','@repDuration','@repInRoom','@repAnestStart','@repSurgeryStart','@repSurgeryEnd','@repAnestEnd','@repOutRoom','@repBleeding','cirugia','@repFindings','@repTechnique'],
+ repCx:['fPlan','@repSurgeons','@repAnesthetist','@repInstrument','@repCirculating','@repRoom','@repDuration','@repInRoom','@repAnestStart','@repSurgeryStart','@repSurgeryEnd','@repAnestEnd','@repOutRoom','diagnostico','@repBleeding','cirugia','@repFindings','@repTechnique'],
  rx:['fecha','@study','diagnostico'],labsUrg:['fecha','diagnostico'],folio:['fecha','diagnostico'],folioB:['fecha','diagnostico'],medNuc:['fecha','diagnostico'],antibiotico:['fecha','diagnostico','resumen'],
  contrastados:['fecha'],consInterv:['fecha'],consTransf:['fecha'],receta:['fecha','diagnostico'],pase:['fecha','diagnostico'],
  bancoSangre:['fecha','diagnostico','resumen','@bloodRisk'],
@@ -2802,21 +2814,21 @@ const CAPTURE_FIELDS={
 const CAPTURE_LABELS={fecha:'Fecha actual',fPlan:'Fecha de cirugía',diagnostico:'Diagnóstico',cirugia:'Cirugía a realizar',medico:'Adscrito',resumen:'Resumen clínico','@study':'Estudio solicitado','@bloodRisk':'Factores de riesgo',indicacion:'Indicación de transfusión',peso:'Peso',hb:'HB',hto:'HTO',plt:'PLT',tp:'TP',inr:'INR',tpt:'TPT'};
 // Reporte de Cirugía: existing cells and identifiers are retained for historical copies.
 const REPORT_CAPTURE_CELLS={repSurgeons:'H13',repAnesthetist:'M15',repInstrument:'I16',repCirculating:'W16',repRoom:'O18',repDuration:'U18',repInRoom:'B21',repAnestStart:'E21',repSurgeryStart:'K21',repSurgeryEnd:'P21',repAnestEnd:'U21',repOutRoom:'AA21',repBleeding:'C24',repFindings:'J29',repTechnique:'B33'};
-const REPORT_CAPTURE_LABELS={fPlan:'Fecha de realización',repSurgeons:'Cirujanos y Ayudantes',repAnesthetist:'Anestesiólogo',repInstrument:'Instrumentista',repCirculating:'Circulante',repRoom:'Sala',repDuration:'Duración',repInRoom:'Ingreso a Sala',repAnestStart:'Inicio de Anestesia',repSurgeryStart:'Inicio de Cirugía',repSurgeryEnd:'Término de Cirugía',repAnestEnd:'Término de Anestesia',repOutRoom:'Salida de Sala',repBleeding:'Sangrado',cirugia:'Cirugía Realizada',repFindings:'Hallazgos',repTechnique:'Descripción de la técnica'};
-const REPORT_CAPTURE_PAIRS=new Set(['repInstrument','repCirculating','repRoom','repDuration','repInRoom','repAnestStart','repSurgeryStart','repSurgeryEnd','repAnestEnd','repOutRoom']);
+const REPORT_CAPTURE_LABELS={fPlan:'Fecha de realización',repSurgeons:'Cirujanos y Ayudantes',repAnesthetist:'Anestesiólogo',repInstrument:'Instrumentista',repCirculating:'Circulante',repRoom:'Sala',repDuration:'Duración',repInRoom:'Ingreso a Sala',repAnestStart:'Inicio de Anestesia',repSurgeryStart:'Inicio de Cirugía',repSurgeryEnd:'Término de Cirugía',repAnestEnd:'Término de Anestesia',repOutRoom:'Salida de Sala',repBleeding:'Sangrado',diagnostico:'Diagnóstico Posoperatorio',cirugia:'Cirugía Realizada',repFindings:'Hallazgos',repTechnique:'Descripción de la técnica'};
+const REPORT_CAPTURE_PAIRS=new Set(['repBleeding','cirugia','repInstrument','repCirculating','repRoom','repDuration','repInRoom','repAnestStart','repSurgeryStart','repSurgeryEnd','repAnestEnd','repOutRoom']);
 function reportDateValue(){
  const root=BUILT.repCx,part=ref=>root?.querySelector('[data-c="'+ref+'"] > span')?.textContent.trim()||'';
  const dd=part('F18'),mm=part('H18'),yy=part('J18');return dd||mm||yy?[dd,mm,yy.slice(-2)].join('.'):'';
 }
 function reportCaptureFieldHTML(field){
- const local=field.replace('@',''),value=captureValue('repCx',field),id='capture-repCx-'+local,multi=['repSurgeons','repAnesthetist','cirugia','repFindings','repTechnique'].includes(local),large=['repFindings','repTechnique'].includes(local);
- const date=field==='fPlan',time=/^rep(?:InRoom|AnestStart|SurgeryStart|SurgeryEnd|AnestEnd|OutRoom)$/.test(local),max=field==='cirugia'?+$('cirugia').dataset.max:0;
+ const local=field.replace('@',''),value=captureValue('repCx',field),id='capture-repCx-'+local,multi=['repSurgeons','diagnostico','cirugia','repFindings','repTechnique'].includes(local),large=['repFindings','repTechnique'].includes(local);
+ const date=field==='fPlan',time=/^rep(?:InRoom|AnestStart|SurgeryStart|SurgeryEnd|AnestEnd|OutRoom)$/.test(local),max=['cirugia','diagnostico'].includes(field)?+$(field).dataset.max:0;
  const attrs='id="'+id+'" data-side-field="'+field+'"'+(date?' data-date inputmode="numeric" placeholder="DD.MM.AA"':time?' inputmode="numeric" placeholder="HH:MM"':local==='repBleeding'?' inputmode="decimal"':'');
  const count=max?'<span class="cnt'+(value.length>max?' over':'')+'" data-side-count>'+ (value.length?value.length+'/'+max:'máx. '+max)+'</span>':'';
  return '<label for="'+id+'"'+(REPORT_CAPTURE_PAIRS.has(local)?' class="report-capture-half"':'')+'><span class="capture-label">'+REPORT_CAPTURE_LABELS[local]+count+'</span>'+(multi?'<textarea '+attrs+' rows="'+(local==='repTechnique'?10:large?6:2)+'"'+(large?' class="report-capture-'+local+'"':'')+'>'+esc(value)+'</textarea>':'<input '+attrs+' value="'+esc(value)+'">')+'</label>';
 }
 // An explicit change in Hoja de Datos updates these linked report fields, including loaded copies.
-document.addEventListener('input',e=>{const field=e.target.id;if(field!=='fPlan'&&field!=='cirugia')return;BUILT.repCx?.querySelectorAll('[data-report-linked="'+field+'"]').forEach(cell=>cell.removeAttribute('data-ov'));},true);
+document.addEventListener('input',e=>{const field=e.target.id;if(!['fPlan','cirugia','diagnostico'].includes(field))return;BUILT.repCx?.querySelectorAll('[data-report-linked="'+field+'"]').forEach(cell=>cell.removeAttribute('data-ov'));},true);
 function fillReportLinkedCells(root,d){
  root.querySelectorAll('[data-report-linked]').forEach(cell=>{
   if(cell.hasAttribute('data-ov')||cell.firstElementChild===document.activeElement)return;
@@ -2827,6 +2839,7 @@ function fillReportLinkedCells(root,d){
 }
 function captureValue(key,field){
  if(key==='repCx'&&field==='fPlan')return reportDateValue();
+ if(key==='repCx'&&field==='diagnostico')return BUILT.repCx?.querySelector('[data-c="I27"] > span')?.innerText||'';
  if(key==='repCx'&&field==='cirugia')return BUILT.repCx?.querySelector('[data-c="H28"] > span')?.innerText||'';
  if(field.startsWith('@')){const sp=BUILT[key]?.querySelector('[data-side-local="'+field.slice(1)+'"] > span');return sp?(key==='repCx'?sp.innerText:sp.textContent)||'':'';}
  if(key==='consInf'&&field==='medico')return $('medico').value||'';
@@ -2856,6 +2869,7 @@ function bindCaptureCells(key,root){
  if(key==='repCx'){
   Object.entries(REPORT_CAPTURE_CELLS).forEach(([field,ref])=>root.querySelector('[data-c="'+ref+'"]')?.setAttribute('data-side-local',field));
   for(const [ref,part] of [['F18','dd'],['H18','mm'],['J18','yyyy']]){const cell=root.querySelector('[data-c="'+ref+'"]');if(cell){cell.dataset.sync='fPlan';cell.dataset.sideDatePart=part;cell.dataset.reportLinked='fPlan';}}
+  const diagnosis=root.querySelector('[data-c="I27"]');if(diagnosis){diagnosis.dataset.sync='diagnostico';diagnosis.dataset.reportLinked='diagnostico';}
   const surgery=root.querySelector('[data-c="H28"]');if(surgery){surgery.dataset.sync='cirugia';surgery.dataset.reportLinked='cirugia';}
  }
 
@@ -4195,6 +4209,7 @@ $("paper").addEventListener("click",e=>{if(handleAltaControlClick(e)){e.preventD
 document.addEventListener("input",e=>{const od=e.target.closest&&e.target.closest("[data-order-date]");if(od){const dg=od.value.replace(/\D/g,"").slice(0,6);od.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");ORDER_DATES[od.dataset.orderDate]=od.value;applyOrderDates();return;}const i=e.target.closest&&e.target.closest("[data-alta-date]");if(!i)return;const dg=i.value.replace(/\D/g,"").slice(0,6);i.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");ALTA_DATES[i.dataset.altaDate]=i.value;applyAltaDates();syncAltaDateControls();});
 
 function renderRel(key){
+  document.body.classList.toggle('report-capture-workspace',key==='repCx');
   $('captureMiniNav')?.remove();document.body.classList.remove('capture-mini-side');
   if(key==="ordenHosp"){const nav=$("relNav");nav.hidden=false;nav.className="rel side";nav.dataset.key=key;nav.innerHTML=orderDatesHTML()+lastRequestCardHTML(key);document.body.classList.add("rel-side");return;}
   renderRelBase(key);
@@ -5603,7 +5618,9 @@ function savedRoleLabel(r){
   const name=savedBy(r);return name==="Sin identificar"?"Usuario":authorRoleForName(name)==="adscrito"?"Adscrito":"Residente";
 }
 function savedChangeLabel(r){return "Elaboró";}
+function reportRecentsTableHTML(newId){return '<div class="rc-head"><h2>Reportes Previos</h2></div>'+((HIST.repCx||[]).length?'<table class="report-recents-table"><thead><tr><th>Cirugía</th><th>Elaboró</th><th>Último cambio</th><th>Acciones</th></tr></thead><tbody>'+HIST.repCx.map(r=>'<tr class="rc-item'+(r.id===newId?' new':'')+'" data-id="'+esc(r.id)+'"><td>'+esc(r.t)+'</td><td>'+esc(savedBy(r))+'</td><td>'+esc(relTime(r.ts))+'</td><td>'+rbBtn('view','Cargar','data-ra="use" data-n="0"')+rbBtn('print','Imprimir','data-ra="print" data-n="0"')+'</td></tr>').join('')+'</tbody></table>':'<div class="rc-empty">Todavía no hay reportes guardados para este paciente.</div>');}
 function recentsHTML(tp,newId,owner=current){
+  if(tp==='repCx')return reportRecentsTableHTML(newId);
   const C=RECENT_CFG[tp], R={list:HIST[tp]}, two=tp==="receta"&&recFields(owner).length>1;
   const trash='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
   return `<div class="rc-head"><h2>${C.title}</h2><small>Historial de este paciente · se guarda en su archivo</small></div><div class="rc-list">`
