@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.16">
+<meta name="application-version" content="2.18">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2222,6 +2222,7 @@ body.showing-clinical #view-clinical{display:block}
 }
 @media print{#altaCapture{display:none!important}.alta-capture-workspace .sheet .c > span ul,.alta-capture-workspace .sheet .c > span ol{margin:3pt 0;padding-left:16pt}.alta-capture-workspace .sheet .c > span li{margin:0}}
 </style>
+<style>.clinical-others-hint{display:block;font-size:10px;font-weight:400;line-height:1.35;color:#657b98;text-transform:none;letter-spacing:0;margin-top:2px}</style>
 </head>
 <body>
 
@@ -2407,7 +2408,7 @@ body.showing-clinical #view-clinical{display:block}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.16 · Fecha de publicación: 06.10.26</div>
+  <div class="app-footer-version">Versión 2.18 · Fecha de publicación: 07.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -5081,7 +5082,7 @@ function clinicalOthersKeydown(e){
 function clinicalResponsibleFields(prefix,v){
   return `<div class="clinical-responsibles" role="group" aria-label="Responsables">
     <label class="signature">Adscrito<input id="${prefix}-adscrito" list="hjm-adscritos" autocomplete="off" value="${esc(v.adscrito||"")}"></label>
-    <div class="signature clinical-others-field"><label for="${prefix}-otros">Otros</label><input id="${prefix}-otros" data-cl-others autocomplete="off" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="${prefix}-otros-list" aria-expanded="false" placeholder="Agrega adscritos o residentes con /" value="${esc(v.otros||"")}"><div id="${prefix}-otros-list" class="clinical-others-list" role="listbox" aria-label="Adscritos y residentes" hidden></div></div>
+    <div class="signature clinical-others-field"><label for="${prefix}-otros">Otros <small class="clinical-others-hint">(Presiona / para agregar otro médico)</small></label><input id="${prefix}-otros" data-cl-others autocomplete="off" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="${prefix}-otros-list" aria-expanded="false" placeholder="Agrega adscritos o residentes con /" value="${esc(v.otros||"")}"><div id="${prefix}-otros-list" class="clinical-others-list" role="listbox" aria-label="Adscritos y residentes" hidden></div></div>
     <label class="signature">Residente<input id="${prefix}-residente" list="hjm-residentes" autocomplete="off" value="${esc(v.residente||"")}"></label>
   </div>`;
 }
@@ -5195,7 +5196,7 @@ function saveClinicalRecord(tp,printAfter=false,force=false,mode="save"){
 }
 function renderClinicalRecents(tp){
   $("clinicalRecentTitle").textContent=tp==="notas"?"Últimas notas":"Últimas indicaciones";
-  const list=arCollect([tp]).sort((a,b)=>((b.r.ts||0)-(a.r.ts||0))||(b.ms-a.ms));
+  const list=arCollect([tp]); // Fecha y hora del documento, de más nueva a más antigua.
   $("clinicalRecentList").innerHTML=list.length?`<table class="clinical-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${list.map(e=>{const r=e.r,own=e.tp===tp;
     const acts=own?`${rbBtn("view","Cargar",`data-cl-edit="${esc(r.id)}"`)}${rbBtn("print","Imprimir",`data-cl-print="${esc(r.id)}"`)}`:arActions(e);
     return `<tr data-src="${esc(e.tp)}"><td><strong>${esc(e.fecha||"")}</strong><small>${esc(e.hora||"")}</small></td><td>${esc(own?((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones")):e.tipo)}${!own&&e.detail?`<small class="clinical-detail">${esc(e.detail)}</small>`:""}<small class="clinical-saved-by">${savedChangeLabel(r)}: ${esc(savedBy(r))}</small></td><td>${acts}</td></tr>`;}).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
