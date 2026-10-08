@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.28">
+<meta name="application-version" content="2.33">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -443,6 +443,10 @@ aside{box-shadow:0 1px 2px rgba(16,24,40,.05)}
 /* ---------- Avisos emergentes ---------- */
 .pophost{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:90;width:min(94vw,460px);pointer-events:none}
 .pophost.centered{top:50%;transform:translate(-50%,-50%)}
+dialog.pop-modal{pointer-events:auto;border:0;padding:0;width:min(94vw,460px);max-width:calc(100vw - 20px);background:transparent;overflow:visible}
+dialog.pop-modal::backdrop{background:rgba(15,23,42,.42)}
+dialog.pop-modal .px{min-width:30px;min-height:30px}
+@media print{dialog.pop-modal{display:none!important}}
 .pop{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;background:#fff;color:#1B2230;border:1px solid var(--line);border-left:5px solid #1F3864;border-radius:10px;padding:11px 10px 11px 12px;box-shadow:0 12px 32px rgba(15,23,42,.30);font-size:14px;font-weight:600;animation:popin .18s ease-out}
 .pop.ok{border-left-color:#1E4D8E}.pop.warn{border-left-color:#E8A200}.pop.err{border-left-color:#C62828}
 .pop .pi{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800;line-height:1}
@@ -477,7 +481,8 @@ aside{box-shadow:0 1px 2px rgba(16,24,40,.05)}
 .pp-list{display:flex;gap:8px;overflow-x:auto;padding:10px;scroll-snap-type:x proximity;overscroll-behavior-x:contain;scrollbar-width:thin}
 .pp-list .dlg-item{flex:0 0 244px;width:244px;box-sizing:border-box;align-items:flex-start;padding:8px 9px;gap:9px;border-color:var(--line);background:var(--bg);scroll-snap-align:start}
 .pp-list .dlg-item:hover{background:var(--accent-soft)}
-.pp-list .dlg-item .av{width:30px;height:30px;font-size:11px}
+.pp-list .dlg-item .pinfo{width:100%;gap:5px}
+.pp-list .dlg-item b{color:var(--navy);line-height:1.3}
 .pp-list .dlg-item b{font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pp-list .dlg-item .tag{font-size:11px}
 .pp-list .dlg-item small.dx{font-size:11.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -2363,7 +2368,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
         <div class="acts">
         <button class="btn" type="button" id="btnOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13l3-9H7l-3 9"/></svg>Abrir</button>
         <button class="btn primary" type="button" id="btnSave"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>Guardar</button>
-        <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 11.5 11.5"/><path d="M9.8 10.2c-2.6-.4-4.9 1.3-5.6 3.7L3 20.5c2.4.3 5.2-.1 7-1.3 2.2-1.5 3.3-3.7 2.8-6"/><path d="m8.5 11 4.5 4.5"/><path d="M6 20.2 7.5 17M9.3 19.6l1-2.6"/></svg>Limpiar</button>
+        <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg>Nuevo Paciente</button>
         <input type="file" id="fileOpen" accept=".json,application/json" hidden>
         </div>
         <span class="store-st" id="storeStatus"></span>
@@ -2494,7 +2499,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.28 · Fecha de publicación: 07.10.26</div>
+  <div class="app-footer-version">Versión 2.33 · Fecha de publicación: 07.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2715,7 +2720,7 @@ const RB_IC={view:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path 
   del:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>'};
 function rbBtn(kind,label,attrs){if(kind==="view")label=/^Ver [12]$/.test(label)?label:"Ver";else if(kind==="print")label="Imprimir";const cls={view:"rb rb-view",print:"rb rb-print",del:"rb rb-del del"}[kind];return `<button type="button" class="${cls}" ${attrs}>${RB_IC[kind]}<span class="rb-l">${label}</span></button>`;}
 function rbArm(b){if(b.classList.contains("arm"))return true;const l=b.querySelector(".rb-l");b.classList.add("arm");if(l)l.textContent="¿Borrar?";setTimeout(()=>{if(b.isConnected){b.classList.remove("arm");if(l)l.textContent="Borrar";}},3000);return false;}
-let LOADED_EXP="", NOTIFIED_EXP="", PP_AUTO=false, _expT=0, FOLIO_LAST="", FOLIO_LAST_BY="", LABSURG_LAST="", LABSURG_LAST_BY="", EXTRA_LAST_REQUESTS=emptyExtraLastRequests();
+let LOADED_EXP="", NOTIFIED_EXP="", PP_AUTO=false, PP_MANUAL=false, _expT=0, FOLIO_LAST="", FOLIO_LAST_BY="", LABSURG_LAST="", LABSURG_LAST_BY="", EXTRA_LAST_REQUESTS=emptyExtraLastRequests();
 const form = document.getElementById("datos");
 const inputs = [...form.querySelectorAll("input,select,textarea")];
 const $ = id => document.getElementById(id);
@@ -3052,7 +3057,7 @@ function fixPlt(){const el=$("plt");if(!el)return;const v=normalizePlt(el.value)
 document.addEventListener("focusout",e=>{if(e.target&&(e.target.id==="plt"||(e.target.closest&&e.target.closest('[data-sync="plt"]'))))setTimeout(fixPlt,0);});
 
 function fill(obj){inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";FOLIO_LAST_BY=obj.folioUltimaResidente||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";LABSURG_LAST_BY=obj.labsUrgUltimaResidente||"";EXTRA_LAST_REQUESTS=extraLastRequestsFrom(obj.ultimasSolicitudes);for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
-$("btnClear").onclick=()=>{ fill(DEFAULTS()); $("ppSearch").value=""; PP_AUTO=false; renderPP(); $("ppList").scrollLeft=0; toast("Hoja de datos limpia"); };
+$("btnClear").onclick=()=>{ fill(DEFAULTS()); $("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; clearTimeout(_expT); renderPP(); $("ppList").scrollLeft=0; toast("Hoja de datos limpia"); };
 $("btnNegados").onclick=()=>{["internamiento","hta","dm","otrasEnfHC","tumores","qtrt"].forEach(id=>{if(!$(id).value.trim())$(id).value="NEGADO"});refresh();};
 $("btnDesc").onclick=()=>{
   const V={alergias:"SE DESCONOCEN",otrasEnfHF:"SE DESCONOCEN",edoCivil:"SE DESCONOCE",religion:"SE DESCONOCE",ocupacion:"SE DESCONOCE",escolaridad:"SE DESCONOCE",lugarNac:"SE DESCONOCE",direccion:"SE DESCONOCE",bjPato:"SE DESCONOCE"};
@@ -4574,15 +4579,19 @@ function toast(msg){const d=document.createElement("div");d.className="toast";d.
 /* Avisos emergentes: ok / warn / err / info (con botón de acción opcional) */
 let _popT=0;
 function notify(msg,kind="info",opt={}){
-  const h=$("popHost"); if(!h) return; clearTimeout(_popT); h.replaceChildren(); h.classList.toggle("centered",!!opt.center);
-  const close=()=>{h.replaceChildren();h.classList.remove("centered");};
+  const h=$("popHost"); if(!h||h.querySelector("dialog[open]")) return; clearTimeout(_popT); h.replaceChildren(); h.classList.toggle("centered",!!opt.center);
+  const close=()=>{const modal=h.querySelector("dialog[open]");if(modal)modal.close();h.replaceChildren();h.classList.remove("centered");};
   const ic={ok:"✓",warn:"!",err:"×",info:""}[kind]||"";
   const d=document.createElement("div"); d.className="pop "+kind+(opt.loading?" loading":""); if(opt.loading)d.setAttribute("aria-busy","true"); d.setAttribute("role",kind==="info"?"status":"alert");
   d.innerHTML=`<span class="pi">${ic}</span><span class="pm">${esc(msg)}</span>`;
+  if(opt.messageParts){const pm=d.querySelector(".pm");pm.replaceChildren();opt.messageParts.forEach(part=>{if(part.break){pm.appendChild(document.createElement("br"));return;}if(part.bold){const strong=document.createElement("strong");strong.textContent=part.text;pm.appendChild(strong);}else pm.appendChild(document.createTextNode(part.text));});}
   [].concat(opt.actions||[],opt.action||[]).forEach(ac=>{ const b=document.createElement("button"); b.type="button"; b.className="pa"; b.textContent=ac.label; b.onclick=()=>{ close(); ac.fn(); }; d.appendChild(b); });
   const x=document.createElement("button"); x.type="button"; x.className="px"; x.setAttribute("aria-label","Cerrar"); x.textContent="×"; x.onclick=close; if(!opt.loading)d.appendChild(x);
-  h.appendChild(d);
-  if(!opt.persist)_popT=setTimeout(()=>{ if(h.firstChild===d) close(); },opt.ms||({ok:3200,warn:6500,err:8000,info:20000}[kind]||4000));
+  if(opt.modal){
+    const modal=document.createElement("dialog");modal.className="pop-modal";modal.setAttribute("role","alertdialog");modal.setAttribute("aria-label","Paciente existente");modal.setAttribute("aria-describedby","pop-modal-message");modal.setAttribute("closedby","none");d.querySelector(".pm").id="pop-modal-message";
+    modal.oncancel=e=>e.preventDefault();modal.appendChild(d);h.appendChild(modal);modal.showModal();
+  }else h.appendChild(d);
+  if(!opt.persist&&!opt.modal)_popT=setTimeout(()=>{ if(h.firstChild===d) close(); },opt.ms||({ok:3200,warn:6500,err:8000,info:20000}[kind]||4000));
 }
 function joinEs(a){ return a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1]; }
 /* Datos mínimos para guardar: expediente y nombre. Devuelve true si falta algo (y avisa). */
@@ -5034,28 +5043,29 @@ function ppVisibility(){ const el=$("pPanel"); if(el) el.hidden=!ppOn(); }
 const expOf=f=>String((f.meta&&f.meta.exp)||patientExpFromFileName(f.name)).trim();
 function expCheck(){
   if(!ppOn()) return;
-  const v=($("expediente").value||"").trim(), sb=$("ppSearch");
+  const v=($("expediente").value||"").trim(), cama=($("cama").value||"").trim(), sb=$("ppSearch");
   if(v!==NOTIFIED_EXP&&v!==LOADED_EXP) NOTIFIED_EXP="";
-  if(v.length<3){ if(PP_AUTO){ sb.value=""; PP_AUTO=false; renderPP(); } return; }
-  const hay=DRIVE_FILES.some(f=>expOf(f).startsWith(v));
-  if(hay){ sb.value=v; PP_AUTO=true; renderPP(); $("ppList").scrollLeft=0; if(window.ppExpand)ppExpand(); }
-  else if(PP_AUTO){ sb.value=""; PP_AUTO=false; renderPP(); }
-  const ex=DRIVE_FILES.find(f=>expOf(f)===v);
+  /* Búsqueda directa > expediente > cama. La cama solo filtra; nunca identifica al paciente. */
+  if(!PP_MANUAL){
+    sb.value=v||cama; PP_AUTO=!!sb.value; renderPP(); $("ppList").scrollLeft=0;
+    if(PP_AUTO&&window.ppExpand)ppExpand();
+  }
+  const ex=v.length>=3&&DRIVE_FILES.find(f=>expOf(f)===v);
   if(ex&&v!==LOADED_EXP&&v!==NOTIFIED_EXP&&!SAVING&&!document.querySelector("#popHost .pop .pa")){
-    NOTIFIED_EXP=v; const nm=(ex.meta&&ex.meta.nombre)||"";
-    notify(`Ya existe un paciente con el expediente ${v}${nm?" ("+nm+")":""}. Ábrelo desde la lista para no sobrescribir sus datos.`,"warn",{ms:17000,center:true,actions:[{label:"Abrir ese paciente",fn:()=>openDriveFile(ex.id).catch(driveError)}]});
+    NOTIFIED_EXP=v; const nm=String((ex.meta&&ex.meta.nombre)||"").trim(), prefix="Ya existe un paciente con el expediente ", suffix=(nm?" ("+nm+")":"")+".";
+    notify(prefix+v+suffix,"warn",{persist:true,modal:true,center:true,messageParts:[{text:prefix},{text:v,bold:true},{text:suffix}],actions:[{label:"Abrir ese paciente",fn:()=>openDriveFile(ex.id).catch(driveError)}]});
   }
 }
-form.addEventListener("input",e=>{ if(e.target&&e.target.id==="expediente"){ clearTimeout(_expT); _expT=setTimeout(expCheck,350); } });
+form.addEventListener("input",e=>{ if(e.target&&["expediente","cama"].includes(e.target.id)){ clearTimeout(_expT); _expT=setTimeout(expCheck,350); } });
 function ppMarkCurrent(){
   const cur=($("expediente").value||"").trim();
   $("ppList").querySelectorAll(".dlg-item").forEach(b=>b.classList.toggle("cur",!!cur&&b.dataset.exp===cur));
 }
 function renderPP(){
   const s=($("ppSearch").value||"").trim().toUpperCase();
-  const items=DRIVE_FILES.filter(f=>{ const p=f.meta||{}; return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
-  $("ppList").innerHTML=items.length?items.slice(0,s?200:60).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp, ini=nm.split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("");
-    return `<button type="button" class="dlg-item" data-id="${f.id}" data-exp="${esc(exp)}"><span class="av">${esc(ini||"?")}</span><span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
+  const items=DRIVE_FILES.filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
+  $("ppList").innerHTML=items.length?items.slice(0,s?200:60).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
+    return `<button type="button" class="dlg-item" data-id="${f.id}" data-exp="${esc(exp)}"><span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
     :`<div class="dlg-empty">${DRIVE_FILES.length?"Sin coincidencias.":"Aún no hay pacientes guardados."}</div>`;
   ppMarkCurrent();
 }
@@ -5069,7 +5079,7 @@ async function loadPatients(){
   }
   finally{ PP_LOADING=false; $("pPanel").classList.remove("busy"); }
 }
-$("ppSearch").oninput=()=>{ PP_AUTO=false; renderPP(); };
+$("ppSearch").oninput=()=>{ clearTimeout(_expT); PP_MANUAL=!!$("ppSearch").value.trim(); PP_AUTO=false; if(PP_MANUAL)renderPP();else if(ppOn())expCheck();else renderPP(); };
 $("ppRefresh").onclick=()=>{ PP_LAST=0; loadPatients(); };
 const ppScroll=d=>{ const l=$("ppList"); l.scrollBy({left:d*Math.max(200,l.clientWidth*0.85),behavior:"smooth"}); };
 $("ppPrev").onclick=()=>ppScroll(-1); $("ppNext").onclick=()=>ppScroll(1);
@@ -5219,6 +5229,7 @@ const INDICATION_DEFAULTS={
 const clinicalEditing={notas:null,indicaciones:null},clinicalSnap={notas:"",indicaciones:""},clinicalEditingSecond={notas:null,indicaciones:null};
 let indicationsDouble=false;
 function nowTime(){const n=new Date();return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");}
+function roundedNoteTime(n=new Date()){return String((n.getHours()+(n.getMinutes()>=30?1:0))%24).padStart(2,"0")+":00";}
 function normalizeClinicalTime(value,partial=false){
   const raw=String(value||"").trim(),direct=/^(\d{1,2}):(\d{1,2})$/.exec(raw);
   let digits=raw.replace(/\D/g,"").slice(0,4);
@@ -5244,12 +5255,13 @@ function duplicateIndications(first){return {...first,fecha:addClinicalDays(firs
 function clinicalDefaults(tp,dayOffset=0){
   const user=currentResidentName(),isAdscrito=currentAuthorRole()==="adscrito";
   const linked={adscrito:isAdscrito?user:$("medico").value||"",residente:isAdscrito?"":user,otros:""};
-  /* Ambas páginas abren con fecha y hora actuales. El texto es el del último registro guardado del paciente (si lo hay);
+  /* Ambas páginas abren con fecha actual: notas a la hora más cercana e indicaciones a las 07:00.
+     El texto es el del último registro guardado del paciente (si lo hay);
      en indicaciones, si no hay ninguno, el texto predeterminado. Nada se guarda hasta presionar Guardar o Imprimir. */
   const last=arCollect([tp])[0],lp=last&&last.r&&last.r.p;
-  if(tp==="notas")return {fecha:todayStr(),hora:nowTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
+  if(tp==="notas")return {fecha:todayStr(),hora:roundedNoteTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
   const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&typeof lp[k]==="string")?lp[k]:INDICATION_DEFAULTS[k];
-  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:nowTime(),...txt,...linked};
+  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,...linked};
 }
 function clinicalRichHTML(value){
   const raw=String(value||""), hasMarkup=/<\/?(?:b|strong|u|ul|ol|li|br|div|p)\b/i.test(raw), t=document.createElement("template");
@@ -5422,8 +5434,12 @@ function saveClinicalRecord(tp,printAfter=false,force=false,mode="save"){
     notify(mode==="new"?"Ya existe un registro con esa fecha y hora. Cambia la fecha o la hora para Guardar Nuevo; usa Editar para actualizar el registro cargado.":"La fecha y hora elegidas coinciden con otro registro. Cambia la fecha o la hora para editar el registro cargado sin reemplazar otro.","warn");return;
   }
   if(hit&&!force){
-    notify(`Ya existe un registro con fecha ${hit.p.fecha} a las ${hit.p.hora} hrs. ¿Quieres sobrescribirlo? Para crear uno nuevo, cambia la fecha o la hora.`,"warn",
-      {center:true,ms:60000,actions:[{label:"Sobrescribir",fn:()=>saveClinicalRecord(tp,printAfter,true,mode)},{label:"Cancelar",fn:()=>{const el=$("cl-hora");if(el)el.focus();}}]});return;
+    const indications=tp==="indicaciones",prefix=indications?"Ya existen las Indicaciones con ":"Ya existe una Nota con ";
+    const stamp=`${hit.p.fecha} a las ${hit.p.hora} hrs`, author=savedBy(hit), question=`. ¿Quieres ${indications?"sobrescribirlas":"sobrescribirla"}?`;
+    const detail=`fecha ${stamp} elaboradas por ${author}${question}`;
+    const instruction=indications?"Para crear unas nuevas, cambia la fecha o la hora.":"Para crear una nueva, cambia la fecha o la hora.";
+    notify(prefix+detail+"\n"+instruction,"warn",
+      {center:true,ms:60000,messageParts:[{text:prefix+"fecha "},{text:stamp,bold:true},{text:" elaboradas por "},{text:author,bold:true},{text:question},{break:true},{text:instruction}],actions:[{label:"Sobrescribir",fn:()=>saveClinicalRecord(tp,printAfter,true,mode)},{label:"Cancelar",fn:()=>{const el=$("cl-hora");if(el)el.focus();}}]});return;
   }
   const saved=payloads.map((p,i)=>{
     if(mode!=="edit"||!editingIds[i])return upsertClinicalRecord(tp,p);
