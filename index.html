@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.46">
+<meta name="application-version" content="2.48">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2581,7 +2581,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.46 · Fecha de publicación: 08.10.26</div>
+  <div class="app-footer-version">Versión 2.48 · Fecha de publicación: 08.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -2934,6 +2934,7 @@ function lookup(d,key){
 
 /* v102 · Captura lateral vinculada al formato y a la Hoja de Datos. */
 const CAPTURE_FIELDS={
+ interconsulta:['@icServicio','@icMotivo'],
  repCx:['fPlan','@repSurgeons','@repAnesthetist','@repInstrument','@repCirculating','@repRoom','@repDuration','@repInRoom','@repAnestStart','@repSurgeryStart','@repSurgeryEnd','@repAnestEnd','@repOutRoom','diagnostico','@repBleeding','cirugia','@repFindings','@repTechnique'],
  rx:['fecha','@study','diagnostico'],labsUrg:['fecha','diagnostico'],folio:['fecha','diagnostico'],folioB:['fecha','diagnostico'],medNuc:['fecha','diagnostico'],antibiotico:['fecha','diagnostico','resumen'],
  contrastados:['fecha'],consInterv:['fecha'],consTransf:['fecha'],receta:['fecha','diagnostico'],pase:['fecha','diagnostico'],
@@ -2941,7 +2942,7 @@ const CAPTURE_FIELDS={
  transfusion:['fecha','diagnostico','indicacion','peso','hb','hto','plt','tp','inr','tpt'],
  solCx:['fPlan','diagnostico','cirugia','medico'],consInf:['fPlan','diagnostico','cirugia','medico'],cj:['fPlan','diagnostico'],bj:['fPlan','diagnostico']
 };
-const CAPTURE_LABELS={fecha:'Fecha actual',fPlan:'Fecha de cirugía',diagnostico:'Diagnóstico',cirugia:'Cirugía a realizar',medico:'Adscrito',resumen:'Resumen clínico','@study':'Estudio solicitado','@bloodRisk':'Factores de riesgo',indicacion:'Indicación de transfusión',peso:'Peso',hb:'HB',hto:'HTO',plt:'PLT',tp:'TP',inr:'INR',tpt:'TPT'};
+const CAPTURE_LABELS={fecha:'Fecha actual',fPlan:'Fecha de cirugía',diagnostico:'Diagnóstico',cirugia:'Cirugía a realizar',medico:'Adscrito',resumen:'Resumen clínico','@icServicio':'Servicio Consultado','@icMotivo':'Motivo de Interconsulta','@study':'Estudio solicitado','@bloodRisk':'Factores de riesgo',indicacion:'Indicación de transfusión',peso:'Peso',hb:'HB',hto:'HTO',plt:'PLT',tp:'TP',inr:'INR',tpt:'TPT'};
 // Reporte de Cirugía: existing cells and identifiers are retained for historical copies.
 const REPORT_CAPTURE_CELLS={repSurgeons:'H13',repAnesthetist:'M15',repInstrument:'I16',repCirculating:'W16',repRoom:'O18',repDuration:'U18',repInRoom:'B21',repAnestStart:'E21',repSurgeryStart:'K21',repSurgeryEnd:'P21',repAnestEnd:'U21',repOutRoom:'AA21',repBleeding:'C24',repFindings:'J29',repTechnique:'B33'};
 const REPORT_CAPTURE_LABELS={fPlan:'Fecha de realización',repSurgeons:'Cirujanos y Ayudantes',repAnesthetist:'Anestesiólogo',repInstrument:'Instrumentista',repCirculating:'Circulante',repRoom:'Sala',repDuration:'Duración',repInRoom:'Ingreso a Sala',repAnestStart:'Inicio de Anestesia',repSurgeryStart:'Inicio de Cirugía',repSurgeryEnd:'Término de Cirugía',repAnestEnd:'Término de Anestesia',repOutRoom:'Salida de Sala',repBleeding:'Sangrado',diagnostico:'Diagnóstico Posoperatorio',cirugia:'Cirugía Realizada',repFindings:'Hallazgos',repTechnique:'Descripción de la técnica'};
@@ -2979,7 +2980,7 @@ function captureValue(key,field){
 }
 function captureFieldHTML(key,field){
  const source=$(field),limit=+(source?.dataset.max||0),value=captureValue(key,field),id='capture-'+key+'-'+field.replace('@','');
- const date=field==='fecha'||field==='fPlan',multi=['diagnostico','cirugia','resumen','indicacion','@study','@bloodRisk'].includes(field);
+ const date=field==='fecha'||field==='fPlan',multi=['diagnostico','cirugia','resumen','indicacion','@study','@bloodRisk','@icMotivo'].includes(field);
  const attrs='id="'+id+'" data-side-field="'+field+'"'+(date?' data-date inputmode="numeric" placeholder="DD.MM.AA"':'')+(field==='medico'?' list="hjm-adscritos" autocomplete="off"':'')+(['peso','hb','hto','plt','tp','inr','tpt'].includes(field)?' inputmode="decimal"':'');
  return '<label for="'+id+'"><span class="capture-label">'+CAPTURE_LABELS[field]+(limit?'<span class="cnt'+(value.length>limit?' over':'')+'" data-side-count>'+ (value.length?value.length+'/'+limit:'máx. '+limit)+'</span>':'')+'</span>'+(multi?'<textarea '+attrs+' rows="'+(field==='resumen'?8:field==='indicacion'||field==='diagnostico'?3:2)+'"'+(field==='resumen'?' class="capture-summary"':'')+'>'+esc(value)+'</textarea>':'<input '+attrs+' value="'+esc(value)+'">')+'</label>';
 }
@@ -3006,6 +3007,7 @@ function bindCaptureCells(key,root){
  const dates={solCx:{B61:'full'},consInf:{AK6:'dd',AO6:'mm',AZ6:'yy'},cj:{V10:'dd',Y10:'monthName',AH10:'yyyy'},bj:{V10:'dd',Z10:'monthName',AH10:'yyyy'}};
  Object.entries(dates[key]||{}).forEach(([ref,part])=>{const cell=root.querySelector('[data-x="'+ref+'"]');if(cell){cell.dataset.sync='fPlan';cell.dataset.sideDatePart=part;}});
  root.querySelectorAll('[data-sync="mes"],[data-sync="anio"]').forEach(cell=>{cell.dataset.sideDateField='fecha';cell.dataset.sideDatePart=cell.dataset.sync==='mes'?'monthName':'yyyy';});
+ if(key==='interconsulta')for(const field of ['icServicio','icMotivo'])root.querySelectorAll('[data-sync="'+field+'"]').forEach(cell=>cell.dataset.sideLocal=field);
  if(key==='rx')root.querySelector('[data-x="B20"]')?.setAttribute('data-side-local','study');
  if(key==='bancoSangre')root.querySelectorAll('.c.ed').forEach(cell=>{if(Math.abs(parseFloat(cell.style.left)-84)<.1&&[161.95,552.35].some(y=>Math.abs(parseFloat(cell.style.top)-y)<.1))cell.dataset.sideLocal='bloodRisk';});
  if(key==='transfusion')root.querySelectorAll('[data-sync="hb"],[data-sync="hto"],[data-sync="plt"],[data-sync="tp"],[data-sync="inr"],[data-sync="tpt"]').forEach(cell=>cell.dataset.syncNumeric='1');
@@ -3016,6 +3018,7 @@ function handleCaptureSheetInput(sp,cell){
 
  if(cell.dataset.sideLocal){
   const value=sp.innerText.toUpperCase();BUILT[current].querySelectorAll('[data-side-local="'+cell.dataset.sideLocal+'"] > span').forEach(other=>{if(other!==sp)other.textContent=value;other.parentElement.setAttribute('data-ov','');shrinkOne(other.parentElement);});
+  if(current==='interconsulta')shrinkOne(cell);
   syncCaptureControls();if(current==='repCx')renderFormat(current);else refreshMirror(current);return true;
  }
  const part=cell.dataset.sideDatePart;if(!part)return false;
@@ -3654,6 +3657,61 @@ function fitClinicalText(el){
   else {if(el.title===el.dataset.textCapacity)el.removeAttribute("title");delete el.dataset.textCapacity;}
 }
 
+/* v2.47 · Shared physical font size for surgical captures and blank overlays. */
+const SURGICAL_TEXT_KEYS=new Set(["solCx","repCx","consInf"]);
+const SURGICAL_TEXT_SIZE=9;
+function prepareSurgicalTypography(key,root){
+  if(!SURGICAL_TEXT_KEYS.has(key))return;
+  const scale=FORMATS[key].k,base=SURGICAL_TEXT_SIZE/scale;
+  root.querySelectorAll(".c.ed,.c[data-sync],.c.pick").forEach(cell=>{
+    const sp=cell.firstElementChild,w=parseFloat(cell.style.width),h=parseFloat(cell.style.height);
+    if(!sp||sp.classList.contains("tg")||cell.classList.contains("cb")||cell.classList.contains("gen")||w<12||h<6)return;
+    cell.style.fontFamily="Arial,sans-serif";cell.style.fontSize=base+"pt";
+    if(cell.dataset.readable==="diagnosis"){
+      cell.dataset.readableFontMax=String(base);cell.dataset.readableFontMin=String(6/scale);return;
+    }
+    cell.dataset.surgicalFontBase=String(base);cell.dataset.surgicalFontScale=String(scale);
+    if(key==="consInf"&&["A27","A28","A29"].includes(cell.dataset.c))cell.dataset.surgicalRisk="1";
+    const single=cell.classList.contains("s");if(single)cell.dataset.surgicalSingle="1";
+    cell.classList.remove("s","fit","fitdown","vfit","vj","fit2");
+    cell.classList.add("w");cell.style.padding="0 .5pt";
+    sp.style.lineHeight="1";sp.style.whiteSpace=single?"pre":"pre-wrap";sp.style.overflowWrap=single?"normal":"anywhere";
+  });
+}
+function fitSurgicalValue(cell){
+  const sp=cell.firstElementChild,base=+cell.dataset.surgicalFontBase,scale=+cell.dataset.surgicalFontScale;
+  if(!sp||!base)return;
+  const cs=getComputedStyle(cell),width=cell.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),height=cell.clientHeight;
+  if(width<=0||height<=0)return;
+  sp.style.height="auto";sp.style.minHeight="0";sp.style.transform="";
+  let size=base;
+  // A small bounded adjustment keeps unusually long values close to the common size.
+  for(;;){cell.style.fontSize=size+"pt";if(sp.scrollWidth<=width+.5&&sp.scrollHeight<=height+.5||size<=8/scale+.01)break;size=Math.max(8/scale,size-.25/scale);}
+  if(cell.dataset.surgicalSingle&&parseFloat(cell.style.width)*scale<=45&&sp.scrollWidth>width+.5){
+    cell.style.fontSize=base+"pt";sp.style.transformOrigin=(getComputedStyle(cell).textAlign||"left")+" center";sp.style.transform="scaleX("+width/sp.scrollWidth+")";cell.classList.remove("text-capacity-warning");return;
+  }
+  const overflow=sp.scrollWidth>width+.5||sp.scrollHeight>height+.5;
+  cell.classList.toggle("text-capacity-warning",overflow);
+}
+function fitSurgicalRiskRows(root){
+  const cells=[...root.querySelectorAll('[data-surgical-risk]')];
+  if(cells.length!==3||cells.some(c=>c.hasAttribute("data-ov")||c.contains(document.activeElement)))return;
+  const text=cells.map(c=>c.firstElementChild.textContent.trim()).join(" ").trim(),scale=FORMATS.consInf.k;
+  const ctx=document.createElement("canvas").getContext("2d");let result=[],size=SURGICAL_TEXT_SIZE;
+  for(;;){
+    ctx.font=getComputedStyle(cells[0]).fontWeight+" "+size/scale*4/3+"px Arial";
+    const words=text.split(/\s+/),lines=[];let i=0;
+    for(const cell of cells){
+      const width=cell.clientWidth-4;let line="";
+      while(i<words.length){const next=line?line+" "+words[i]:words[i];if(line&&ctx.measureText(next).width>width)break;line=next;i++;}
+      lines.push(line);
+    }
+    result=lines;if(i===words.length||size<=8)break;size-=.25;
+  }
+  // Leave over-capacity custom text intact rather than discarding a remainder.
+  if(result.join(" ")!==text)return;
+  cells.forEach((cell,i)=>{cell.firstElementChild.textContent=result[i];cell.style.fontSize=size/scale+"pt";cell.classList.remove("text-capacity-warning");});
+}
 function customizePrequxNote(wrap){
   const sheet=wrap.querySelector(".sheet"),pos=sheet.parentElement,cells=[...sheet.querySelectorAll(".c")];
   const byRef=ref=>sheet.querySelector(`[data-x="${ref}"]`),at=y=>cells.find(c=>Math.abs(parseFloat(c.style.top)-y)<.3&&parseFloat(c.style.left)>=56.25&&!c.dataset.x);
@@ -3722,6 +3780,7 @@ function buildFormat(key){
       if(sp&&!sp.parentElement.hasAttribute("data-ov"))applyNativeAltaCapture(wrap,{[field]:$("diagnostico").value||""});
     }
   }
+  prepareSurgicalTypography(key,wrap);
   return wrap;
 }
 /* ---------- Distribución de media hoja (Laboratorios Urgencias, Receta, Pase) ---------- */
@@ -4183,6 +4242,7 @@ function vfitOne(el){
   let g=0; while(sp.scrollHeight>el.clientHeight+0.5&&f>mn&&g++<40){ f-=0.2; el.style.fontSize=f.toFixed(2)+"pt"; }
 }
 function shrinkOne(el){
+  if(el.dataset.surgicalFontBase)return fitSurgicalValue(el);
   if(el.classList.contains("vfit")) return vfitOne(el);
   const sp=el.firstElementChild; if(!sp||!el.classList.contains("s")) return;
   if(!el.dataset.fs) el.dataset.fs=parseFloat(el.style.fontSize);
@@ -4218,7 +4278,7 @@ function vjOne(el){
 }
 /* Reduce la letra (sin cambiar alineación) hasta que el texto quepa en el alto de su celda */
 function fitDownOne(el){const sp=el.firstElementChild;if(!sp)return;let f=+el.dataset.fs0||parseFloat(el.style.fontSize)||11;el.style.fontSize=f+"pt";let g=0;while(sp.scrollHeight>el.clientHeight+0.5&&f>7.5&&g++<30){f-=0.25;el.style.fontSize=f.toFixed(2)+"pt";}}
-function shrink(root){ root.querySelectorAll(".c.bsfit,.c.fitdown").forEach(fitDownOne); root.querySelectorAll(".c.s,.c.vfit").forEach(shrinkOne); root.querySelectorAll(".c.spl").forEach(renderSplit); root.querySelectorAll(".c.fit").forEach(fitOne); root.querySelectorAll(".c.vj").forEach(vjOne); altaFitText(root); root.querySelectorAll(".frontal-bounded").forEach(fitFrontalCell); fitHcSignatures(root); }
+function shrink(root){ root.querySelectorAll("[data-surgical-font-base]").forEach(fitSurgicalValue); fitSurgicalRiskRows(root); root.querySelectorAll(".c.bsfit,.c.fitdown").forEach(fitDownOne); root.querySelectorAll(".c.s,.c.vfit").forEach(shrinkOne); root.querySelectorAll(".c.spl").forEach(renderSplit); root.querySelectorAll(".c.fit").forEach(fitOne); root.querySelectorAll(".c.vj").forEach(vjOne); altaFitText(root); root.querySelectorAll(".frontal-bounded").forEach(fitFrontalCell); fitHcSignatures(root); }
 /* v51 · Nota de Alta: Resumen e Indicaciones con el MISMO tamaño de letra, el mayor que quepa en ambos cuadros (6 a 14 pt) */
 function applyAltaPrintTypography(root){
   const scale=FORMATS.alta.k;root.style.setProperty('--alta-body-font',(10/scale)+'pt');root.style.setProperty('--alta-date-font',(11/scale)+'pt');
@@ -4639,7 +4699,9 @@ function buildBlankPage(key,override){
     if(!String(txt).trim()) return;
     const tx=document.createElementNS(NS,"text"), base=it.y+0.905*it.s;   // línea base = borde superior + ascenso de Arial
     tx.setAttribute("class",it.b?"b":""); tx.setAttribute("font-size",it.s); if(it.ls) tx.style.letterSpacing=it.ls+"pt";
-    tx.dataset.s=it.s; tx.dataset.base=base;
+    const surgical=SURGICAL_TEXT_KEYS.has(key);
+    if(surgical){tx.setAttribute("font-size",SURGICAL_TEXT_SIZE);tx.dataset.surgicalFont="1";const cell=BUILT[key]?.querySelector('.c[data-c="'+it.ref+'"]');if(cell?.dataset.readable==="diagnosis")tx.dataset.surgicalDiagnosis="1";}
+    tx.dataset.s=surgical?SURGICAL_TEXT_SIZE:it.s; tx.dataset.base=base;
     if(it.ml){ tx.dataset.ml="1"; tx.dataset.cx=it.cx; tx.dataset.w=it.w||330; tx.dataset.hmax=it.hmax; tx.dataset.txt=String(txt).replace(/\s*\n\s*/g," "); tx.setAttribute("text-anchor","middle"); }
     else if(it.block){ tx.dataset.blk="1"; tx.dataset.lx=it.lx; tx.dataset.w=it.w; tx.dataset.h=it.h; tx.dataset.lh=it.lh; tx.dataset.txt=txt; }
     else { tx.setAttribute("x",it.al==="c"?it.cx:it.lx); tx.setAttribute("y",base); tx.setAttribute("text-anchor",it.al==="c"?"middle":"start"); tx.dataset.w=it.w||""; tx.textContent=txt; }
@@ -4659,21 +4721,21 @@ function wrapBlank(tx,text,maxw){
 function fitBlank(host){
   const NS="http://www.w3.org/2000/svg";
   host.querySelectorAll("text").forEach(tx=>{
-    const s=+tx.dataset.s;
+    const s=+tx.dataset.s,minFactor=tx.dataset.surgicalFont?(tx.dataset.surgicalDiagnosis?1:8)/s:null;
     if(tx.dataset.ml){
       const cx=+tx.dataset.cx, w=+tx.dataset.w, hmax=+tx.dataset.hmax, base=+tx.dataset.base; let f=1, lines, lh;
-      for(;;){ tx.setAttribute("font-size",s*f); lines=wrapBlank(tx,tx.dataset.txt,w); lh=s*f*1.04; if(lines.length*lh<=hmax+0.3||f<=0.42) break; f-=0.03; }
+      for(;;){ tx.setAttribute("font-size",s*f); lines=wrapBlank(tx,tx.dataset.txt,w); lh=s*f*1.04; if(lines.length*lh<=hmax+0.3||f<=(minFactor??0.42)+.001) break; f=minFactor===null?f-0.03:Math.max(minFactor,f-0.03); }
       tx.textContent="";
       lines.forEach((ln,i)=>{ const ts=document.createElementNS(NS,"tspan"); ts.setAttribute("x",cx); ts.setAttribute("y",base-(lines.length-1-i)*lh); ts.textContent=ln||" "; tx.appendChild(ts); });
     } else if(tx.dataset.blk){
       const lx=+tx.dataset.lx, w=+tx.dataset.w, h=+tx.dataset.h, lh0=+tx.dataset.lh, base=+tx.dataset.base;
       let f=1, lines;
-      for(;;){ tx.setAttribute("font-size",s*f); lines=wrapBlank(tx,tx.dataset.txt,w); if(lines.length*lh0*f<=h+0.5||f<=0.55) break; f-=0.03; }
+      for(;;){ tx.setAttribute("font-size",s*f); lines=wrapBlank(tx,tx.dataset.txt,w); if(lines.length*lh0*f<=h+0.5||f<=(minFactor??0.55)+.001) break; f=minFactor===null?f-0.03:Math.max(minFactor,f-0.03); }
       tx.textContent="";
       lines.forEach((ln,i)=>{ const ts=document.createElementNS(NS,"tspan"); ts.setAttribute("x",lx); ts.setAttribute("y",base+i*lh0*f); ts.textContent=ln||" "; tx.appendChild(ts); });
     } else {
       const w=+tx.dataset.w, bw=tx.getBBox().width;
-      if(w&&bw>w+0.3) tx.setAttribute("font-size",s*Math.max(w/bw,0.55));
+      if(w&&bw>w+0.3) tx.setAttribute("font-size",s*Math.max(w/bw,minFactor??0.55));
     }
   });
 }
