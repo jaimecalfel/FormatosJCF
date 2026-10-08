@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.38">
+<meta name="application-version" content="2.46">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -1971,7 +1971,7 @@ body.showing-clinical #view-clinical{display:block}
 .prequx-note-sheet .cp-identifiers>div:last-child{justify-content:flex-end}
 .prequx-note-sheet .cp-identifiers span{white-space:nowrap;font-weight:400}
 .prequx-note-sheet .cp-identifiers strong{white-space:nowrap;font-size:11pt;font-weight:700}
-.prequx-note-sheet .cp-note-table{width:100%;margin-top:.12in;border-collapse:collapse;table-layout:fixed;border:1pt solid #000}
+.prequx-note-sheet .cp-note-table{text-transform:uppercase;width:100%;margin-top:.12in;border-collapse:collapse;table-layout:fixed;border:1pt solid #000}
 .prequx-note-sheet .cp-note-meta-col{width:15.5%}
 .prequx-note-sheet .cp-note-table th,.prequx-note-sheet .cp-note-table td{border:1pt solid #000;box-sizing:border-box}
 .prequx-note-sheet .cp-note-table th{height:.48in;padding:7pt 4pt;text-align:center;vertical-align:middle;font-size:9pt;line-height:1.2}
@@ -2357,6 +2357,45 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 .preset-toolbar .alta-pass-presets .pre-txt{display:inline-flex;width:auto;margin:0;font-size:calc(11px * var(--preset-ui-scale,1));padding:3px 7px;line-height:1.3}
 }
 </style>
+<style>@media screen{#clinicalForm .rich-tools .rich-clear-content{margin-left:auto;white-space:nowrap;color:#315e9b}#clinicalForm .rich-tools .rich-clear-content[data-clear-confirm]{background:#e4efff;border-color:#96b8e5;color:#244b80}}</style>
+<style id="evolution-type-v241">
+@media print{
+.cp-note.cp-evolution .cp-content{font-family:Arial,sans-serif;font-size:10pt;text-align:justify}
+.cp-note.cp-evolution .cp-note-meta-row{font-family:Arial,sans-serif;font-size:10pt}
+.cp-note.cp-evolution .cp-note-date-time{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;text-align:center}
+.cp-note.cp-evolution .cp-signatures{font-family:Arial,sans-serif;font-size:10pt;text-align:right}
+}
+</style>
+<style id="all-note-type-v242">
+/* Form fields remain in their original cells; compensate for the native Alta sheet scale. */
+[data-alta-print-role], [data-alta-print-role]>span{font-family:Arial,sans-serif!important;font-size:var(--alta-body-font)!important;line-height:1.12!important}
+[data-alta-print-role="content"], [data-alta-print-role="content"]>span{text-align:justify!important}
+[data-alta-print-role="date"], [data-alta-print-role="date"]>span{font-size:var(--alta-date-font)!important;font-weight:700!important;line-height:1.1!important}
+[data-alta-print-role="date"],[data-alta-print-role="signature"]{padding-top:0!important;padding-bottom:0!important}
+[data-alta-print-role="signature"], [data-alta-print-role="signature"]>span{text-align:right!important;justify-content:flex-end!important}
+@media print{
+.cp-page.cp-note .cp-content,.prequx-note-sheet .cp-content{font-family:Arial,sans-serif;font-size:10pt;line-height:1.12;text-align:justify}
+.cp-page.cp-note .cp-note-meta-row{font-family:Arial,sans-serif;font-size:10pt}
+.cp-page.cp-note .cp-note-date-time,.cp-page.cp-note .cp-free-date{font-family:Arial,sans-serif;font-size:11pt;font-weight:700}
+.cp-page.cp-note .cp-signatures,.cp-page.cp-indications .cp-signatures,.prequx-note-sheet .cp-signatures{font-family:Arial,sans-serif;font-size:10pt;text-align:right;line-height:1.3}
+.cp-page.cp-indications .cp-sections,.cp-page.cp-indications .cp-section-text{font-family:Arial,sans-serif;font-size:10pt;line-height:1.12;text-align:justify}
+.cp-page.cp-indications .cp-date,.cp-page.cp-indications .cp-date b{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;line-height:1.15}
+.prequx-note-sheet .c.prequx-note-value,.prequx-note-sheet .c.prequx-note-value>span{font-family:Arial,sans-serif!important;font-size:10pt!important;line-height:1.12!important}
+.prequx-note-sheet .c.prequx-note-date,.prequx-note-sheet .c.prequx-note-date>span{font-family:Arial,sans-serif!important;font-size:11pt!important;font-weight:700!important;line-height:1.15!important}
+.prequx-note-sheet .c.prequx-note-signature,.prequx-note-sheet .c.prequx-note-signature>span{font-family:Arial,sans-serif!important;font-size:10pt!important;text-align:right!important;line-height:1.3!important}
+}
+</style>
+<style id="medical-note-type-v245">
+@media print{
+.cp-page.cp-note:not(.prequx-note-sheet) .cp-content{font-family:Arial,sans-serif;font-size:10pt;line-height:1.05;text-align:justify}
+.cp-page.cp-note:not(.prequx-note-sheet) .cp-note-meta-row{font-family:Arial,sans-serif;font-size:10pt;line-height:1.15}
+.cp-page.cp-note:not(.prequx-note-sheet) .cp-note-date-time,.cp-page.cp-note:not(.prequx-note-sheet) .cp-free-date{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;line-height:1.15}
+.cp-page.cp-note:not(.prequx-note-sheet) .cp-signatures{font-family:Arial,sans-serif;font-size:10pt;line-height:1.15;text-align:right}
+.cp-page.cp-note.cp-note-admission .cp-content{font-size:8pt;line-height:1.05;text-align:justify}
+.cp-page.cp-note.cp-note-admission .cp-signatures{font-size:8pt;line-height:1.15}
+.cp-page.cp-indications .cp-sections,.cp-page.cp-indications .cp-section-text,.cp-page.cp-indications .cp-signatures{font-family:Arial,sans-serif;font-size:9pt}
+}
+</style>
 </head>
 <body>
 
@@ -2542,7 +2581,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.38 · Fecha de publicación: 07.10.26</div>
+  <div class="app-footer-version">Versión 2.46 · Fecha de publicación: 08.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3379,8 +3418,10 @@ function customizeRequestedFormats(key,wrap){
       if(hospital){hospital.style.fontSize="12.5pt";hospital.style.lineHeight="1.15";}
       const title=cells.find(cell=>text(cell)==="NOTA PREQUIRÚRGICA");
       if(title)title.style.fontSize="14pt";
-      const defaultPlan=cells.find(cell=>Math.abs(top(cell)-556.45)<.2);
-      if(defaultPlan&&defaultPlan.firstElementChild)defaultPlan.firstElementChild.textContent=defaultPlan.firstElementChild.textContent.toUpperCase();
+      // Normalize only template defaults, before restoring saved edits or filling patient data.
+      cells.filter(cell=>top(cell)>=205&&cell.classList.contains("ed")&&!cell.dataset.x).forEach(cell=>{
+        if(cell.firstElementChild)cell.firstElementChild.textContent=cell.firstElementChild.textContent.toLocaleUpperCase("es-MX");
+      });
       cells.filter(cell=>top(cell)>=60&&top(cell)<140).forEach(cell=>{
         if(cell!==hospital)cell.style.fontSize=cell.style.fontWeight?"10.5pt":"9.5pt";
       });
@@ -3674,6 +3715,7 @@ function buildFormat(key){
   (PICKS[key]||[]).forEach(pk=>{ const sp=pk.sync?wrap.querySelector(`.c[data-sync="${pk.sync}"] > span`):[...wrap.querySelectorAll(".c > span")].find(s=>(s.dataset.o||"").trim()===pk.match); if(!sp) return; const cell=sp.parentElement,hadSaved=!!(saved&&Object.prototype.hasOwnProperty.call(saved,sp.dataset.i)); cell.classList.add("pick"); sp.dataset.opts=JSON.stringify(pk.opts); if(pk.autoClinic){cell.dataset.autoClinic="1";if(!hadSaved)sp.textContent=clinicForAdscrito($("medico").value);} if(pk.editable){sp.setAttribute("contenteditable","true");cell.classList.add("pick-editable");const trigger=document.createElement("button");trigger.type="button";trigger.className="pick-trigger";trigger.setAttribute("aria-label",pk.aria||"Mostrar opciones disponibles");trigger.textContent="▼";cell.appendChild(trigger);}else sp.removeAttribute("contenteditable"); });
   if(key==="prequx")customizePrequxNote(wrap);
   if(key==="alta"){
+    applyAltaPrintTypography(wrap);
     if(saved?.__altaCapture)applyNativeAltaCapture(wrap,saved.__altaCapture);
     for(const field of ["diagnosticoIngreso","diagnosticoEgreso"]){
       const sp=altaCaptureSpan(wrap,field);
@@ -4178,15 +4220,18 @@ function vjOne(el){
 function fitDownOne(el){const sp=el.firstElementChild;if(!sp)return;let f=+el.dataset.fs0||parseFloat(el.style.fontSize)||11;el.style.fontSize=f+"pt";let g=0;while(sp.scrollHeight>el.clientHeight+0.5&&f>7.5&&g++<30){f-=0.25;el.style.fontSize=f.toFixed(2)+"pt";}}
 function shrink(root){ root.querySelectorAll(".c.bsfit,.c.fitdown").forEach(fitDownOne); root.querySelectorAll(".c.s,.c.vfit").forEach(shrinkOne); root.querySelectorAll(".c.spl").forEach(renderSplit); root.querySelectorAll(".c.fit").forEach(fitOne); root.querySelectorAll(".c.vj").forEach(vjOne); altaFitText(root); root.querySelectorAll(".frontal-bounded").forEach(fitFrontalCell); fitHcSignatures(root); }
 /* v51 · Nota de Alta: Resumen e Indicaciones con el MISMO tamaño de letra, el mayor que quepa en ambos cuadros (6 a 14 pt) */
+function applyAltaPrintTypography(root){
+  const scale=FORMATS.alta.k;root.style.setProperty('--alta-body-font',(10/scale)+'pt');root.style.setProperty('--alta-date-font',(11/scale)+'pt');
+  for(const field of ['diagnosticoIngreso','diagnosticoEgreso','resumen','indicaciones','adscrito','residente']){
+    const sp=altaCaptureSpan(root,field);if(sp)sp.parentElement.dataset.altaPrintRole=['adscrito','residente'].includes(field)?'signature':'content';
+  }
+  root.querySelectorAll('[data-x="D11"],[data-x="G11"]').forEach(cell=>cell.dataset.altaPrintRole='date');
+}
 function altaFitText(root){
-  root.querySelectorAll('.c[data-x="_alta_resumen"]').forEach(res=>{
-    const page=res.closest(".paper"),ind=page&&[...page.querySelectorAll(".c")].find(c=>c!==res&&c.firstElementChild&&c.firstElementChild.dataset.i==="33");
-    const boxes=[res,ind].filter(Boolean),filled=boxes.filter(c=>c.firstElementChild&&c.firstElementChild.textContent.trim());
-    boxes.forEach(c=>{if(!c.dataset.fs0)c.dataset.fs0=c.dataset.fs||parseFloat(c.style.fontSize)||11;});
-    if(!filled.length){boxes.forEach(c=>c.style.fontSize=c.dataset.fs0+"pt");return;}
-    const fits=f=>filled.every(c=>{c.style.fontSize=f+"pt";const cs=getComputedStyle(c),sp=c.firstElementChild;return sp.scrollHeight<=c.clientHeight-parseFloat(cs.paddingTop||0)-parseFloat(cs.paddingBottom||0)+.5&&sp.scrollWidth<=c.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0)+.5;});
-    let lo=6.5,hi=14;if(fits(hi))lo=hi;else for(let i=0;i<10;i++){const m=(lo+hi)/2;if(fits(m))lo=m;else hi=m;}
-    const f=Math.floor(lo*4)/4;boxes.forEach(c=>{c.style.fontSize=f+"pt";c.classList.toggle("text-capacity-warning",!fits(f));});
+  root.querySelectorAll('[data-alta-print-role="content"]').forEach(cell=>{
+    const sp=cell.firstElementChild;if(!sp)return;
+    const cs=getComputedStyle(cell),availableH=cell.clientHeight-parseFloat(cs.paddingTop||0)-parseFloat(cs.paddingBottom||0),availableW=cell.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0);
+    cell.classList.toggle('text-capacity-warning',sp.scrollHeight>availableH+.5||sp.scrollWidth>availableW+.5);
   });
 }
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{if(current)shrink($("paper"))});
@@ -5359,7 +5404,7 @@ function clinicalRichHTML(value){
   return [...t.content.childNodes].map(serialize).join("");
 }
 function clinicalRichField(id,label,value,{content=false,large=false}={}){
-  return `<div class="clinical-field main-text clinical-${id}"><span class="clinical-label">${label}</span><div class="rich-box"><div class="rich-tools"><button type="button" data-rich-command="bold" data-rich-editor="${id}" title="Negrita"><strong>B</strong></button><button type="button" data-rich-command="underline" data-rich-editor="${id}" title="Subrayado"><u>S</u></button><button type="button" data-rich-command="insertUnorderedList" data-rich-editor="${id}" title="Agregar viñetas">• Lista</button></div><div id="${id}" class="rich-editor${content?" content":""}${large?" indication-large":""}" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí...">${clinicalRichHTML(value)}</div></div></div>`;
+  return `<div class="clinical-field main-text clinical-${id}"><span class="clinical-label">${label}</span><div class="rich-box"><div class="rich-tools"><button type="button" data-rich-command="bold" data-rich-editor="${id}" title="Negrita"><strong>B</strong></button><button type="button" data-rich-command="underline" data-rich-editor="${id}" title="Subrayado"><u>S</u></button><button type="button" data-rich-command="insertUnorderedList" data-rich-editor="${id}" title="Agregar viñetas">• Lista</button>${id==="cl-contenido"?'<button type="button" class="rich-clear-content" data-clear-note-content aria-live="polite" title="Borrar solo el contenido de la nota">Borrar todo</button>':""}</div><div id="${id}" class="rich-editor${content?" content":""}${large?" indication-large":""}" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí...">${clinicalRichHTML(value)}</div></div></div>`;
 }
 function normalizedNoteType(value){
   return ({"Evolución":"Nota de Evolución","Agregada":"Nota Agregada","Gravedad":"Nota de Gravedad","Prequirúrgica":"Nota Preoperatoria","Postquirúrgica":"Nota Postoperatoria"})[value]||value||"Nota de Evolución";
@@ -5433,7 +5478,7 @@ function clinicalFields(tp,v,opt={}){
   const slot=opt.slot===2?2:1,prefix=slot===2?"cl2":"cl",noteType=normalizedNoteType(v.tipo);
   if(tp==="notas") return `<div class="clinical-grid" data-kind="notas">
     ${clinicalDateTimeFields("cl",v)}
-    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Postoperatoria","Nota de Ingreso","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
+    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Prequirúrgica","Nota Postoperatoria","Nota de Ingreso","Nota de Diferimiento","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
     ${clinicalNoteVitals(v)}
     ${clinicalRichField("cl-contenido","Contenido",v.contenido,{content:true})}
     ${clinicalResponsibleFields("cl",v)}
@@ -5476,7 +5521,14 @@ function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
   const second=!isNote&&indicationsDouble?(v2||duplicateIndications(v)):null;
   form.dataset.type=tp;form.classList.toggle("double-indications",!!second);
   form.innerHTML=clinicalFields(tp,v,{slot:1})+(second?clinicalFields(tp,second,{slot:2}):"");
+  const resetClearConfirmation=()=>{const button=form.querySelector("[data-clear-note-content]");if(button){delete button.dataset.clearConfirm;button.textContent="Borrar todo";button.title="Borrar solo el contenido de la nota";}};
   form.onclick=e=>{
+    const clearButton=e.target.closest("[data-clear-note-content]");
+    if(tp==="notas"&&clearButton){
+      if(!clearButton.dataset.clearConfirm){clearButton.dataset.clearConfirm="1";clearButton.textContent="Confirmar borrado";clearButton.title="Presiona de nuevo para borrar solo el contenido de la nota";return;}
+      resetClearConfirmation();const editor=$("cl-contenido");editor.replaceChildren();editor.dispatchEvent(new Event("input",{bubbles:true}));editor.focus();return;
+    }
+    resetClearConfirmation();
     const choice=e.target.closest("[data-cl-other-choice]");if(choice){chooseClinicalOther($(choice.dataset.clOtherInput),choice.dataset.clOtherChoice);return;}
     if(e.target.matches("[data-cl-others]")){suggestClinicalOthers(e.target);return;}
     const b=e.target.closest("[data-cl-date],[data-cl-time]");if(!b||!form.contains(b))return;
@@ -5484,10 +5536,10 @@ function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
     input.value=b.dataset.clDate?addClinicalDays(todayStr(),Number(b.dataset.clDays)||0):b.dataset.clHour;
     input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));
   };
-  form.oninput=e=>{if(e.target.matches("[data-cl-others]")){suggestClinicalOthers(e.target);return;}if(e.target.matches("[data-date]")){const dg=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");}else if(e.target.matches("[data-time]"))e.target.value=normalizeClinicalTime(e.target.value,true);};
+  form.oninput=e=>{resetClearConfirmation();if(e.target.matches("[data-cl-others]")){suggestClinicalOthers(e.target);return;}if(e.target.matches("[data-date]")){const dg=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");}else if(e.target.matches("[data-time]"))e.target.value=normalizeClinicalTime(e.target.value,true);};
   form.onkeydown=clinicalOthersKeydown;
   form.onchange=e=>{if(e.target.id==="cl-tipo")syncClinicalNoteVitals();};
-  form.onfocusout=e=>{if(e.target.matches("[data-cl-others]")){hideClinicalOthers(e.target);return;}if(!e.target.matches("[data-time]"))return;const normalized=normalizeClinicalTime(e.target.value);if(normalized)e.target.value=normalized;};
+  form.onfocusout=e=>{if(e.target.matches("[data-clear-note-content]"))resetClearConfirmation();if(e.target.matches("[data-cl-others]")){hideClinicalOthers(e.target);return;}if(!e.target.matches("[data-time]"))return;const normalized=normalizeClinicalTime(e.target.value);if(normalized)e.target.value=normalized;};
   form.onmousedown=e=>{if(e.target.closest("[data-cl-other-choice]")){e.preventDefault();return;}const b=e.target.closest("[data-rich-command]");if(!b)return;e.preventDefault();const editor=$(b.dataset.richEditor);if(!editor)return;editor.focus();document.execCommand("styleWithCSS",false,false);document.execCommand(b.dataset.richCommand,false,null);};
   form.onpaste=e=>{if(!e.target.closest(".rich-editor"))return;e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text"));};
   form.onsubmit=e=>{e.preventDefault();saveClinicalRecord(tp,false,false,clinicalEditing[tp]?"new":"save");};
@@ -5578,8 +5630,8 @@ function clinicalNoteVitalRows(p){
 }
 function clinicalPrintHTML(tp,p,d){
   if(p&&p.enc)d=Object.assign({},d,p.enc);
-  if(tp==="notas"&&!clinicalNoteUsesTable(p.tipo))return `<div class="cp-page cp-note cp-note-free">${patientPrintHeader(d)}<h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1><div class="cp-free-date"><div>${esc(p.fecha)}</div><div>${esc(p.hora)}</div></div><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</div>`;
-  if(tp==="notas")return `<div class="cp-page cp-note">${patientPrintHeader(d)}<table class="cp-note-table"><colgroup><col class="cp-note-meta-col"><col></colgroup><thead><tr><th scope="col">FECHA, HORA Y<br>SIGNOS VITALES</th><th scope="col"><h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1></th></tr></thead><tbody><tr><td class="cp-note-meta"><div class="cp-note-meta-row cp-note-date-time">${esc(p.fecha)}</div><div class="cp-note-meta-row cp-note-date-time">${esc(p.hora)}</div>${clinicalNoteVitalRows(p)}</td><td class="cp-note-text"><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</td></tr></tbody></table></div>`;
+  if(tp==="notas"&&!clinicalNoteUsesTable(p.tipo))return `<div class="cp-page cp-note cp-note-free${normalizedNoteType(p.tipo)==="Nota de Ingreso"?" cp-note-admission":""}">${patientPrintHeader(d)}<h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1><div class="cp-free-date"><div>${esc(p.fecha)}</div><div>${esc(p.hora)}</div></div><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</div>`;
+  if(tp==="notas")return `<div class="cp-page cp-note${normalizedNoteType(p.tipo)==="Nota de Evolución"?" cp-evolution":""}">${patientPrintHeader(d)}<table class="cp-note-table"><colgroup><col class="cp-note-meta-col"><col></colgroup><thead><tr><th scope="col">FECHA, HORA Y<br>SIGNOS VITALES</th><th scope="col"><h1 class="cp-title">${esc(notePrintTitle(p.tipo))}</h1></th></tr></thead><tbody><tr><td class="cp-note-meta"><div class="cp-note-meta-row cp-note-date-time">${esc(p.fecha)}</div><div class="cp-note-meta-row cp-note-date-time">${esc(p.hora)}</div>${clinicalNoteVitalRows(p)}</td><td class="cp-note-text"><div class="cp-content">${clinicalRichHTML(p.contenido)}</div>${clinicalSignatures(p)}</td></tr></tbody></table></div>`;
   return `<div class="cp-page cp-indications">${patientPrintHeader(d)}<h1 class="cp-title">INDICACIONES MÉDICAS</h1><div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><ul class="cp-sections">${clinicalIndicationSections(p)}</ul></div>${clinicalSignatures(p)}</div>`;
 }
 function clinicalDoublePrintHTML(first,second,d){
@@ -5597,6 +5649,7 @@ async function printClinicalSet(tp,ids){
   const records=(ids||[]).map(id=>(HIST[tp]||[]).find(x=>x.id===id)).filter(r=>r&&r.p);if(!records.length)return;
   const host=$("clinicalPrint"),d=data();
   if(tp==="indicaciones"&&records.length===2){
+    installClinicalMeasureRules();
     const combined=clinicalDoublePrintHTML(records[0].p,records[1].p,d);host.innerHTML=combined;host.classList.add("clinical-measure");host.setAttribute("aria-hidden","false");await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     const page=host.querySelector(".cp-page"),fits=page&&page.scrollHeight<=page.clientHeight+2;host.classList.remove("clinical-measure");
     host.innerHTML=fits?combined:records.map(r=>clinicalPrintHTML("indicaciones",r.p,d)).join("");
@@ -6046,7 +6099,7 @@ addEventListener("afterprint",()=>{
 function installClinicalMeasureRules(){
  if($("clinicalPrintMeasureRules"))return;
  const css=[],walk=(rules,printing=false)=>{for(const rule of rules){
-  if(rule.selectorText&&printing){const selectors=rule.selectorText.split(",").map(x=>x.trim()).filter(x=>x.startsWith(".cp-")||x.startsWith("#clinicalPrint"));
+  if(rule.selectorText&&printing){const selectors=rule.selectorText.split(",").map(x=>x.trim()).filter(x=>x.startsWith(".cp-")||x.startsWith(".prequx-note-sheet")||x.startsWith("#clinicalPrint"));
    if(selectors.length)css.push(selectors.map(x=>x.includes("#clinicalPrint")?x.replace("#clinicalPrint","#clinicalPrint.clinical-measure"):"#clinicalPrint.clinical-measure "+x).join(",")+"{"+rule.style.cssText+"}");
   }else if(rule.cssRules)walk(rule.cssRules,printing||!!(rule.media&&/\bprint\b/.test(rule.media.mediaText)));
  }};
