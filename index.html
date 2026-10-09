@@ -2481,6 +2481,16 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 }
 #view-data #formatos .clinical-index button{min-height:62px !important;padding-top:8px !important;padding-bottom:8px !important}
 #view-data #formatos .clinical-index button .clinical-index-icon{height:32px}
+/* Indicaciones: cada cuadro mide lo que tiene escrito (1 renglón = 1 renglón, 20 renglones = 20), sin barras de desplazamiento */
+#view-clinical .clinical-grid[data-kind="indicaciones"]{align-items:start}
+#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor,#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor.indication-large{min-height:0 !important;height:auto !important;max-height:none !important;overflow:visible !important}
+#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-box{overflow:visible}
+#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor > ul:first-child,#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor > ol:first-child{margin-top:0}
+#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor > ul:last-child,#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor > ol:last-child{margin-bottom:0}
+#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor li:last-child{margin-bottom:0}
+.clinical-cl-pendientes,.clinical-cl2-pendientes{--field-accent:#4d7c5a}
+#view-clinical [class$="-pendientes"]>.clinical-label:before{content:"05"}
+.alta-main-controls .alta-control-card > .alta-prev:first-child{margin-top:0 !important;margin-bottom:14px !important;padding-top:0 !important;border-top:0 !important;padding-bottom:13px;border-bottom:1px solid #dbe7ee}
 </style>
 </head>
 <body>
@@ -4159,7 +4169,7 @@ function applyAltaPaseText(owner,i){
 }
 function altaControlsHTML(newId){
   setTimeout(()=>{try{prewarmAltaSupp();}catch(_){}} ,0);
-  let html=`<section class="alta-control-page alta-main-controls"><div class="alta-control-card">${altaToggleHTML("receta","Agregar Receta / Pase","Imprime la Recetas y Pases para el alta")}<span class="alta-supp-title">Documentos adicionales al imprimir</span><div class="alta-supp-list">${altaSuppToggleHTML("dietaSeca","Dieta Seca - Estoma de Alto Gasto")}${altaSuppToggleHTML("dietaGrasa","Dieta baja en grasa - Disminuir Gastos Drenaje")}${altaSuppToggleHTML("drenaje","Hoja de Gastos de Drenaje")}${altaSuppToggleHTML("cuidDrenaje","Cuidados de Drenaje")}${altaSuppToggleHTML("cateter","Cuidados de Catéter Multipropósito")}${altaSuppToggleHTML("mama","Ejercicios Post Mastectomía")}</div>${altaRecentsHTML()}</div></section>`;
+  let html=`<section class="alta-control-page alta-main-controls"><div class="alta-control-card">${altaRecentsHTML()}${altaToggleHTML("receta","Agregar Receta / Pase","Imprime la Recetas y Pases para el alta")}<span class="alta-supp-title">Documentos adicionales al imprimir</span><div class="alta-supp-list">${altaSuppToggleHTML("dietaSeca","Dieta Seca - Estoma de Alto Gasto")}${altaSuppToggleHTML("dietaGrasa","Dieta baja en grasa - Disminuir Gastos Drenaje")}${altaSuppToggleHTML("drenaje","Hoja de Gastos de Drenaje")}${altaSuppToggleHTML("cuidDrenaje","Cuidados de Drenaje")}${altaSuppToggleHTML("cateter","Cuidados de Catéter Multipropósito")}${altaSuppToggleHTML("mama","Ejercicios Post Mastectomía")}</div></div></section>`;
   if(ALTA_COMPOSE.receta)html+=`<section class="alta-control-page" data-alta-control-page="receta"><div class="alta-control-card"><div class="alta-page-title"><span class="alta-kicker">Página adicional</span><h2>Receta</h2></div>${altaHalfHTML("receta")}${recPresetsHTML("alta-receta")}${altaMode("receta")==="otro"?altaPassPresetsHTML("alta-receta"):""}<div class="alta-recent rcbox" data-tipo="receta" data-owner="alta-receta">${recentsHTML("receta",newId,"alta-receta")}</div>${altaToggleHTML("pase","Agregar otra pagina de Pase","Agrega otra pagina de Pases","alta-add-pass")}</div></section>`;
   if(ALTA_COMPOSE.pase)html+=`<section class="alta-control-page" data-alta-control-page="pase"><div class="alta-control-card"><div class="alta-page-title"><span class="alta-kicker">Página adicional</span><h2>Pase</h2></div>${altaHalfHTML("pase")}${altaPassPresetsHTML("alta-pase")}${altaMode("pase")==="otro"?recPresetsHTML("alta-pase")+'<div class="alta-recent rcbox" data-tipo="receta" data-owner="alta-pase">'+recentsHTML("receta",newId,"alta-pase")+'</div>':""}</div></section>`;
   return html;
@@ -5186,7 +5196,7 @@ const secFieldsets=()=>[...document.querySelectorAll("#datos > fieldset")];
 function secTitle(fs){ const lg=fs.querySelector("legend"); const t=lg?[...lg.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim():""; const m=/^(\d+)\s*·\s*(.+)$/.exec(t); return m?{n:m[1],t:SEC_SHORT[m[2].trim()]||m[2].trim(),full:m[2].trim()}:{n:"",t,full:t}; }
 function buildSecNav(){
   const nav=$("secNav"); if(!nav) return;
-  nav.innerHTML=secFieldsets().map((fs,i)=>{ const s=secTitle(fs); return `<button type="button" class="sn" data-sec="${i}"><span class="sn-n">${esc(s.n||String(i+1))}</span><span class="sn-t">${esc(s.t)}</span><span class="sn-p"></span></button>`; }).join("");
+  nav.innerHTML=secFieldsets().map((fs,i)=>{ const s=secTitle(fs); return `<button type="button" class="sn" data-sec="${i}"><span class="sn-t">${esc(s.t)}</span><span class="sn-p"></span></button>`; }).join("");
   nav.onclick=e=>{ const b=e.target.closest("[data-sec]"); if(!b) return; const fs=secFieldsets()[+b.dataset.sec]; if(!fs) return;
     secNavTop(); const off=(parseFloat(nav.style.getPropertyValue("--secnav-top"))||0)+nav.offsetHeight+10;
     scrollTo({top:Math.max(0,fs.getBoundingClientRect().top+scrollY-off),behavior:"smooth"}); };
@@ -5776,7 +5786,7 @@ function clinicalDefaults(tp,dayOffset=0){
   const last=arCollect([tp])[0],lp=last&&last.r&&last.r.p;
   if(tp==="notas")return {fecha:todayStr(),hora:roundedNoteTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
   const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&typeof lp[k]==="string")?lp[k]:INDICATION_DEFAULTS[k];
-  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,...linked};
+  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,pendientes:"",...linked};
 }
 function clinicalRichHTML(value){
   const raw=String(value||""), hasMarkup=/<\/?(?:b|strong|u|ul|ol|li|br|div|p)\b/i.test(raw), t=document.createElement("template");
@@ -5871,6 +5881,7 @@ function clinicalFields(tp,v,opt={}){
     ${clinicalRichField(prefix+"-soluciones","Soluciones",v.soluciones)}
     ${clinicalRichField(prefix+"-medicamentos","Medicamentos",v.medicamentos,{large:true})}
     ${clinicalRichField(prefix+"-cuidados","Cuidados generales",v.cuidados,{large:true})}
+    ${clinicalRichField(prefix+"-pendientes","Pendientes",v.pendientes||"")}
     ${clinicalResponsibleFields(prefix,v)}
   </div></section>`;
 }
@@ -5932,7 +5943,7 @@ function clinicalRichHasText(value){const d=document.createElement("div");d.inne
 function clinicalPayload(tp,slot=1){
   const prefix=slot===2?"cl2":"cl",value=id=>{const el=$(prefix+"-"+id);return el?el.value.trim():"";};
   const base={fecha:value("fecha"),hora:normalizeClinicalTime(value("hora")),adscrito:value("adscrito"),otros:value("otros"),residente:value("residente")};
-  return tp==="notas"?{...base,tipo:$("cl-tipo").value,signos:Object.fromEntries(NOTE_VITAL_FIELDS.map(f=>[f.key,value("sv-"+f.key)])),contenido:clinicalRichValue("cl-contenido")}:{...base,tipo:"Indicaciones",dieta:clinicalRichValue(prefix+"-dieta"),soluciones:clinicalRichValue(prefix+"-soluciones"),medicamentos:clinicalRichValue(prefix+"-medicamentos"),cuidados:clinicalRichValue(prefix+"-cuidados")};
+  return tp==="notas"?{...base,tipo:$("cl-tipo").value,signos:Object.fromEntries(NOTE_VITAL_FIELDS.map(f=>[f.key,value("sv-"+f.key)])),contenido:clinicalRichValue("cl-contenido")}:{...base,tipo:"Indicaciones",dieta:clinicalRichValue(prefix+"-dieta"),soluciones:clinicalRichValue(prefix+"-soluciones"),medicamentos:clinicalRichValue(prefix+"-medicamentos"),cuidados:clinicalRichValue(prefix+"-cuidados"),pendientes:clinicalRichValue(prefix+"-pendientes")};
 }
 function clinicalMissing(tp,p){
   const required=tp==="notas"?["fecha","hora","contenido"]:["fecha","hora","dieta","soluciones","medicamentos","cuidados"];
@@ -5996,7 +6007,7 @@ function patientPrintHeader(d){
 }
 function clinicalSignatures(p){return `<div class="cp-signatures">${[p.adscrito,String(p.otros||"").split("/").map(name=>name.trim()).filter(Boolean).join(" / "),p.residente].filter(x=>String(x||"").trim()).map(esc).join("<br>")}</div>`;}
 function clinicalIndicationSections(p){
-  return [["DIETA",p.dieta],["SOLUCIONES",p.soluciones],["MEDICAMENTOS",p.medicamentos],["CUIDADOS GENERALES",p.cuidados]].map(x=>`<li><strong>${x[0]}:</strong><div class="cp-section-text">${clinicalRichHTML(x[1]||"")}</div></li>`).join("");
+  return [["DIETA",p.dieta],["SOLUCIONES",p.soluciones],["MEDICAMENTOS",p.medicamentos],["CUIDADOS GENERALES",p.cuidados]].concat(clinicalRichHasText(p.pendientes||"")?[["PENDIENTES",p.pendientes]]:[]).map(x=>`<li><strong>${x[0]}:</strong><div class="cp-section-text">${clinicalRichHTML(x[1]||"")}</div></li>`).join("");
 }
 function clinicalIndicationEntry(p,number=0){
   return `<section class="cp-double-entry" data-entry="${number}">${number?`<h1 class="cp-title">INDICACIONES MÉDICAS</h1>`:""}<div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><ul class="cp-sections">${clinicalIndicationSections(p)}</ul></div>${clinicalSignatures(p)}</section>`;
@@ -6093,7 +6104,7 @@ const AR_ICON_PATHS={all:'<path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11
 function arIcon(key){return `<svg viewBox="0 0 24 24" aria-hidden="true">${AR_ICON_PATHS[key]||AR_ICON_PATHS.other}</svg>`;}
 function arPlain(value){const div=document.createElement("div");div.innerHTML=clinicalRichHTML(value||"");div.querySelectorAll("p,div,li").forEach(e=>e.appendChild(document.createTextNode(" ")));div.querySelectorAll("br").forEach(e=>e.replaceWith(document.createTextNode(" ")));return div.textContent.replace(/\s+/g," ").trim();}
 function arPreview(e){const p=e.r.p||{};return e.detail||arPlain(p.contenido)||[p.dieta,p.medicamentos,p.cuidados].map(arPlain).filter(Boolean).join(" · ")||"";}
-function arMatches(e){const q=ARCHIVE_UI.query.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();if(!q)return true;const p=e.r.p||{};const snapshot=Object.values(p.fields||{}).map(v=>arPlain(v&&v.h)).join(" ")+" "+(p.cells||[]).map(v=>Array.isArray(v)?arPlain(v[1]):"").join(" ");const text=[e.fecha,e.hora,e.tipo,e.detail,e.r.t,savedBy(e.r),p.adscrito,p.otros,p.residente,arPreview(e),arPlain(p.soluciones),arPlain(p.cuidados),snapshot].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return q.split(/\s+/).every(w=>text.includes(w));}
+function arMatches(e){const q=ARCHIVE_UI.query.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();if(!q)return true;const p=e.r.p||{};const snapshot=Object.values(p.fields||{}).map(v=>arPlain(v&&v.h)).join(" ")+" "+(p.cells||[]).map(v=>Array.isArray(v)?arPlain(v[1]):"").join(" ");const text=[e.fecha,e.hora,e.tipo,e.detail,e.r.t,savedBy(e.r),p.adscrito,p.otros,p.residente,arPreview(e),arPlain(p.soluciones),arPlain(p.cuidados),arPlain(p.pendientes),snapshot].join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return q.split(/\s+/).every(w=>text.includes(w));}
 function arFiltered(src){const list=arCollect(src).filter(arMatches);return ARCHIVE_UI.sort==="asc"?list.reverse():list;}
 function arDateTile(fecha,hora){const m=/^(\d{1,2})[./-](\d{1,2})[./-](\d{2}|\d{4})$/.exec(fecha||"");const months=["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];return `<div class="ar-date-tile" title="${esc(fecha||"Sin fecha")}">${m?`<strong>${esc(m[1].padStart(2,"0"))}</strong><span>${months[+m[2]-1]||m[2]} · ${esc(m[3].length===2?"20"+m[3]:m[3])}</span>`:`<strong class="ar-date-text">${esc(fecha||"Sin fecha")}</strong>`}${hora?`<small>${esc(hora)} h</small>`:""}</div>`;}
 function arRowHTML(e,latest=false){const showContent=["solCx","repCx","interconsulta","rx","receta","consInf"].includes(e.tp),preview=showContent?arPreview(e):"",origin={notas:"Nota médica",prequx:"Prequirúrgica",altas:"Nota de alta",indicaciones:"Indicaciones",solCx:"Solicitud de cirugía",repCx:"Reporte de cirugía",rx:"Rayos X",interconsulta:"Interconsulta",receta:"Receta",consInf:"Consentimiento informado"}[e.tp]||"Documento";
