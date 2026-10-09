@@ -2429,6 +2429,45 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 }
 }
 </style>
+<style>
+/* ---------- v2.52 · Indicador de guardado, barra de secciones y gineco condicional ---------- */
+.is-off{display:none !important}
+.sync-st{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:4px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:650;white-space:nowrap;cursor:default}
+.sync-st[hidden]{display:none}
+.sync-st::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#9FB3C8}
+.sync-st.ok::before{background:#4ADE80}
+.sync-st.dirty{border-color:rgba(250,204,21,.55)}
+.sync-st.dirty::before{background:#FACC15}
+.sync-st.warn{background:rgba(250,204,21,.16);border-color:rgba(250,204,21,.7)}
+.sync-st.warn::before{background:#FACC15}
+.sync-st.err{background:rgba(248,113,113,.16);border-color:rgba(248,113,113,.7)}
+.sync-st.err::before{background:#F87171}
+.sync-st.busy::before{background:#93C5FD;animation:syncPulse 1s ease-in-out infinite}
+@keyframes syncPulse{50%{opacity:.25}}
+.secnav{position:sticky;top:var(--secnav-top,0px);z-index:12;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:7px;margin:0;background:color-mix(in srgb,var(--bg,#F4F7FA) 88%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid var(--line,#DDE5EC);border-radius:13px}
+.secnav::-webkit-scrollbar{display:none}
+.secnav .sn{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:5px 7px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted,#68778B);font:inherit;font-size:12.5px;font-weight:650;cursor:pointer;white-space:nowrap}
+.secnav .sn:hover{background:var(--surface,#fff);border-color:var(--line,#DDE5EC);color:var(--ink,#142235)}
+.secnav .sn.cur{background:var(--surface,#fff);border-color:#B9C7DA;color:var(--navy,#173B5E);box-shadow:0 2px 8px rgba(25,50,75,.08)}
+.secnav .sn-n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent-soft,#E4EAF3);color:var(--accent,#0B3775);font-size:11px;font-weight:800}
+.secnav .sn-p{min-width:18px;padding:0 6px;border-radius:999px;background:#EAF1FB;color:#1D5FB0;font-size:10.5px;font-weight:800;line-height:18px;text-align:center}
+.secnav .sn.done .sn-p{background:#E3F4EA;color:#17733F}
+.secnav .sn.done .sn-n{background:#17733F;color:#fff}
+#datos > fieldset{scroll-margin-top:var(--sec-scroll,150px)}
+@media (max-width:620px){
+  .sync-st{font-size:0;gap:0;padding:0;width:30px;min-height:30px;justify-content:center}
+  .sync-st::before{width:10px;height:10px}
+  .secnav{border-radius:11px;padding:5px}
+  .secnav .sn{flex:0 0 auto;padding:4px 8px;font-size:12px}
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .secnav .sn-p{background:rgba(147,197,253,.16);color:#BFDBFE}
+  :root:not([data-theme="light"]) .secnav .sn.done .sn-p{background:rgba(74,222,128,.16);color:#86EFAC}
+}
+:root[data-theme="dark"] .secnav .sn-p{background:rgba(147,197,253,.16);color:#BFDBFE}
+:root[data-theme="dark"] .secnav .sn.done .sn-p{background:rgba(74,222,128,.16);color:#86EFAC}
+@media print{.sync-st,.secnav{display:none !important}}
+</style>
 </head>
 <body>
 
@@ -2446,6 +2485,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
     <div class="band-name empty" id="bandName">Captura los datos del paciente</div>
     <div class="band-meta" id="bandMeta"></div>
   </div>
+  <span class="sync-st" id="syncSt" role="status" hidden></span>
   <button class="band-btn" id="bandIdx" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Formatos</button>
   <button class="band-btn" id="bandBack" type="button" title="Volver a la Hoja de Datos" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>
   <button class="band-btn band-exit" id="bandExit" type="button" title="Cambiar de usuario" aria-label="Salir y cambiar de usuario"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h11"/></svg><span>Salir</span></button>
@@ -2504,6 +2544,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
       </div>
       <div class="pp-body" id="ppBody"><div class="pp-list" id="ppList"><div class="dlg-empty">Cargando…</div></div></div>
     </section>
+    <nav class="secnav" id="secNav" aria-label="Ir a una sección de la hoja de datos"></nav>
     <form id="datos" autocomplete="off" onsubmit="return false">
       <fieldset>
         <legend>1 · Identificación</legend>
@@ -2614,9 +2655,9 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.51 · Fecha de publicación: 09.10.26</div>
+  <div class="app-footer-version">Versión 2.52 · Fecha de publicación: 09.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
-    <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
+    <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
 </main>
 
@@ -3132,11 +3173,12 @@ function refresh(){
     const n=el.value.length,m=+el.dataset.max; c.textContent=n?`${n}/${m}`:`máx. ${m}`; c.classList.toggle("over",n>m);
   });
   inputs.forEach(el=>{ const empty=!String(el.value||"").trim(); el.classList.toggle("pending-empty",empty); const f=el.closest(".f"); if(f) f.classList.toggle("has-empty",empty); });
-  form.querySelectorAll("fieldset").forEach(fs=>{ const a=[...fs.querySelectorAll("input,select,textarea")], empty=a.filter(el=>!String(el.value||"").trim()).length, lg=fs.querySelector("legend"); fs.classList.toggle("complete",empty===0); fs.classList.toggle("incomplete",fs.id==="fsTransfusion"&&empty>0); if(lg) lg.dataset.progress=fs.id==="fsTransfusion"?(empty?"Incompleto":"Completo"):(empty?`${empty} ${empty===1?"vacío":"vacíos"}`:"Completo"); });
+  form.querySelectorAll("fieldset").forEach(fs=>{ const a=[...fs.querySelectorAll("input,select,textarea")].filter(el=>!el.closest(".is-off")), empty=a.filter(el=>!String(el.value||"").trim()).length, lg=fs.querySelector("legend"); fs.classList.toggle("complete",empty===0); fs.classList.toggle("incomplete",fs.id==="fsTransfusion"&&empty>0); if(lg) lg.dataset.progress=fs.id==="fsTransfusion"?(empty?"Incompleto":"Completo"):(empty?`${empty} ${empty===1?"vacío":"vacíos"}`:"Completo"); });
   form.querySelectorAll('fieldset').forEach(fs=>{const over=[...fs.querySelectorAll('[data-max]')].filter(el=>el.value.length>+el.dataset.max),legend=fs.querySelector('legend');if(!legend)return;let alert=legend.querySelector('.length-alert');if(!alert){alert=document.createElement('span');alert.className='length-alert';alert.setAttribute('role','status');legend.appendChild(alert);}alert.hidden=!over.length;alert.textContent=over.length?'⚠ Texto excedido':'';alert.title=over.map(el=>form.querySelector('label[for="'+el.id+'"]')?.childNodes[0]?.textContent.trim()||el.id).join(', ');});
   updateIndexAvailability();
   if(current){ renderFormat(current); updateFormatNotice(current); }
   syncCaptureControls();
+  if(typeof updateSecNav==="function") try{ updateSecNav(); renderSync(); }catch(_){}
 }
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 const FORMAT_NOTE="Puedes escribir directamente sobre el formato. Lo que cambies en campos de la hoja de datos (cama, expediente, médico, diagnóstico, fechas, género) se actualiza también allá; los demás cambios solo quedan en este formato.";
@@ -3174,7 +3216,7 @@ function normalizePlt(v){const t=String(v||"").trim().replace(/[\s,]/g,"");if(!/
 function fixPlt(){const el=$("plt");if(!el)return;const v=normalizePlt(el.value);if(v!==el.value){el.value=v;refresh();if(current==="transfusion"){renderFormat(current);fitPaper();}toast("Plaquetas abreviadas en miles: "+v);}}
 document.addEventListener("focusout",e=>{if(e.target&&(e.target.id==="plt"||(e.target.closest&&e.target.closest('[data-sync="plt"]'))))setTimeout(fixPlt,0);});
 
-function fill(obj){inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";FOLIO_LAST_BY=obj.folioUltimaResidente||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";LABSURG_LAST_BY=obj.labsUrgUltimaResidente||"";EXTRA_LAST_REQUESTS=extraLastRequestsFrom(obj.ultimasSolicitudes);for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
+function fill(obj){setTimeout(()=>{try{afterDataLoad();}catch(_){}},0);inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";FOLIO_LAST_BY=obj.folioUltimaResidente||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";LABSURG_LAST_BY=obj.labsUrgUltimaResidente||"";EXTRA_LAST_REQUESTS=extraLastRequestsFrom(obj.ultimasSolicitudes);for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
 $("btnClear").onclick=()=>{ fill(DEFAULTS()); $("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; clearTimeout(_expT); renderPP(); $("ppList").scrollLeft=0; toast("Hoja de datos limpia"); };
 $("btnNegados").onclick=()=>{["internamiento","hta","dm","otrasEnfHC","tumores","qtrt"].forEach(id=>{if(!$(id).value.trim())$(id).value="NEGADO"});refresh();};
 $("btnDesc").onclick=()=>{
@@ -4876,7 +4918,7 @@ function restore(obj){
   for(const k in BUILT) delete BUILT[k];
   if(current){ const c=current; current=null; $("paper").replaceChildren(); openFormat(c); }
   if(currentClinical){ const c=currentClinical; renderClinicalForm(c); renderClinicalRecents(c); }
-  refresh(); LOADED_EXP=((obj.datos||{}).expediente||"").trim(); NOTIFIED_EXP=LOADED_EXP; setBase(obj); return true;
+  refresh(); LOADED_EXP=((obj.datos||{}).expediente||"").trim(); NOTIFIED_EXP=LOADED_EXP; setBase(obj); setTimeout(afterDataLoad,0); return true;
 }
 function fileName(d){
   const exp=(d.expediente||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9_-]/g,"");
@@ -5011,16 +5053,167 @@ $("bandExit").onclick=async()=>{
   }finally{EXITING=false;}
 };
 
-/* llamada al servidor: POST de texto plano, sin cookies (así no se mezclan las cuentas de Google abiertas) */
+/* llamada al servidor: POST de texto plano, sin cookies (así no se mezclan las cuentas de Google abiertas)
+   v2.52 · tiempo límite (30 s; 60 s al guardar), reintentos automáticos en lecturas y cuando el servidor está ocupado */
+const SRV_READS=new Set(["hjmPing","hjmUser","hjmGetFolder","hjmList","hjmRead","hjmReadFull","hjmInit","hjmStamp"]);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let SRV_V=0, NET_FAIL=false, DIRTY=false, LAST_INPUT=0, LAST_SAVED=0, LAST_SAVED_K="", LIST_STAMP=null, LIST_FULL=0, FLUSHING=false;
+async function call1(u,fn,args,ms){
+  const ctl=typeof AbortController==="function"?new AbortController():null;
+  const t=ctl?setTimeout(()=>ctl.abort(),ms):0;
+  try{
+    let r;
+    try{ r=await fetch(u,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({k:apiKey(),fn,args}),credentials:"omit",redirect:"follow",signal:ctl?ctl.signal:undefined}); }
+    catch(_){ throw new Error(ctl&&ctl.signal.aborted?"tiempo":"red"); }
+    let j; try{ j=await r.json(); }catch(_){ throw new Error(ctl&&ctl.signal.aborted?"tiempo":"respuesta"); }
+    if(!j||!j.ok){ const er=new Error((j&&j.error)||"error"); er.code=j&&j.code; throw er; }
+    if(j.v) SRV_V=j.v;
+    return j.data;
+  }finally{ clearTimeout(t); }
+}
+const isTransient=e=>{ const m=String(e&&e.message); return m==="red"||m==="tiempo"||m==="respuesta"||!!(e&&e.code==="ocupado"); };
+/* El Codigo.gs anterior no conoce hjmInit / hjmReadFull / hjmStamp: se usan las llamadas de antes */
+let SRV_OLD=false;
+const isOldServer=e=>{ const o=!!e&&(e.code==="accion"||/Acci[oó]n no permitida/.test(String(e.message||""))); if(o) SRV_OLD=true; return o; };
 async function call(fn,...args){
   const u=apiUrl(); if(!u) throw new Error("nourl");
-  let r;
-  try{ r=await fetch(u,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({k:apiKey(),fn,args}),credentials:"omit",redirect:"follow"}); }
-  catch(_){ throw new Error("red"); }
-  let j; try{ j=await r.json(); }catch(_){ throw new Error("respuesta"); }
-  if(!j||!j.ok){ const er=new Error((j&&j.error)||"error"); er.code=j&&j.code; throw er; }
-  return j.data;
+  const read=SRV_READS.has(fn), ms=fn==="hjmSave"?60000:30000;
+  for(let i=0;;i++){
+    try{ const v=await call1(u,fn,args,ms); if(NET_FAIL){ NET_FAIL=false; renderSync(); } return v; }
+    catch(e){
+      if(e.code==="ocupado"&&i<4){ await sleep(1200*(i+1)); continue; }
+      if(read&&isTransient(e)&&i<2&&navigator.onLine!==false){ await sleep(i?3000:1000); continue; }
+      if(isTransient(e)){ NET_FAIL=true; renderSync(); }
+      throw e;
+    }
+  }
 }
+
+/* ---------- v2.52 · Indicador de guardado en la banda del paciente ---------- */
+const hhmm=t=>new Date(t).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+function renderSync(){
+  try{
+    const el=$("syncSt"); if(!el) return;
+    if(STORE!=="drive"||!CAN_DRIVE){ el.hidden=true; return; }
+    const n=outboxCount(), k=expKey(($("expediente")||{}).value||"");
+    let cls="", txt="", tip="";
+    if(SAVING||FLUSHING){ cls="busy"; txt="Guardando…"; tip="Guardando en Google Drive"; }
+    else if(n){ cls="warn"; txt=n===1?"1 pendiente":n+" pendientes"; tip="Guardado en este navegador; se sube solo a Drive en cuanto vuelva la conexión"; }
+    else if(NET_FAIL||(CONNECT_FAIL&&!USER)||navigator.onLine===false){ cls="err"; txt="Sin conexión"; tip="No hay conexión con el servidor de Google"; }
+    else if(!hasSelectedPatient()){ el.hidden=true; return; }
+    else if(DIRTY||!(LOADED_BASE&&LOADED_BASE.k===k)){ cls="dirty"; txt="Sin guardar"; tip="Hay cambios que aún no están en Drive"; }
+    else { cls="ok"; txt=LAST_SAVED&&LAST_SAVED_K===k?"Guardado "+hhmm(LAST_SAVED):"En Drive"; tip="Este paciente está al día en Google Drive"; }
+    el.hidden=false; el.className="sync-st "+cls; el.textContent=txt; el.title=tip;
+  }catch(_){}
+}
+/* Cualquier captura en la hoja de datos, formatos o archivo clínico marca "Sin guardar" */
+["input","change"].forEach(t=>document.addEventListener(t,e=>{
+  const el=e.target; if(!el||!el.closest) return;
+  if(el.type==="search"||el.type==="file"||el.closest("dialog,.ppanel,#popHost,#secNav")) return;
+  if(el.closest("#view-data,#view-clinical,#view-format,#view-archive")){ LAST_INPUT=Date.now(); if(!DIRTY){ DIRTY=true; renderSync(); } }
+},true));
+/* Se llama al terminar de cargar datos (abrir paciente, combinar, nuevo paciente) */
+function afterDataLoad(){ try{ DIRTY=false; gynUpd(); updateSecNav(); renderSync(); }catch(_){} }
+addEventListener("beforeunload",e=>{
+  try{ if(STORE==="drive"&&CAN_DRIVE&&(SAVING||outboxCount()&&!LS.get(OUTBOX_KEY)||(DIRTY&&hasSelectedPatient()))){ e.preventDefault(); e.returnValue=""; } }catch(_){}
+});
+addEventListener("online",()=>{ NET_FAIL=false; renderSync(); setTimeout(()=>flushOutbox(),1500); });
+addEventListener("offline",()=>renderSync());
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&outboxCount()) flushOutbox(); });
+
+/* ---------- v2.52 · Pendientes: si no hay red al guardar, el paciente se queda en este navegador y se sube solo ---------- */
+const OUTBOX_KEY="hjm-pendientes"; let OUTBOX_MEM=null, FLUSH_T=0;
+function outboxGet(){ if(OUTBOX_MEM) return OUTBOX_MEM; let o={}; try{ o=JSON.parse(LS.get(OUTBOX_KEY)||"{}")||{}; }catch(_){} return OUTBOX_MEM=o; }
+function outboxCount(){ return Object.keys(outboxGet()).length; }
+function outboxSave(){ const o=outboxGet(), txt=JSON.stringify(o); if(Object.keys(o).length){ LS.set(OUTBOX_KEY,txt); } else LS.del(OUTBOX_KEY); renderSync(); return !Object.keys(o).length||LS.get(OUTBOX_KEY)===txt; }
+function outboxAdd(name,payload,meta,base){ outboxGet()[name]={name,payload,meta,base:base||null,ts:Date.now()}; const ok=outboxSave(); scheduleFlush(); return ok; }
+function scheduleFlush(ms=60000){ clearTimeout(FLUSH_T); if(outboxCount()) FLUSH_T=setTimeout(()=>flushOutbox(),ms); }
+async function flushOutbox(opt={}){
+  if(FLUSHING||!outboxCount()||!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()) return;
+  if(navigator.onLine===false){ scheduleFlush(); return; }
+  FLUSHING=true; renderSync(); const sent=[];
+  try{
+    if(!USER||!FOLDER) await driveHandshake(call);
+    DRIVE_FILES=onlyJsonFiles(await call("hjmList",null,{fresco:true})); PP_LAST=Date.now(); LIST_FULL=Date.now();
+    for(const it of Object.values(outboxGet())){
+      const key=expKey(it.meta&&it.meta.exp), twins=DRIVE_FILES.filter(f=>expKey(expOf(f))===key);
+      let payload=it.payload, base="", res=null;
+      for(const f of [...twins].reverse()){ const r=await readRemoteFull(f.id); if(r.obj) payload=mergePatient(payload,r.obj,it.base); if(f.name===it.name) base=r.modified||""; }
+      for(let i=0;;i++){
+        res=await call("hjmSave",FOLDER.id,it.name,JSON.stringify(payload),JSON.stringify(it.meta),JSON.stringify({forzar:true,base}));
+        if(!(res&&res.conflicto)) break;
+        if(i>=3) throw new Error("Otro equipo está guardando este paciente; se reintentará.");
+        const r=await readRemoteFull(res.id); if(r.obj) payload=mergePatient(payload,r.obj,it.base); base=r.modified||"";
+      }
+      delete outboxGet()[it.name]; outboxSave(); sent.push((it.meta&&it.meta.nombre)||it.name);
+      if(res&&res.id&&res.modified) upsertDriveFile(res);
+      /* Si es el paciente en pantalla y no se ha escrito nada desde entonces, queda al día con lo subido */
+      if(!SAVING&&key&&expKey(($("expediente")||{}).value||"")===key&&LAST_INPUT<=it.ts){
+        applyMerged(payload,collect()); setBase(payload); LOADED_EXP=(it.meta.exp||"").trim(); NOTIFIED_EXP=LOADED_EXP;
+        DIRTY=false; LAST_SAVED=Date.now(); LAST_SAVED_K=key;
+      }
+    }
+    if(sent.length) notify("Se subieron a Drive los pacientes pendientes: "+sent.join(", "),"ok",{ms:6000});
+  }catch(e){
+    scheduleFlush();
+    if(!opt.quiet&&!isTransient(e)&&String(e&&e.message)!=="cancelado") notify("Pacientes pendientes: "+friendly(e),"warn");
+  }finally{ FLUSHING=false; renderSync(); }
+}
+/* Actualiza la lista local con lo que devolvió el servidor al guardar (sin volver a pedir toda la lista) */
+function upsertDriveFile(rec){
+  const r={id:rec.id,name:rec.name,modified:rec.modified,meta:rec.meta||{}};
+  DRIVE_FILES=[r,...DRIVE_FILES.filter(f=>f&&f.id!==r.id)];
+  if(rec.stamp!=null&&LIST_STAMP!=null&&rec.stamp!==LIST_STAMP+1){ LIST_STAMP=rec.stamp; PP_LAST=0; loadPatients(); return; }
+  if(rec.stamp!=null) LIST_STAMP=rec.stamp;
+  if(typeof renderPP==="function") renderPP();
+  if($("dlgDrive").open) renderDriveList();
+}
+
+/* ---------- v2.52 · Barra de secciones de la Hoja de Datos (usa el mismo conteo de vacíos de cada sección) ---------- */
+const SEC_SHORT={"Identificación":"Identificación","Cirugía programada":"Cirugía","Solicitud de transfusión":"Transfusión","Resumen / padecimiento actual":"Padecimiento","Ingreso":"Ingreso","Historia clínica":"Historia clínica"};
+const secFieldsets=()=>[...document.querySelectorAll("#datos > fieldset")];
+function secTitle(fs){ const lg=fs.querySelector("legend"); const t=lg?[...lg.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim():""; const m=/^(\d+)\s*·\s*(.+)$/.exec(t); return m?{n:m[1],t:SEC_SHORT[m[2].trim()]||m[2].trim(),full:m[2].trim()}:{n:"",t,full:t}; }
+function buildSecNav(){
+  const nav=$("secNav"); if(!nav) return;
+  nav.innerHTML=secFieldsets().map((fs,i)=>{ const s=secTitle(fs); return `<button type="button" class="sn" data-sec="${i}"><span class="sn-n">${esc(s.n||String(i+1))}</span><span class="sn-t">${esc(s.t)}</span><span class="sn-p"></span></button>`; }).join("");
+  nav.onclick=e=>{ const b=e.target.closest("[data-sec]"); if(!b) return; const fs=secFieldsets()[+b.dataset.sec]; if(!fs) return;
+    secNavTop(); const off=(parseFloat(nav.style.getPropertyValue("--secnav-top"))||0)+nav.offsetHeight+10;
+    scrollTo({top:Math.max(0,fs.getBoundingClientRect().top+scrollY-off),behavior:"smooth"}); };
+  secNavTop(); updateSecNav();
+}
+function updateSecNav(){
+  const nav=$("secNav"); if(!nav||!nav.children.length) return; const fss=secFieldsets();
+  nav.querySelectorAll("[data-sec]").forEach(b=>{
+    const fs=fss[+b.dataset.sec]; if(!fs) return;
+    const lg=fs.querySelector("legend"), p=(lg&&lg.dataset.progress)||"", done=fs.classList.contains("complete"), n=(/^(\d+)/.exec(p)||[])[1];
+    b.classList.toggle("done",done); b.classList.toggle("todo",!done);
+    b.querySelector(".sn-p").textContent=done?"✓":(n||"•");
+    b.title=secTitle(fs).full+" · "+(p||"");
+  });
+}
+function secNavTop(){
+  const band=document.querySelector(".band"), nav=$("secNav"); if(!band||!nav) return;
+  const cs=getComputedStyle(band), top=cs.position==="sticky"?(parseFloat(cs.top)||0)+band.offsetHeight:0;
+  nav.style.setProperty("--secnav-top",top+"px");
+  document.documentElement.style.setProperty("--sec-scroll",(top+nav.offsetHeight+12)+"px");
+}
+let _secRaf=0;
+function secNavActive(){
+  _secRaf=0; const nav=$("secNav"); if(!nav||!nav.offsetParent) return;
+  const y=nav.getBoundingClientRect().bottom+24; let idx=0;
+  secFieldsets().forEach((fs,i)=>{ if(fs.getBoundingClientRect().top<=y) idx=i; });
+  nav.querySelectorAll("[data-sec]").forEach(b=>{ const on=+b.dataset.sec===idx; if(b.classList.contains("cur")!==on){ b.classList.toggle("cur",on); if(on&&nav.scrollWidth>nav.clientWidth) nav.scrollTo({left:b.offsetLeft-nav.clientWidth/2+b.offsetWidth/2,behavior:"smooth"}); } });
+}
+addEventListener("scroll",()=>{ if(!_secRaf) _secRaf=requestAnimationFrame(secNavActive); },{passive:true});
+addEventListener("resize",()=>{ secNavTop(); secNavActive(); });
+
+/* ---------- v2.52 · Antecedentes gineco-obstétricos: se ocultan si el género es MASCULINO (los datos no se borran) ---------- */
+function gynUpd(){
+  const g=$("genero"), b=$("btnG0"), sh=b&&b.closest(".subhead"), gr=document.querySelector("#datos .gyn-grid"); if(!g||!sh||!gr) return;
+  const off=g.value==="MASCULINO"; sh.classList.toggle("is-off",off); gr.classList.toggle("is-off",off);
+}
+$("genero").addEventListener("change",()=>{ gynUpd(); refresh(); });
+buildSecNav(); gynUpd();
 
 /* --- diálogos de enlace y de clave --- */
 let DLG_RES={};
@@ -5061,6 +5254,7 @@ async function gcall(fn,...args){
 function friendly(e){
   const m=String(e&&e.message||e);
   if(m==="red") return "No hay conexión con el servidor. Revisa tu internet.";
+  if(m==="tiempo") return "Google tardó demasiado en responder. Intenta de nuevo en unos segundos.";
   if(m==="respuesta") return "El servidor respondió algo inesperado. Revisa que el enlace sea el /exec correcto y que la implementación sea «Ejecutar como: Yo» y «Acceso: Cualquiera».";
   if(m==="nourl") return "Falta el enlace del servidor.";
   return m;
@@ -5107,12 +5301,24 @@ function renderAcct(){
 document.querySelectorAll(".seg [data-store]").forEach(b=>b.onclick=()=>{ if(b.dataset.store==="drive"&&!CAN_DRIVE){ $("dlgInfo").showModal(); return; } setStore(b.dataset.store); });
 $("infoClose").onclick=$("infoOk").onclick=()=>$("dlgInfo").close();
 
+/* v2.52 · Conexión inicial en UNA llamada (hjmInit = carpeta + lista de pacientes). Con el Codigo.gs anterior usa las llamadas de antes. */
+function applyInit(r){
+  USER=(r&&r.user)||{shared:true}; FOLDER=(r&&r.folder)||FOLDER;
+  if(r&&Array.isArray(r.files)){ DRIVE_FILES=onlyJsonFiles(r.files); PP_LAST=Date.now(); LIST_FULL=Date.now(); LIST_STAMP=r.stamp==null?null:r.stamp; }
+}
+async function driveHandshake(fn){
+  try{ applyInit(await fn("hjmInit")); }
+  catch(e){ if(!isOldServer(e)) throw e; USER=await fn("hjmUser"); FOLDER=await fn("hjmGetFolder"); }
+}
 async function initDrive(){
   if(!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()){ renderAcct(); return; }
   CONNECTING=true; renderAcct();
-  try{ USER=await call("hjmUser"); FOLDER=await call("hjmGetFolder"); }
+  try{ await driveHandshake(call); CONNECT_FAIL=false; DRIVE_RETRIES=0; }
   catch(e){ CONNECT_FAIL=true; if(e.code==="clave") LS.del("hjm-key"); else if(!DRIVE_RETRY_T&&DRIVE_RETRIES<3){ DRIVE_RETRIES++; DRIVE_RETRY_T=setTimeout(()=>{DRIVE_RETRY_T=0;driveReconnect();},4000*DRIVE_RETRIES); } }
-  finally{ CONNECTING=false; renderAcct(); }
+  finally{
+    CONNECTING=false; renderAcct(); renderSync();
+    if(USER){ if(PP_LAST&&typeof renderPP==="function"){ renderPP(); if($("dlgDrive").open) renderDriveList(); } flushOutbox({quiet:true}); }
+  }
 }
 /* Reconexión automática: el celular pierde la red al bloquearse o cambiar de Wi-Fi a datos.
    Se reintenta sola (3 veces al inicio) y cada vez que vuelve la red o se regresa a la pestaña. */
@@ -5122,8 +5328,7 @@ addEventListener("online",()=>{ DRIVE_RETRIES=0; driveReconnect(); if(USER&&STOR
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) driveReconnect(); });
 addEventListener("pageshow",e=>{ if(e.persisted){ driveReconnect(); if(USER&&STORE==="drive"){ PP_LAST=0; loadPatients(); } } });
 async function ensureFolder(){
-  if(!USER) USER=await gcall("hjmUser");
-  if(!FOLDER) FOLDER=await gcall("hjmGetFolder");
+  if(!USER||!FOLDER) await driveHandshake(gcall);
   renderAcct(); return FOLDER;
 }
 
@@ -5159,8 +5364,8 @@ function mergeHist(lh,rh,del){
   return out;
 }
 function objSame(a,b){a=a||{};b=b||{};const ka=Object.keys(a).filter(k=>a[k]!==undefined),kb=Object.keys(b).filter(k=>b[k]!==undefined);return ka.length===kb.length&&ka.every(k=>jsame(a[k],b[k]));}
-function mergePatient(local,remote){
-  const base=LOADED_BASE&&LOADED_BASE.k===expKey((local.datos||{}).expediente)?LOADED_BASE:null;
+function mergePatient(local,remote,baseIn){
+  const src=baseIn===undefined?LOADED_BASE:baseIn, base=src&&src.k===expKey((local.datos||{}).expediente)?src:null;
   const del=Object.assign({},remote.borrados||{},local.borrados||{});
   const borrados=Object.fromEntries(Object.entries(del).sort((a,b)=>b[1]-a[1]).slice(0,3000));
   return Object.assign({},local,{datos:merge3(local.datos,remote.datos,base&&base.datos),fmt:merge3(local.fmt,remote.fmt,base&&base.fmt),historial:mergeHist(local.historial,remote.historial,del),borrados});
@@ -5183,7 +5388,16 @@ function applyMerged(merged,local){
   }
   return false;
 }
-async function readRemote(id){const txt=await gcall("hjmRead",id);let o=null;try{o=JSON.parse(txt);}catch(_){}return o&&o.app==="solicitudes-hjm"?o:null;}
+/* v2.52 · hjmReadFull devuelve también la fecha de modificación (control de versión al guardar) */
+async function readRemoteFull(id){
+  let txt="", modified="";
+  if(SRV_OLD) txt=await gcall("hjmRead",id);
+  else try{ const r=await gcall("hjmReadFull",id); txt=r&&r.content; modified=(r&&r.modified)||""; }
+  catch(e){ if(!isOldServer(e)) throw e; txt=await gcall("hjmRead",id); }
+  let o=null; try{ o=JSON.parse(txt); }catch(_){}
+  return { obj:o&&o.app==="solicitudes-hjm"?o:null, modified };
+}
+async function readRemote(id){ return (await readRemoteFull(id)).obj; }
 
 /* Guardar: directo, sin ventana; solo un aviso al terminar */
 let SAVING=false;
@@ -5192,40 +5406,50 @@ async function driveSaveNow(opt={}){
   if(warnMissing(d)) return false;
   if(SAVING) return false;
   if(opt.silent&&(!apiUrl()||!apiKey())){ notify("No se guardó en Drive: falta conectar con la clave de acceso.","warn"); return false; }
-  SAVING=true; notify("Guardando en Drive…","info");
+  SAVING=true; renderSync(); notify("Guardando en Drive…","info");
+  const name=fileName(d), key=expKey(d.expediente), baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null;
+  const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
+  let payload=null;
   try{
+    if(outboxCount()) await flushOutbox({quiet:true});                 // primero lo pendiente de este navegador, para no perderlo
     await ensureFolder();
-    const key=expKey(d.expediente);
     if(!DRIVE_FILES.length||Date.now()-PP_LAST>120000){ DRIVE_FILES=onlyJsonFiles(await gcall("hjmList",FOLDER.id)); PP_LAST=Date.now(); if(typeof renderPP==="function")renderPP(); }
     const twins=DRIVE_FILES.filter(f=>expKey(expOf(f))===key);         // más reciente primero
-    const name=fileName(d);
     const target=twins.find(f=>f.name===name)||twins[0]||null;
-    const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
     const mine=!!LOADED_EXP&&expKey(LOADED_EXP)===key;                  // es el paciente que abriste o guardaste en esta sesión
     const conflict=(id,nm)=>{ notify(`Ya existe en Drive el expediente ${d.expediente}${nm?" ("+nm+")":""}. Para no sobrescribir ni duplicar, ábrelo desde la lista o combina lo que capturaste aquí con lo que ya tiene.`,"warn",
         {ms:40000,center:true,actions:[{label:"Abrir el de Drive",fn:()=>openDriveFile(id).catch(driveError)},{label:"Combinar y guardar",fn:()=>driveSaveNow({combinar:true}).catch(driveError)}]}); return false; };
     if(target&&!mine&&!opt.combinar) return conflict(target.id,(target.meta||{}).nombre||"");
-    const local=collect(); let payload=local, forzar=false;
+    const local=collect(); payload=local; let base="";
     if(target){
-      for(const f of [...twins].reverse()){ const remote=await readRemote(f.id); if(remote) payload=mergePatient(payload,remote); }   // también recoge lo de archivos duplicados viejos
-      forzar=true;
+      for(const f of [...twins].reverse()){ const r=await readRemoteFull(f.id); if(r.obj) payload=mergePatient(payload,r.obj); if(f.name===name) base=r.modified||""; }   // también recoge lo de archivos duplicados viejos
     }
     if(JSON.stringify(payload).length>1900000){ notify("El archivo de este paciente ya es demasiado grande para guardarse (límite de Drive del servidor). Borra registros antiguos que no necesites.","err",{ms:20000,center:true}); return false; }
-    let res=await gcall("hjmSave",FOLDER.id,name,JSON.stringify(payload),JSON.stringify(meta),JSON.stringify({forzar}));
-    if(res&&res.conflicto){                                              // apareció en Drive mientras tanto (otro equipo)
-      if(!mine&&!opt.combinar) return conflict(res.id,(res.viejo&&res.viejo.nombre)||"");
-      const remote=await readRemote(res.id); if(remote) payload=mergePatient(payload,remote);
-      res=await gcall("hjmSave",FOLDER.id,name,JSON.stringify(payload),JSON.stringify(meta),JSON.stringify({forzar:true}));
+    /* Control de versión: si otro equipo guardó este paciente después de leerlo, se vuelve a combinar y se reintenta */
+    let res=null;
+    for(let i=0;;i++){
+      res=await gcall("hjmSave",FOLDER.id,name,JSON.stringify(payload),JSON.stringify(meta),JSON.stringify({forzar:!!target||i>0,base}));
+      if(!(res&&res.conflicto)) break;
+      if(i===0&&!target&&!mine&&!opt.combinar) return conflict(res.id,(res.viejo&&res.viejo.nombre)||"");   // apareció en Drive mientras tanto (otro equipo)
+      if(i>=3) throw new Error("Otro equipo está guardando este mismo paciente en este momento. Espera unos segundos y vuelve a guardar.");
+      const r=await readRemoteFull(res.id); if(r.obj) payload=mergePatient(payload,r.obj); base=r.modified||"";
     }
     const combined=applyMerged(payload,local);
     setBase(payload); LOADED_EXP=d.expediente; NOTIFIED_EXP=d.expediente;
+    DIRTY=false; LAST_SAVED=Date.now(); LAST_SAVED_K=key;
     notify("Guardado en Drive · "+name+(combined?" · se sumaron cambios hechos desde otro equipo":"")+(twins.length>1?` · había ${twins.length} archivos con este expediente: todo quedó reunido en este`:""),"ok",{ms:combined||twins.length>1?7000:3200});
-    loadPatients();
+    if(res&&res.id&&res.modified) upsertDriveFile(res); else loadPatients();
     return true;
   }catch(e){
     if(String(e&&e.message)==="cancelado"){ $("popHost").replaceChildren(); return false; }
+    if(isTransient(e)){
+      const kept=outboxAdd(name,payload||collect(),meta,baseSnap);
+      notify(kept?"Sin conexión estable con Google Drive. El paciente quedó guardado en este navegador como «pendiente» y se subirá solo en cuanto vuelva la conexión."
+                 :"Sin conexión con Google Drive. El paciente quedó pendiente solo mientras esta pestaña siga abierta: no la cierres hasta que se suba.","warn",{ms:10000});
+      return false;
+    }
     notify("No se pudo guardar en Drive: "+friendly(e),"err"); return false;
-  }finally{ SAVING=false; }
+  }finally{ SAVING=false; renderSync(); }
 }
 
 /* Abrir */
@@ -5257,6 +5481,7 @@ async function openDriveFile(id){
   if($("dlgDrive").open) $("dlgDrive").close();
   notify("Cargando paciente…","info",{center:true,loading:true,persist:true});
   try{
+    if(outboxCount()) await flushOutbox({quiet:true});
     const txt=await gcall("hjmRead",id);let obj=null;try{obj=JSON.parse(txt);}catch(_){}
     if(obj&&restore(obj)) notify("Paciente abierto · "+(data().nombreCompleto||id),"ok");else notify("Ese archivo no es de un paciente.","err");
   }finally{DRIVE_OPEN_BUSY=false;}
@@ -5299,10 +5524,10 @@ function renderPP(){
     :`<div class="dlg-empty">${DRIVE_FILES.length?"Sin coincidencias.":"Aún no hay pacientes guardados."}</div>`;
   ppMarkCurrent();
 }
-async function loadPatients(){
+async function loadPatients(opt){
   if(!ppOn()||PP_LOADING) return;
   PP_LOADING=true; $("pPanel").classList.add("busy");
-  try{ DRIVE_FILES=onlyJsonFiles(await call("hjmList")); PP_LAST=Date.now(); renderPP(); if($("dlgDrive").open) renderDriveList(); }
+  try{ DRIVE_FILES=onlyJsonFiles(await call("hjmList",null,opt&&opt.fresco?{fresco:true}:{})); PP_LAST=Date.now(); LIST_FULL=Date.now(); renderPP(); if($("dlgDrive").open) renderDriveList(); }
   catch(e){
     if(e.code==="clave"){ LS.del("hjm-key"); USER=null; renderAcct(); }
     else $("ppList").innerHTML='<div class="dlg-empty">No se pudo cargar la lista. Toca ⟳ para reintentar.</div>';
@@ -5311,7 +5536,7 @@ async function loadPatients(){
 }
 /* Borrar la búsqueda también es manual: no reponer el expediente del paciente. */
 $("ppSearch").oninput=()=>{ clearTimeout(_expT); PP_MANUAL=true; PP_AUTO=false; renderPP(); };
-$("ppRefresh").onclick=()=>{ PP_LAST=0; loadPatients(); };
+$("ppRefresh").onclick=()=>{ PP_LAST=0; loadPatients({fresco:true}); };   // ⟳ trae la lista directo de Drive (sin caché)
 const ppScroll=d=>{ const l=$("ppList"); l.scrollBy({left:d*Math.max(200,l.clientWidth*0.85),behavior:"smooth"}); };
 $("ppPrev").onclick=()=>ppScroll(-1); $("ppNext").onclick=()=>ppScroll(1);
 $("ppList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDriveFile(b.dataset.id).then(ppMarkCurrent).catch(driveError); };
@@ -5326,7 +5551,20 @@ $("ppList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDriveF
   window.ppExpand=()=>set(false);
 })();
 form.addEventListener("input",()=>{ if(ppOn()) ppMarkCurrent(); });
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&ppOn()&&Date.now()-PP_LAST>45000){ PP_LAST=0; loadPatients(); } });
+/* v2.52 · Al volver a la pestaña (y cada 2 min) se pregunta al servidor si hubo cambios (hjmStamp no toca Drive);
+   la lista completa solo se vuelve a pedir si alguien guardó o si tiene más de 5 min */
+async function checkListChanges(force){
+  if(!ppOn()||PP_LOADING||document.hidden) return;
+  if(!force&&Date.now()-PP_LAST<45000) return;
+  try{
+    if(SRV_OLD) throw {code:"accion"};
+    const st=await call("hjmStamp"), s=st&&st.stamp;
+    if(LIST_STAMP===null||s!==LIST_STAMP||Date.now()-LIST_FULL>300000){ LIST_STAMP=s; await loadPatients(); }
+    else PP_LAST=Date.now();
+  }catch(e){ if(isOldServer(e)&&Date.now()-PP_LAST>45000){ PP_LAST=0; loadPatients(); } }
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkListChanges(); });
+setInterval(()=>checkListChanges(true),120000);
 
 /* ---------- Recientes: recetas, interconsultas y estudios de rayos X (se guardan al Guardar/Imprimir y se pueden volver a cargar) ---------- */
 const recNorm=s=>String(s).replace(/\s+/g," ").trim().toUpperCase();
