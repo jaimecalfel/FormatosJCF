@@ -2453,6 +2453,9 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 .secnav .sn-p{min-width:18px;padding:0 6px;border-radius:999px;background:#EAF1FB;color:#1D5FB0;font-size:10.5px;font-weight:800;line-height:18px;text-align:center}
 .secnav .sn.done .sn-p{background:#E3F4EA;color:#17733F}
 .secnav .sn.done .sn-n{background:#17733F;color:#fff}
+.secnav .sn.none .sn-p{min-width:10px;width:10px;height:10px;padding:0;border-radius:50%;background:#DC2626;box-shadow:0 0 0 3px rgba(220,38,38,.15)}
+.secnav .sn.part .sn-p{background:#FDE68A;color:#854D0E;box-shadow:0 0 0 1px #F59E0B inset}
+.secnav .sn.done .sn-p{background:#16A34A;color:#fff}
 #datos > fieldset{scroll-margin-top:var(--sec-scroll,150px)}
 @media (max-width:620px){
   .sync-st{font-size:0;gap:0;padding:0;width:30px;min-height:30px;justify-content:center}
@@ -2461,11 +2464,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   .secnav .sn{flex:0 0 auto;padding:4px 8px;font-size:12px}
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .secnav .sn-p{background:rgba(147,197,253,.16);color:#BFDBFE}
-  :root:not([data-theme="light"]) .secnav .sn.done .sn-p{background:rgba(74,222,128,.16);color:#86EFAC}
 }
-:root[data-theme="dark"] .secnav .sn-p{background:rgba(147,197,253,.16);color:#BFDBFE}
-:root[data-theme="dark"] .secnav .sn.done .sn-p{background:rgba(74,222,128,.16);color:#86EFAC}
 @media print{.sync-st,.secnav{display:none !important}}
 .sheet .c.cb.lam-x > span.on::after{content:"✓";font-family:"Segoe UI Symbol","DejaVu Sans",sans-serif;font-size:20pt;font-weight:700;line-height:1}
 #datos .medico-field{position:relative}
@@ -2479,8 +2478,9 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   #pPanel .pp-list{display:flex !important;flex-wrap:nowrap;grid-template-columns:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   #pPanel .pp-list .dlg-item{flex:0 0 78vw;width:78vw;max-width:300px;scroll-snap-align:start}
 }
-#view-data #formatos .clinical-index button{min-height:62px !important;padding-top:8px !important;padding-bottom:8px !important}
-#view-data #formatos .clinical-index button .clinical-index-icon{height:32px}
+#view-data #formatos .clinical-index button{min-height:52px !important;padding-top:6px !important;padding-bottom:6px !important}
+#view-data #formatos .clinical-index button .clinical-index-icon{width:30px;height:30px}
+#view-data #formatos .clinical-index button .clinical-index-icon .ic{width:19px;height:19px}
 /* Indicaciones: cada cuadro mide lo que tiene escrito (1 renglón = 1 renglón, 20 renglones = 20), sin barras de desplazamiento */
 #view-clinical .clinical-grid[data-kind="indicaciones"]{align-items:start}
 #view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor,#view-clinical .clinical-grid[data-kind="indicaciones"] .rich-editor.indication-large{min-height:0 !important;height:auto !important;max-height:none !important;overflow:visible !important}
@@ -5203,13 +5203,18 @@ function buildSecNav(){
   secNavTop(); updateSecNav();
 }
 function updateSecNav(){
-  const nav=$("secNav"); if(!nav||!nav.children.length) return; const fss=secFieldsets();
+  const nav=$("secNav"); if(!nav||!nav.children.length) return; const fss=secFieldsets(); let DEF=null; try{ DEF=DEFAULTS(); }catch(_){}
+  /* Semáforo: rojo = ningún campo lleno · amarillo = incompleto (cuántos faltan) · verde = completo */
   nav.querySelectorAll("[data-sec]").forEach(b=>{
     const fs=fss[+b.dataset.sec]; if(!fs) return;
-    const lg=fs.querySelector("legend"), p=(lg&&lg.dataset.progress)||"", done=fs.classList.contains("complete"), n=(/^(\d+)/.exec(p)||[])[1];
-    b.classList.toggle("done",done); b.classList.toggle("todo",!done);
-    b.querySelector(".sn-p").textContent=done?"✓":(n||"•");
-    b.title=secTitle(fs).full+" · "+(p||"");
+    const els=[...fs.querySelectorAll("input,select,textarea")].filter(el=>!el.closest(".is-off")&&el.type!=="button"&&el.type!=="hidden");
+    const empty=els.filter(el=>!String(el.value||"").trim()).length, total=els.length;
+    /* Los valores predeterminados (fecha de hoy, servicio, riesgos, NEGADAS, usuario actual…) no cuentan como "llenado" para el rojo */
+    const userFilled=els.filter(el=>{ const v=String(el.value||"").trim(); if(!v) return false; const d=String((DEF&&DEF[el.id])??"").trim(); if(v===d) return false; if(el.id==="residente"&&v===String(currentResidentName()||"").trim()) return false; return true; }).length;
+    const st=!total||empty===0?"done":userFilled===0?"none":"part";
+    b.classList.toggle("done",st==="done"); b.classList.toggle("todo",st!=="done"); b.classList.toggle("none",st==="none"); b.classList.toggle("part",st==="part");
+    b.querySelector(".sn-p").textContent=st==="done"?"✓":st==="part"?String(empty):"";
+    b.title=secTitle(fs).full+" · "+(st==="done"?"completo":st==="none"?"sin datos":empty+(empty===1?" campo vacío":" campos vacíos"));
   });
 }
 function secNavTop(){
