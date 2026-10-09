@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.48">
+<meta name="application-version" content="2.51">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2396,6 +2396,39 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 .cp-page.cp-indications .cp-sections,.cp-page.cp-indications .cp-section-text,.cp-page.cp-indications .cp-signatures{font-family:Arial,sans-serif;font-size:9pt}
 }
 </style>
+<style id="home-index-v250">
+@media screen{
+#view-data #formatos{border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(23,53,88,.08);background:var(--surface)}
+#view-data #formatos .idx-archive-btn{padding:15px 16px;background:linear-gradient(120deg,var(--surface),var(--soft-blue));color:var(--navy);letter-spacing:.04em}
+#view-data #formatos .clinical-index{padding:13px;gap:9px;border-bottom:0;background:var(--surface)}
+#view-data #formatos .clinical-index button{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;justify-content:start;gap:9px;min-height:78px;padding:11px 10px;border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:12px;background:linear-gradient(135deg,var(--surface),var(--soft-blue));color:var(--navy);text-align:left;font-size:12px;font-weight:800;line-height:1.35;box-shadow:0 2px 4px rgba(23,53,88,.03);transition:background .16s,border-color .16s,box-shadow .16s}
+#view-data #formatos .clinical-index button .clinical-index-icon{width:34px;height:36px;border-radius:10px;background:var(--band);color:#fff;box-shadow:0 3px 7px rgba(23,53,88,.12)}
+#view-data #formatos .clinical-index button .clinical-index-icon .ic{width:22px;height:22px}
+#view-data #formatos .clinical-index button:hover{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 4px 10px rgba(23,53,88,.1)}
+#view-data #formatos .clinical-index button[aria-disabled="true"]{opacity:.65;filter:none}
+#view-data #formatos .index-formats-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-top:1px solid var(--line);border-bottom:0;letter-spacing:.04em}
+#view-data #formatos .index-key{display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-size:10px;font-weight:650;letter-spacing:0;text-transform:none}
+#view-data #formatos .index-key svg,#view-data #formatos .fmt-frequent-mark svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.6;fill:currentColor}
+#view-data #formatos #index{padding:3px 12px 14px;gap:10px}
+#view-data #formatos #index .col{gap:10px}
+#view-data #formatos #index .grp{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+#view-data #formatos #index .grp h3{padding:9px 9px 8px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--c) 6%,var(--surface));color:var(--c);font-size:10px;font-weight:850;letter-spacing:.035em;line-height:1.4}
+#view-data #formatos #index .list{padding:6px;gap:4px}
+#view-data #formatos #index .fmt{justify-content:space-between;gap:5px;min-height:35px;padding:7px 7px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--ink);font-size:11px;font-weight:550;line-height:1.35;box-shadow:none}
+#view-data #formatos #index .fmt-name{min-width:0;overflow-wrap:break-word}
+#view-data #formatos #index .fmt-frequent{border-color:transparent;background:transparent;font-weight:550}
+#view-data #formatos #index .fmt-frequent-mark{display:inline-grid;place-items:center;flex:none;width:18px;height:18px;background:transparent;color:var(--c)}
+#view-data #formatos #index .fmt.ready:hover{background:color-mix(in srgb,var(--c) 13%,var(--surface));border-color:color-mix(in srgb,var(--c) 40%,var(--line));color:var(--ink)}
+#view-data #formatos #index .fmt.ready[aria-disabled="true"]{opacity:.6;filter:none}
+#view-data #formatos :is(.fmt,.clinical-index button,.idx-archive-btn):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#view-data #formatos #index .index-subtitle{margin:3px 0 0;padding:8px 4px 3px;border-top:1px solid var(--line);color:var(--muted);font-size:9px;letter-spacing:0;text-transform:none;white-space:nowrap}
+@media(max-width:700px){
+ #view-data #formatos .clinical-index button{min-height:70px;font-size:12px}
+ #view-data #formatos #index .fmt{font-size:12px;min-height:39px}
+ #view-data #formatos #index .grp h3{font-size:11px}
+}
+}
+</style>
 </head>
 <body>
 
@@ -2574,14 +2607,14 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
         <button type="button" class="clinical-fmt" data-fmt="repCx"><span class="clinical-index-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="m3.5 18.5 9-9 2 2-9 9a1.4 1.4 0 0 1-2-2Z"/><path d="m13.5 8.5 7-6c.5 3-1.5 6-5 8l-2-2Z"/><path d="m12.5 9.5 1-1m0 2 1-1M7 16l2-2"/></svg></span><span>Reporte de Cirugía</span></button>
         <button type="button" class="clinical-fmt" data-fmt="alta"><span class="clinical-index-icon" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M13 3H5v18h14v-5M13 3v6h6M13 12h9M19 9l3 3-3 3M8 13h2M8 17h7"/></svg></span><span>Nota de Alta</span></button>
       </div>
-      <div class="idx-section-title">Formatos</div>
+      <div class="idx-section-title index-formats-heading"><span>Formatos</span><small class="index-key"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.2.9-4.5 4.4 1.1 6.2-5.5-2.9-5.5 2.9 1.1-6.2L3.6 9.5l6.2-.9Z"/></svg>Más usados</small></div>
       <div id="index"></div>
 
     </aside>
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.48 · Fecha de publicación: 08.10.26</div>
+  <div class="app-footer-version">Versión 2.51 · Fecha de publicación: 09.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos se encuentran cifrados y almacenados en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México.</p>
   </footer>
@@ -3156,10 +3189,12 @@ const INDEX=[
  ["Paja","g-paja",0,[["informe","Hoja de Informes"],["hFrontal","Hoja Frontal"],["hCaritas","Hoja Caritas"],["hc","Historia Clínica"],["medicamentos","Hoja de Medicamentos"]]],
  ["Cirugía","g-cx",0,[["solCx","Solicitud de Cirugía"],["consInf","Consentimiento Informado"],["marcaje","Marcaje Quirúrgico"],["cxSegura","Cirugía Segura"],["prequx","Nota Prequirúrgica"],["bj","BJ"],["cj","CJ"]]],
  ["Hospitalización","g-hosp",1,[["transfusion","Solicitud de Transfusión"],["consTransf","Consentimiento Transfusión"],["receta","Receta"],["interconsulta","Interconsulta"],["antibiotico","Solicitud de Antibiótico"],["ordenHosp","Orden Hospitalización"],["referencia","Referencia"],["apertura","Hoja de Apertura"],["notaEvol","Nota de Evolución"],["indicaciones","Indicaciones Médicas"]]],
- ["Egreso","g-egr",0,[["pase","Pase"],["defuncion","Aviso de Defunción"],["__subtitle__","INDICACIONES"],["directDietaSeca","Dieta Seca"],["directDietaGrasa","Dieta Baja Grasa"],["directDrenajes","Hoja de Gastos"],["directCuidDrenaje","Cuidados de Drenaje"],["directCateter","Cuidados de Catéter"],["directMama","Ejercicios Post Mastectomía"]]]
+ ["Egreso","g-egr",0,[["pase","Pase"],["defuncion","Aviso de Defunción"],["__subtitle__","Indicaciones de alta"],["directDietaSeca","Dieta Seca"],["directDietaGrasa","Dieta Baja Grasa"],["directDrenajes","Hoja de Gastos"],["directCuidDrenaje","Cuidados de Drenaje"],["directCateter","Cuidados de Catéter"],["directMama","Ejercicios Post Mastectomía"]]]
 ];
+const INDEX_FREQUENT=new Set(["rx","labsUrg","folio","transfusion","receta","interconsulta","solCx","bj","cj"]);
+const indexFrequentIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.2.9-4.5 4.4 1.1 6.2-5.5-2.9-5.5 2.9 1.1-6.2L3.6 9.5l6.2-.9Z"/></svg>';
 const grp=([g,cls,wide,items])=>`<section class="grp ${cls}"><h3>${g}</h3><div class="list">${items.map(([k,tt])=>
-  k==="__subtitle__"?`<div class="index-subtitle">${tt}</div>`:k?`<button type="button" class="fmt ready" data-fmt="${k}">${tt}</button>`:`<button type="button" class="fmt" disabled title="Próximamente">${tt}</button>`).join("")}</div></section>`;
+  k==="__subtitle__"?`<div class="index-subtitle">${tt}</div>`:k?`<button type="button" class="fmt ready${INDEX_FREQUENT.has(k)?" fmt-frequent":""}" data-fmt="${k}"${INDEX_FREQUENT.has(k)?` aria-label="${tt}, más usado"`:""}><span class="fmt-name">${tt}</span>${INDEX_FREQUENT.has(k)?`<span class="fmt-frequent-mark" title="Más usado">${indexFrequentIcon}</span>`:""}</button>`:`<button type="button" class="fmt" disabled title="Próximamente">${tt}</button>`).join("")}</div></section>`;
 $("index").innerHTML=`<div class="col">${[INDEX[0],INDEX[3]].map(grp).join("")}</div><div class="col">${[INDEX[1],INDEX[2],INDEX[4]].map(grp).join("")}</div>`;
 const PATIENT_ID_FIELDS=["expediente","apPaterno","apMaterno","nombres"];
 const PRINT_ONLY_FORMATS=new Set(["directDietaSeca","directDietaGrasa","directCateter","directCuidDrenaje","directDrenajes","directMama"]);
@@ -5251,7 +5286,7 @@ function expCheck(){
     notify(prefix+v+suffix,"warn",{persist:true,modal:true,center:true,messageParts:[{text:prefix},{text:v,bold:true},{text:suffix}],actions:[{label:"Abrir ese paciente",fn:()=>openDriveFile(ex.id).catch(driveError)}]});
   }
 }
-form.addEventListener("input",e=>{ if(e.target&&["expediente","cama"].includes(e.target.id)){ clearTimeout(_expT); _expT=setTimeout(expCheck,350); } });
+form.addEventListener("input",e=>{ if(e.target&&["expediente","cama"].includes(e.target.id)){ if(!$("ppSearch").value.trim()) PP_MANUAL=false; clearTimeout(_expT); _expT=setTimeout(expCheck,350); } });
 function ppMarkCurrent(){
   const cur=($("expediente").value||"").trim();
   $("ppList").querySelectorAll(".dlg-item").forEach(b=>b.classList.toggle("cur",!!cur&&b.dataset.exp===cur));
@@ -5274,7 +5309,8 @@ async function loadPatients(){
   }
   finally{ PP_LOADING=false; $("pPanel").classList.remove("busy"); }
 }
-$("ppSearch").oninput=()=>{ clearTimeout(_expT); PP_MANUAL=!!$("ppSearch").value.trim(); PP_AUTO=false; if(PP_MANUAL)renderPP();else if(ppOn())expCheck();else renderPP(); };
+/* Borrar la búsqueda también es manual: no reponer el expediente del paciente. */
+$("ppSearch").oninput=()=>{ clearTimeout(_expT); PP_MANUAL=true; PP_AUTO=false; renderPP(); };
 $("ppRefresh").onclick=()=>{ PP_LAST=0; loadPatients(); };
 const ppScroll=d=>{ const l=$("ppList"); l.scrollBy({left:d*Math.max(200,l.clientWidth*0.85),behavior:"smooth"}); };
 $("ppPrev").onclick=()=>ppScroll(-1); $("ppNext").onclick=()=>ppScroll(1);
