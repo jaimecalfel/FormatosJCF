@@ -5153,7 +5153,6 @@ async function flushOutbox(opt={}){
         DIRTY=false; LAST_SAVED=Date.now(); LAST_SAVED_K=key;
       }
     }
-    if(sent.length) notify("Se subieron a Drive los pacientes pendientes: "+sent.join(", "),"ok",{ms:6000});
   }catch(e){
     scheduleFlush();
     if(!opt.quiet&&!isTransient(e)&&String(e&&e.message)!=="cancelado") notify("Pacientes pendientes: "+friendly(e),"warn");
@@ -5406,7 +5405,7 @@ async function driveSaveNow(opt={}){
   if(warnMissing(d)) return false;
   if(SAVING) return false;
   if(opt.silent&&(!apiUrl()||!apiKey())){ notify("No se guardó en Drive: falta conectar con la clave de acceso.","warn"); return false; }
-  SAVING=true; renderSync(); notify("Guardando en Drive…","info");
+  SAVING=true; renderSync();                                         // v2.52 · el estado se ve en la cinta del paciente (sin aviso emergente)
   const name=fileName(d), key=expKey(d.expediente), baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null;
   const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
   let payload=null;
@@ -5437,7 +5436,8 @@ async function driveSaveNow(opt={}){
     const combined=applyMerged(payload,local);
     setBase(payload); LOADED_EXP=d.expediente; NOTIFIED_EXP=d.expediente;
     DIRTY=false; LAST_SAVED=Date.now(); LAST_SAVED_K=key;
-    notify("Guardado en Drive · "+name+(combined?" · se sumaron cambios hechos desde otro equipo":"")+(twins.length>1?` · había ${twins.length} archivos con este expediente: todo quedó reunido en este`:""),"ok",{ms:combined||twins.length>1?7000:3200});
+    /* Sin aviso de "Guardado": solo se avisa si se combinaron cambios de otro equipo o se reunieron archivos duplicados */
+    if(combined||twins.length>1) notify((combined?"Se sumaron cambios hechos desde otro equipo":"")+(combined&&twins.length>1?" · ":"")+(twins.length>1?`Había ${twins.length} archivos con este expediente: todo quedó reunido en ${name}`:""),"info",{ms:7000});
     if(res&&res.id&&res.modified) upsertDriveFile(res); else loadPatients();
     return true;
   }catch(e){
@@ -5929,7 +5929,7 @@ function saveClinicalRecord(tp,printAfter=false,force=false,mode="save"){
   clinicalEditing[tp]=saved[0].id;clinicalEditingSecond[tp]=saved[1]?.id||null;
   clinicalSnap[tp]=JSON.stringify(clinicalPayload(tp,1));
   syncClinicalSaveButtons();renderClinicalRecents(tp);
-  notify(mode==="edit"?"Registro cargado actualizado.":saved.length===2?"Las dos indicaciones se guardaron por separado.":tp==="notas"?"Nota guardada con el paciente.":"Indicaciones guardadas con el paciente.","ok");
+  if(!(STORE==="drive"&&CAN_DRIVE)) notify(mode==="edit"?"Registro cargado actualizado.":saved.length===2?"Las dos indicaciones se guardaron por separado.":tp==="notas"?"Nota guardada con el paciente.":"Indicaciones guardadas con el paciente.","ok");
   doSave();if(printAfter)setTimeout(()=>printClinicalSet(tp,saved.map(x=>x.id)),80);return saved.length===1?saved[0]:saved;
 }
 function renderClinicalRecents(tp){
@@ -6221,7 +6221,7 @@ function saveLoadedFormat(mode,printAfter=false,overwriteId=null){
   a.unshift(r);if(a.length>histCap(tp))a.length=histCap(tp);
   markViewed(key,tp,r.id);if(key==="alta")ALTA_OWN=r.id;
   if(key==="alta")renderRel(key);else renderRecent(key,r.id);
-  doSaveNow();notify(mode==="edit"?"Registro cargado actualizado.":"Nuevo registro guardado; el original se conserva.","ok");
+  doSaveNow();if(!(STORE==="drive"&&CAN_DRIVE))notify(mode==="edit"?"Registro cargado actualizado.":"Nuevo registro guardado; el original se conserva.","ok");
   if(printAfter)printFormatNow(true);return r;
 }
 function viewedClean(fmt){const v=VIEWED[fmt];return !!(v&&!v.dirty&&(HIST[v.tp]||[]).some(x=>x.id===v.id));}
