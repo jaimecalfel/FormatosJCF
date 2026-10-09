@@ -2475,6 +2475,10 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 #medico-list button small{font-weight:500}
 #medico-list button[aria-selected="true"],#medico-list button:hover{background:#eaf0fa}
 #datos .medico-hint{font-size:11px;color:var(--muted,#68778B);line-height:1.3}
+@media screen and (max-width:767px){
+  #pPanel .pp-list{display:flex !important;flex-wrap:nowrap;grid-template-columns:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  #pPanel .pp-list .dlg-item{flex:0 0 78vw;width:78vw;max-width:300px;scroll-snap-align:start}
+}
 </style>
 </head>
 <body>
@@ -2581,8 +2585,14 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
           <div class="f s6"><label for="riesgos">Riesgos (consentimiento quirúrgico) <span class="cnt"></span><button type="button" id="restoreSurgicalRisks" title="Restaurar los riesgos quirúrgicos predeterminados">Restaurar</button></label><textarea id="riesgos" class="up" data-max="320" rows="4"></textarea></div>
         </div>
       </fieldset>
+      <fieldset>
+        <legend>3 · Resumen clínico</legend>
+        <div class="grid">
+          <div class="f s6"><label for="resumen">Padecimiento actual <span class="cnt"></span></label><textarea id="resumen" class="up" data-max="500" rows="7"></textarea><span class="hint">Se usa como resumen clínico en HC, BJ, CJ, rayos X y demás solicitudes.</span></div>
+        </div>
+      </fieldset>
       <fieldset id="fsTransfusion">
-        <legend>3 · Solicitud de transfusión</legend>
+        <legend>4 · Solicitud de transfusión</legend>
         <div class="grid"><div class="f"><label for="hb">Hb (g/dL)</label><input id="hb" inputmode="decimal"></div>
           <div class="f"><label for="hto">Hto (%)</label><input id="hto" inputmode="decimal"></div>
           <div class="f"><label for="plt">Plaquetas (miles)</label><input id="plt" inputmode="decimal" placeholder="Ej. 303" title="Escribe la cifra abreviada en miles: 303 = 303,000. Si escribes 303000 se convierte a 303."></div>
@@ -2604,13 +2614,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
         </div>
       </fieldset>
       <fieldset>
-        <legend>4 · Resumen / padecimiento actual</legend>
-        <div class="grid">
-          <div class="f s6"><label for="resumen">Padecimiento actual <span class="cnt"></span></label><textarea id="resumen" class="up" data-max="500" rows="7"></textarea><span class="hint">Se usa como resumen clínico en HC, BJ, CJ, rayos X y demás solicitudes.</span></div>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>5 · Ingreso</legend>
+        <legend>5 · Ingreso e historia clínica</legend>
         <div class="sec-head"><span>Llena los campos vacíos que no se conozcan.</span><button class="btn small fill-helper" type="button" id="btnDesc">Marcar vacíos como SE DESCONOCE</button></div>
         <div class="grid">
           <div class="f"><label for="fIngreso">Fecha de ingreso</label><input id="fIngreso" data-date inputmode="numeric" placeholder="DD.MM.AA"></div>
@@ -2629,10 +2633,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
           <div class="f s6"><label for="direccion">Dirección</label><input id="direccion" class="up"></div>
           <div class="f s6"><label for="bjPato">BJ patología (resumen) <span class="cnt"></span></label><textarea id="bjPato" class="up" data-max="500" rows="3"></textarea></div>
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>6 · Historia clínica</legend>
-        <div class="subhead first"><h3>Antecedentes</h3><button class="btn small fill-helper" type="button" id="btnNegados">Marcar vacíos como NEGADO</button></div>
+        <div class="subhead"><h3>Historia clínica · Antecedentes</h3><button class="btn small fill-helper" type="button" id="btnNegados">Marcar vacíos como NEGADO</button></div>
         <div class="grid">
           <div class="f s3"><label for="internamiento">Internamiento previo <span class="cnt"></span></label><input id="internamiento" class="up" data-max="70"></div>
           <div class="f s3"><label for="hta">Hipertensión <span class="cnt"></span></label><input id="hta" class="up" data-max="70"></div>
@@ -5178,7 +5179,7 @@ function upsertDriveFile(rec){
 }
 
 /* ---------- v2.52 · Barra de secciones de la Hoja de Datos (usa el mismo conteo de vacíos de cada sección) ---------- */
-const SEC_SHORT={"Identificación":"Identificación","Cirugía programada":"Cirugía","Solicitud de transfusión":"Transfusión","Resumen / padecimiento actual":"Padecimiento","Ingreso":"Ingreso","Historia clínica":"Historia clínica"};
+const SEC_SHORT={"Identificación":"Identificación","Cirugía programada":"Cirugía","Solicitud de transfusión":"Transfusión","Resumen / padecimiento actual":"Padecimiento","Resumen clínico":"Resumen clínico","Ingreso e historia clínica":"Ingreso / HC","Ingreso":"Ingreso","Historia clínica":"Historia clínica"};
 const secFieldsets=()=>[...document.querySelectorAll("#datos > fieldset")];
 function secTitle(fs){ const lg=fs.querySelector("legend"); const t=lg?[...lg.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim():""; const m=/^(\d+)\s*·\s*(.+)$/.exec(t); return m?{n:m[1],t:SEC_SHORT[m[2].trim()]||m[2].trim(),full:m[2].trim()}:{n:"",t,full:t}; }
 function buildSecNav(){
