@@ -5756,7 +5756,7 @@ const NOTE_VITAL_FIELDS=[
   {key:"ta",label:"TA",print:"TA",placeholder:"117/76",mode:"text"},
   {key:"temp",label:"Temp (°C)",print:"T",placeholder:"36.5",mode:"decimal",unit:"°C"},
   {key:"so2",label:"SO2 (%)",print:"SO2",placeholder:"97",mode:"numeric",unit:"%"},
-  {key:"uresis",label:"Uresis",print:"Uresis",placeholder:"0.8",mode:"decimal",unit:"mL/kg/h"}
+  {key:"uresis",label:"Uresis",print:"Uresis",placeholder:"",mode:"text"}
 ];
 function clinicalNoteUsesTable(tipo){return !["Nota de Ingreso","Nota de Defunción"].includes(normalizedNoteType(tipo));}
 function syncClinicalNoteVitals(){const vitals=$("clinicalForm").querySelector(".clinical-note-vitals");if(vitals)vitals.hidden=!clinicalNoteUsesTable($("cl-tipo").value);}
