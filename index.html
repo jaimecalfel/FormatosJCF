@@ -6022,8 +6022,17 @@ function patientPrintHeader(d){
   return `<div class="cp-head"><img class="cp-logo" src="${hjm}"><div class="cp-hospital">HOSPITAL JUÁREZ DE MÉXICO<br>ONCOLOGÍA</div><img class="cp-logo" src="${crab}"></div><div class="cp-patient cp-patient-v88"><div class="cp-name"><span>NOMBRE DEL PACIENTE:</span><strong>${esc(d.nombreCompleto||"")}</strong><div class="cp-allergies"><span>ALERGIAS:</span> <strong>${esc(d.alergias||"")}</strong></div></div><div class="cp-identifiers"><div><span>No. de Expediente:</span><strong>${esc(d.expediente||"")}</strong></div><div><span>Cama:</span><strong>${esc(d.cama||"")}</strong></div><div><span>Fecha de Nacimiento:</span><strong>${esc(d.fnac||"")}</strong></div></div></div>`;
 }
 function clinicalSignatures(p){return `<div class="cp-signatures">${[p.adscrito,String(p.otros||"").split("/").map(name=>name.trim()).filter(Boolean).join(" / "),p.residente].filter(x=>String(x||"").trim()).map(esc).join("<br>")}</div>`;}
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Tab"||e.altKey||e.ctrlKey||e.metaKey)return;
+  const ed=e.target.closest&&e.target.closest(".rich-editor");if(!ed)return;
+  const sel=getSelection();let n=sel&&sel.anchorNode;if(n&&n.nodeType===3)n=n.parentElement;
+  if(!n||!n.closest("li")||!ed.contains(n))return;
+  e.preventDefault();
+  document.execCommand(e.shiftKey?"outdent":"indent");
+  ed.dispatchEvent(new Event("input",{bubbles:true}));
+},true);
 function clinicalIndicationSections(p){
-  return [["DIETA",p.dieta],["SOLUCIONES",p.soluciones],["MEDICAMENTOS",p.medicamentos],["CUIDADOS GENERALES",p.cuidados]].concat(clinicalRichHasText(p.pendientes||"")?[["PENDIENTES",p.pendientes]]:[]).map(x=>`<li><strong>${x[0]}:</strong><div class="cp-section-text">${clinicalRichHTML(x[1]||"")}</div></li>`).join("");
+  return [["DIETA",p.dieta],["SOLUCIONES",p.soluciones],["MEDICAMENTOS",p.medicamentos],["CUIDADOS GENERALES",p.cuidados]].concat(clinicalRichHasText(p.pendientes||"")?[["PENDIENTES",p.pendientes]]:[]).map(x=>x[0]==="PENDIENTES"?`<li class="cp-pendientes" style="list-style:none;margin-left:-5px"><div class="cp-section-text"><br><br>${clinicalRichHTML(x[1]||"")}</div></li>`:`<li><strong>${x[0]}:</strong><div class="cp-section-text">${clinicalRichHTML(x[1]||"")}</div></li>`).join("");
 }
 function clinicalIndicationEntry(p,number=0){
   return `<section class="cp-double-entry" data-entry="${number}">${number?`<h1 class="cp-title">INDICACIONES MÉDICAS</h1>`:""}<div class="cp-body"><div class="cp-date"><b>FECHA</b><br>${esc(p.fecha)}<br>${esc(p.hora)} HRS</div><ul class="cp-sections">${clinicalIndicationSections(p)}</ul></div>${clinicalSignatures(p)}</section>`;
