@@ -5886,7 +5886,7 @@ function clinicalFields(tp,v,opt={}){
   const slot=opt.slot===2?2:1,prefix=slot===2?"cl2":"cl",noteType=normalizedNoteType(v.tipo);
   if(tp==="notas") return `<div class="clinical-grid" data-kind="notas">
     ${clinicalDateTimeFields("cl",v)}
-    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Prequirúrgica","Nota Postoperatoria","Nota de Ingreso","Nota de Diferimiento","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
+    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Prequirúrgica","Nota Postoperatoria","Nota de Ingreso","Reingreso a piso","Nota de Diferimiento","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
     ${clinicalNoteVitals(v)}
     ${clinicalRichField("cl-contenido","Contenido",v.contenido,{content:true})}
     ${clinicalResponsibleFields("cl",v)}
