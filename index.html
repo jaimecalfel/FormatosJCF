@@ -2370,6 +2370,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 /* Form fields remain in their original cells; compensate for the native Alta sheet scale. */
 [data-alta-print-role], [data-alta-print-role]>span{font-family:Arial,sans-serif!important;font-size:var(--alta-body-font)!important;line-height:1.12!important}
 [data-alta-print-role="content"], [data-alta-print-role="content"]>span{text-align:justify!important}
+[data-alta-print-role="content"][data-alta-fit],[data-alta-print-role="content"][data-alta-fit]>span{font-size:var(--alta-fit-font,var(--alta-body-font))!important}
 [data-alta-print-role="date"], [data-alta-print-role="date"]>span{font-size:var(--alta-date-font)!important;font-weight:700!important;line-height:1.1!important}
 [data-alta-print-role="date"],[data-alta-print-role="signature"]{padding-top:0!important;padding-bottom:0!important}
 [data-alta-print-role="signature"], [data-alta-print-role="signature"]>span{text-align:right!important;justify-content:flex-end!important}
@@ -3770,6 +3771,7 @@ function prepareSurgicalTypography(key,root){
       cell.dataset.readableFontMax=String(base);cell.dataset.readableFontMin=String(6/scale);return;
     }
     cell.dataset.surgicalFontBase=String(base);cell.dataset.surgicalFontScale=String(scale);
+    if(key==="repCx"&&["J29","B33"].includes(cell.dataset.c))cell.dataset.surgicalFitAll="1";
     if(key==="consInf"&&["A27","A28","A29"].includes(cell.dataset.c))cell.dataset.surgicalRisk="1";
     const single=cell.classList.contains("s");if(single)cell.dataset.surgicalSingle="1";
     cell.classList.remove("s","fit","fitdown","vfit","vj","fit2");
@@ -3785,7 +3787,7 @@ function fitSurgicalValue(cell){
   sp.style.height="auto";sp.style.minHeight="0";sp.style.transform="";
   let size=base;
   // A small bounded adjustment keeps unusually long values close to the common size.
-  for(;;){cell.style.fontSize=size+"pt";if(sp.scrollWidth<=width+.5&&sp.scrollHeight<=height+.5||size<=8/scale+.01)break;size=Math.max(8/scale,size-.25/scale);}
+  for(;;){cell.style.fontSize=size+"pt";if(sp.scrollWidth<=width+.5&&sp.scrollHeight<=height+.5||size<=(cell.dataset.surgicalFitAll?4:8)/scale+.01)break;size=Math.max((cell.dataset.surgicalFitAll?4:8)/scale,size-.25/scale);}
   if(cell.dataset.surgicalSingle&&parseFloat(cell.style.width)*scale<=45&&sp.scrollWidth>width+.5){
     cell.style.fontSize=base+"pt";sp.style.transformOrigin=(getComputedStyle(cell).textAlign||"left")+" center";sp.style.transform="scaleX("+width/sp.scrollWidth+")";cell.classList.remove("text-capacity-warning");return;
   }
@@ -4386,9 +4388,18 @@ function applyAltaPrintTypography(root){
   }
   root.querySelectorAll('[data-x="D11"],[data-x="G11"]').forEach(cell=>cell.dataset.altaPrintRole='date');
 }
+document.addEventListener("input",e=>{ if(typeof current!=="undefined"&&current==="alta"&&e.target.closest&&e.target.closest("#paper .c")) altaFitText($("paper")); });
 function altaFitText(root){
   root.querySelectorAll('[data-alta-print-role="content"]').forEach(cell=>{
     const sp=cell.firstElementChild;if(!sp)return;
+    if(cell.clientHeight>100){
+      /* Contenido / Indicaciones: letra predeterminada; solo si desborda se reduce hasta caber */
+      const sc=FORMATS.alta.k,base=10/sc,min=5/sc;
+      cell.style.removeProperty('--alta-fit-font');cell.dataset.altaFit='1';
+      const cs0=getComputedStyle(cell),H=cell.clientHeight-parseFloat(cs0.paddingTop||0)-parseFloat(cs0.paddingBottom||0),W=cell.clientWidth-parseFloat(cs0.paddingLeft||0)-parseFloat(cs0.paddingRight||0);
+      const over=()=>sp.scrollHeight>H+.5||sp.scrollWidth>W+.5;
+      if(over()){let lo=min,hi=base;for(let i=0;i<10;i++){const m=(lo+hi)/2;cell.style.setProperty('--alta-fit-font',m+'pt');if(over())hi=m;else lo=m;}cell.style.setProperty('--alta-fit-font',lo+'pt');}
+    }
     const cs=getComputedStyle(cell),availableH=cell.clientHeight-parseFloat(cs.paddingTop||0)-parseFloat(cs.paddingBottom||0),availableW=cell.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0);
     cell.classList.toggle('text-capacity-warning',sp.scrollHeight>availableH+.5||sp.scrollWidth>availableW+.5);
   });
