@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.53">
+<meta name="application-version" content="2.54">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2677,7 +2677,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.53 · Fecha de publicación: 11.10.26</div>
+  <div class="app-footer-version">Versión 2.54 · Fecha de publicación: 11.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -6551,7 +6551,7 @@ function resolveGateUser(){
 function renderGateSuggestions(){
  const input=$("residentGateName"),list=$("residentGateSuggestions"),matches=gateUserMatches(input.value);
  hideGateSuggestions();if(!matches.length)return;
- list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>${matches.length===1?"Enter o Ingresar para entrar · Clic para elegir":"Clic o Enter para elegir"}</small></button>`).join("");
+ list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>${matches.length===1?"Clic, Enter o Ingresar para entrar":"Clic para ingresar · Enter para elegir"}</small></button>`).join("");
  list.hidden=false;input.setAttribute("aria-expanded","true");if(matches.length===1)input.setAttribute("aria-activedescendant","gate-user-option-0");
 }
 function chooseGateUser(name){const input=$("residentGateName");input.value=name;hideGateSuggestions();input.dispatchEvent(new Event("change",{bubbles:true}));input.focus();input.setSelectionRange(input.value.length,input.value.length);}
@@ -6559,7 +6559,11 @@ $("residentGateName").addEventListener("input",renderGateSuggestions);
 $("residentGateName").addEventListener("focus",hideGateSuggestions);
 $("residentGateName").addEventListener("blur",hideGateSuggestions);
 $("residentGateSuggestions").addEventListener("pointerdown",e=>e.preventDefault());
-$("residentGateSuggestions").addEventListener("click",e=>{const option=e.target.closest("[data-gate-user]");if(option)chooseGateUser(option.dataset.gateUser);});
+$("residentGateSuggestions").addEventListener("click",e=>{
+ const option=e.target.closest("[data-gate-user]");if(!option)return;
+ chooseGateUser(option.dataset.gateUser);
+ $("residentGateForm").requestSubmit($("residentGateSubmit"));
+});
 $("residentGateName").addEventListener("keydown",e=>{
  if(e.isComposing)return;
  const input=$("residentGateName"),list=$("residentGateSuggestions");
