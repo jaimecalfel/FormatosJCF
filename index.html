@@ -2931,7 +2931,8 @@ const HJM_STAFF=Object.freeze({
     {clinica:"RADIO ONCOLOGÍA",nombre:"DR. GABRIEL SANCHEZ MARIN"},
     {clinica:"RADIO ONCOLOGÍA",nombre:"DRA. REBECA GIL"},
     {clinica:"CABEZA Y CUELLO",nombre:"DR. OMAR SOTO BECERRIL"},
-    {clinica:"CABEZA Y CUELLO",nombre:"DR. JORGE DEL BOSQUE MENDEZ"}
+    {clinica:"CABEZA Y CUELLO",nombre:"DR. JORGE DEL BOSQUE MENDEZ"},
+    {clinica:"INTERVENCIONISMO",nombre:"DR. EDUARDO MARTINEZ ANTA"}
   ]),
   residentes:Object.freeze([
     "JAIME CALDERA R5CO",
@@ -3288,7 +3289,7 @@ $("formatos").addEventListener("click",e=>{
 let current=null,currentClinical=null;
 const BUILT={};
 /* Listas desplegables dentro de los formatos */
-const PICKS={ alta:[{match:"TUMORES MIXTOS",opts:["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA"],editable:true,autoClinic:true,aria:"Mostrar clínicas disponibles"},{sync:"medico",opts:HJM_STAFF.adscritos.map(x=>x.nombre),editable:true,aria:"Mostrar adscritos disponibles"}] };
+const PICKS={ alta:[{match:"TUMORES MIXTOS",opts:["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA","INTERVENCIONISMO"],editable:true,autoClinic:true,aria:"Mostrar clínicas disponibles"},{sync:"medico",opts:HJM_STAFF.adscritos.map(x=>x.nombre),editable:true,aria:"Mostrar adscritos disponibles"}] };
 function closePick(){ const m=document.querySelector(".pickmenu"); if(m) m.remove(); }
 let _pickT=0;
 function openPick(sp,query=null){
@@ -5545,7 +5546,7 @@ async function driveOpen(){
   $("dlgSearch").value=""; $("dlgDrive").showModal();
   await loadFolderList(); $("dlgSearch").focus();
 }
-/* v2.53 · Notas pendientes: la skill de Claude deja cada nota de evolución nueva como archivo pequeño en la carpeta
+/* v2.53/v2.54 · Notas pendientes: la skill de Claude deja notas, indicaciones y cambios de la hoja de datos como archivos pequeños en la carpeta
    PendientesJCF (JCF<exp>.nota-AAAAMMDD-HHMM.json). Al abrir al paciente se agregan a historial.notas, se guarda el JSON
    y SOLO si el guardado salió bien se borran (papelera). Si el servidor no conoce hjmPendientes (Codigo.gs v3), no hace nada. */
 async function integrarPendientes(id,obj){
@@ -5556,26 +5557,33 @@ async function integrarPendientes(id,obj){
   if(!Array.isArray(pend)||!pend.length) return null;
   const full=await gcall("hjmReadFull",id);                         // contenido y fecha más recientes (control de versión)
   let base=JSON.parse(full.content); if(!base||base.app!=="solicitudes-hjm") return null;
-  const h=base.historial=base.historial||{}; const notas=h.notas=Array.isArray(h.notas)?h.notas:[];
+  const h=base.historial=base.historial||{};
   const ids=new Set(); Object.values(h).forEach(l=>Array.isArray(l)&&l.forEach(r=>r&&r.id&&ids.add(r.id)));
   Object.entries(base.borrados||{}).forEach(([k,v])=>{ ids.add(k); if(Array.isArray(v)) v.forEach(x=>ids.add(x)); else if(v&&typeof v==="object") Object.keys(v).forEach(x=>ids.add(x)); });
   const clave=n=>{ const p=(n&&n.p)||{}; return [p.fecha,p.hora,p.tipo].join("|"); };
-  const ya=new Set(notas.map(clave)), listos=[]; let n=0;
+  const listos=[]; let n=0, nd=0;
+  pend.sort((a,b)=>String(a.name).localeCompare(String(b.name)));    // en orden de fecha
   for(const f of pend){
     let o=null; try{ o=JSON.parse(f.content||""); }catch(_){}
-    if(!o||o.app!=="solicitudes-hjm-pendiente"||expKey(o.expediente)!==expKey(exp)||!Array.isArray(o.notas)) continue;   // no se toca
-    for(const r0 of o.notas){
-      if(!r0||!r0.p) continue;
-      if(ya.has(clave(r0))) continue;                                 // ya estaba (p. ej. integrada antes): no se duplica
-      const r=JSON.parse(JSON.stringify(r0));
-      if(!r.id||ids.has(r.id)){ const ts=Number(r.ts)||Date.now(); do{ r.id="h"+ts.toString(36)+Math.random().toString(36).slice(2,5); }while(ids.has(r.id)); }
-      ids.add(r.id); ya.add(clave(r)); notas.push(r); n++;
+    if(!o||o.app!=="solicitudes-hjm-pendiente"||expKey(o.expediente)!==expKey(exp)) continue;   // no se toca
+    /* v2.54 · datos de la hoja de datos que cambiaron (Ingreso/Solicitud con archivo grande): se aplican campo por campo */
+    if(o.datos&&typeof o.datos==="object"){ base.datos=base.datos||{}; for(const [k,v] of Object.entries(o.datos)){ if(typeof v==="string"&&base.datos[k]!==v){ base.datos[k]=v; nd++; } } }
+    for(const clase of ["notas","indicaciones"]){                    // v2.54 · también indicaciones
+      if(!Array.isArray(o[clase])) continue;
+      const lista=h[clase]=Array.isArray(h[clase])?h[clase]:[]; const ya=new Set(lista.map(clave));
+      for(const r0 of o[clase]){
+        if(!r0||!r0.p) continue;
+        if(ya.has(clave(r0))) continue;                               // ya estaba (p. ej. integrada antes): no se duplica
+        const r=JSON.parse(JSON.stringify(r0));
+        if(!r.id||ids.has(r.id)){ const ts=Number(r.ts)||Date.now(); do{ r.id="h"+ts.toString(36)+Math.random().toString(36).slice(2,5); }while(ids.has(r.id)); }
+        ids.add(r.id); ya.add(clave(r)); lista.push(r); n++;
+      }
+      lista.sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0));         // de la más reciente a la más antigua
     }
     listos.push(f.id);
   }
   if(!listos.length) return null;
-  notas.sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0));           // de la más reciente a la más antigua
-  if(n){
+  if(n||nd){
     base.guardado=new Date().toISOString();
     const res=await gcall("hjmSave",FOLDER.id,full.name,JSON.stringify(base),"{}",JSON.stringify({forzar:true,base:full.modified}));
     if(!res||res.conflicto) return null;                             // otro equipo guardó en ese instante: se intenta la próxima vez
@@ -5594,7 +5602,7 @@ async function openDriveFile(id){
     if(outboxCount()) await flushOutbox({quiet:true});
     const txt=await gcall("hjmRead",id);let obj=null;try{obj=JSON.parse(txt);}catch(_){}
     let integ=0; if(obj&&obj.app==="solicitudes-hjm"){ try{ const r=await integrarPendientes(id,obj); if(r){ obj=r.obj; integ=r.n; } }catch(_){} }   // v2.53 · notas de PendientesJCF
-    if(obj&&restore(obj)) notify("Paciente abierto · "+(data().nombreCompleto||id)+(integ?` · se ${integ===1?"agregó 1 nota de evolución":"agregaron "+integ+" notas de evolución"} desde PendientesJCF`:""),"ok");else notify("Ese archivo no es de un paciente.","err");
+    if(obj&&restore(obj)) notify("Paciente abierto · "+(data().nombreCompleto||id)+(integ?` · se ${integ===1?"agregó 1 registro":"agregaron "+integ+" registros"} (notas/indicaciones) desde PendientesJCF`:""),"ok");else notify("Ese archivo no es de un paciente.","err");
   }finally{DRIVE_OPEN_BUSY=false;}
 }
 $("dlgSearch").oninput=renderDriveList;
