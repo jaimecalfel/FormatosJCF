@@ -5561,11 +5561,13 @@ async function integrarPendientes(id,obj){
   const ids=new Set(); Object.values(h).forEach(l=>Array.isArray(l)&&l.forEach(r=>r&&r.id&&ids.add(r.id)));
   Object.entries(base.borrados||{}).forEach(([k,v])=>{ ids.add(k); if(Array.isArray(v)) v.forEach(x=>ids.add(x)); else if(v&&typeof v==="object") Object.keys(v).forEach(x=>ids.add(x)); });
   const clave=n=>{ const p=(n&&n.p)||{}; return [p.fecha,p.hora,p.tipo].join("|"); };
-  const listos=[]; let n=0, nd=0;
+  const listos=[], altasPend=[]; let n=0, nd=0;
   pend.sort((a,b)=>String(a.name).localeCompare(String(b.name)));    // en orden de fecha
   for(const f of pend){
     let o=null; try{ o=JSON.parse(f.content||""); }catch(_){}
     if(!o||o.app!=="solicitudes-hjm-pendiente"||expKey(o.expediente)!==expKey(exp)) continue;   // no se toca
+    if(Array.isArray(o.altas)&&o.altas.length){ altasPend.push({id:f.id,altas:o.altas}); continue; }   // v2.55 · el alta se arma después de abrir al paciente
+    if(!Array.isArray(o.notas)&&!Array.isArray(o.indicaciones)&&!(o.datos&&typeof o.datos==="object")) continue;   // v2.56 · contenido que esta versión no entiende: no se borra
     /* v2.54 · datos de la hoja de datos que cambiaron (Ingreso/Solicitud con archivo grande): se aplican campo por campo */
     if(o.datos&&typeof o.datos==="object"){ base.datos=base.datos||{}; for(const [k,v] of Object.entries(o.datos)){ if(typeof v==="string"&&base.datos[k]!==v){ base.datos[k]=v; nd++; } } }
     for(const clase of ["notas","indicaciones"]){                    // v2.54 · también indicaciones
@@ -5582,7 +5584,7 @@ async function integrarPendientes(id,obj){
     }
     listos.push(f.id);
   }
-  if(!listos.length) return null;
+  if(!listos.length) return altasPend.length?{obj:null,n:0,altasPend}:null;
   if(n||nd){
     base.guardado=new Date().toISOString();
     const res=await gcall("hjmSave",FOLDER.id,full.name,JSON.stringify(base),"{}",JSON.stringify({forzar:true,base:full.modified}));
@@ -5590,7 +5592,33 @@ async function integrarPendientes(id,obj){
     if(res.id&&res.modified) try{ upsertDriveFile(res); }catch(_){}
   }
   for(const pid of listos){ try{ await gcall("hjmBorrarPendiente",pid); }catch(_){} }   // solo después de guardar bien
-  return { obj:base, n };
+  return { obj:base, n, altasPend };
+}
+/* v2.55 · Notas de Alta que dejó la skill (Resumen, Indicaciones y Medicamentos): con el paciente ya abierto se arman con el
+   propio formato de Nota de Alta, se activa «Agregar Receta / Pase» con los medicamentos en la receta, se guardan en
+   Notas de Alta y se sube el paciente. El pendiente se borra solo si el guardado salió bien. */
+async function integrarAltas(lista){
+  let n=0; const borrar=[], dup=[];
+  for(const it of lista||[]){
+    const d0=dup.length;
+    for(const a of it.altas||[]){
+      if(!a||!a.egreso) continue;
+      if((HIST.altas||[]).some(r=>r&&r.p&&r.p.fecha===a.egreso)){ dup.push(a.egreso); continue; }   // v2.56 · ya existe un alta con esa fecha: no se pisa ni se borra el pendiente
+      openFormat("alta");
+      ALTA_DATES={ingreso:a.ingreso||(($("fIngreso")&&$("fIngreso").value)||""),egreso:a.egreso};
+      ALTA_COMPOSE.receta=!!String(a.medicamentos||"").trim();
+      ensureAltaAttachments(); renderFormat("alta"); applyAltaDates();
+      applyNativeAltaCapture(BUILT.alta,{diagnosticoIngreso:a.diagnosticoIngreso||"",diagnosticoEgreso:a.diagnosticoEgreso||"",resumen:a.resumen||"",indicaciones:a.indicaciones||"",clinica:a.clinica||clinicForAdscrito(a.adscrito)||"",adscrito:a.adscrito||"",residente:a.residente||"",tratamiento:a.tratamiento||{},tipoEgreso:a.tipoEgreso||{}});
+      if(ALTA_COMPOSE.receta){ const f=recFields("alta-receta")[0]; if(f){ f.innerText=String(a.medicamentos); f.dispatchEvent(new Event("input",{bubbles:true})); } }
+      renderFormat("alta"); syncAltaCaptureForm(); renderRel("alta"); fitPaper();
+      const r=captureAltaRecent(); if(r){ if(a.residente){ r.by=a.residente; r.byRole=authorRoleForName(a.residente); } n++; }
+    }
+    if(dup.length===d0) borrar.push(it.id);
+  }
+  if(dup.length) notify(`Ya hay una Nota de Alta con egreso ${[...new Set(dup)].join(", ")}: la de PendientesJCF no se agregó para no duplicarla (sigue en la carpeta). Si quieres la nueva, borra la anterior en Notas de Alta y vuelve a abrir al paciente.`,"warn",{ms:15000});
+  if(n){ const ok=await driveSaveNow({silent:true}); if(!ok) return 0; }
+  for(const pid of borrar){ try{ await gcall("hjmBorrarPendiente",pid); }catch(_){} }
+  return n;
 }
 let DRIVE_OPEN_BUSY=false;
 async function openDriveFile(id){
@@ -5601,8 +5629,11 @@ async function openDriveFile(id){
   try{
     if(outboxCount()) await flushOutbox({quiet:true});
     const txt=await gcall("hjmRead",id);let obj=null;try{obj=JSON.parse(txt);}catch(_){}
-    let integ=0; if(obj&&obj.app==="solicitudes-hjm"){ try{ const r=await integrarPendientes(id,obj); if(r){ obj=r.obj; integ=r.n; } }catch(_){} }   // v2.53 · notas de PendientesJCF
-    if(obj&&restore(obj)) notify("Paciente abierto · "+(data().nombreCompleto||id)+(integ?` · se ${integ===1?"agregó 1 registro":"agregaron "+integ+" registros"} (notas/indicaciones) desde PendientesJCF`:""),"ok");else notify("Ese archivo no es de un paciente.","err");
+    let integ=0, altasPend=[]; if(obj&&obj.app==="solicitudes-hjm"){ try{ const r=await integrarPendientes(id,obj); if(r){ if(r.obj) obj=r.obj; integ=r.n; altasPend=r.altasPend||[]; } }catch(_){} }   // v2.53 · notas de PendientesJCF
+    if(obj&&restore(obj)){
+      let nAltas=0; if(altasPend.length){ try{ nAltas=await integrarAltas(altasPend); }catch(_){} }   // v2.55 · Notas de Alta
+      notify("Paciente abierto · "+(data().nombreCompleto||id)+(integ?` · se ${integ===1?"agregó 1 registro":"agregaron "+integ+" registros"} (notas/indicaciones) desde PendientesJCF`:"")+(nAltas?` · Nota de Alta agregada${nAltas>1?" ("+nAltas+")":""} con su Receta`:""),"ok");
+    } else notify("Ese archivo no es de un paciente.","err");
   }finally{DRIVE_OPEN_BUSY=false;}
 }
 $("dlgSearch").oninput=renderDriveList;
