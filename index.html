@@ -705,12 +705,12 @@ dialog.pop-modal .px{min-width:30px;min-height:30px}
   .subhead h3{font-size:13px;color:var(--navy)}
   .sec-head{font-size:12px}
 
-  /* Punto azul dentro del campo vacío */
+  /* Punto amarillo dentro del campo vacío */
   .f.has-empty{position:relative}
   .f.has-empty > label::after{display:none !important;content:none !important}
   .f.has-empty > input,.f.has-empty > select,.f.has-empty > textarea{
     border-left-width:1px;background-color:var(--input-pending);padding-right:34px;
-    background-image:radial-gradient(circle,#1976D2 0 3.5px,rgba(25,118,210,.16) 4px 7px,transparent 7.5px);
+    background-image:radial-gradient(circle,#F4C430 0 3.5px,rgba(244,196,48,.22) 4px 7px,transparent 7.5px);
     background-repeat:no-repeat;background-size:15px 15px;background-position:calc(100% - 11px) center;
   }
   .f.has-empty > select{background-position:calc(100% - 28px) center}
@@ -2493,6 +2493,17 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 #view-clinical [class$="-pendientes"]>.clinical-label:before{content:"05"}
 .alta-main-controls .alta-control-card > .alta-prev:first-child{margin-top:0 !important;margin-bottom:14px !important;padding-top:0 !important;border-top:0 !important;padding-bottom:13px;border-bottom:1px solid #dbe7ee}
 </style>
+<style id="paja-pathology-color-v264">
+/* BJ/CJ: violeta, tanto en el índice superior como en el lateral. */
+.rel .rel-nav-row[data-paja-row="pathology"] button{--c:#7043A0;--t:#F0E9F8}
+</style>
+<style id="paja-missing-v267">
+.paja-missing{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;margin:9px 0 0;padding:9px 11px;background:#FFF9E7;border:1px solid #EED58D;border-radius:10px}
+.paja-missing[hidden]{display:none!important}
+.paja-missing strong{font-size:12px;color:#765A12;margin-right:3px}
+.rel .paja-missing button{--c:#765A12;--t:#FFF4CE;font-size:12px;padding:5px 10px}
+@media print{.paja-missing{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -2677,7 +2688,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.61 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.67 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -3056,7 +3067,7 @@ FORMATS.consEspecial={title:"Consentimiento especial",pw:8.5,ph:11,k:1,offx:42,W
 <div class="c s" style="left:0pt;top:165pt;width:102pt;height:29pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>PROCEDIMIENTO:</span></div>
 <div class="c w fitdown ed" style="left:102pt;top:165pt;width:426pt;height:29pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="cirugia" data-sync="cirugia"><span></span></div>
 <div class="c s" style="left:0pt;top:197pt;width:139pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>AUTORIZO AL DR (A.):</span></div>
-<div class="c s ed" style="left:139pt;top:197pt;width:389pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>XICOTENCATL JIMENEZ VILLANUEVA MBOC</span></div>
+<div class="c s ed" style="left:139pt;top:197pt;width:389pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="medico" data-sync="medico"><span></span></div>
 <div class="c s" style="left:0pt;top:239pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>RIESGOS QUIRURGICOS</span></div>
 <div class="c s" style="left:0pt;top:254pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- SOLUCIÓN DE CONTINUIDAD DE ÓRGANO VECINO</span></div>
 <div class="c s" style="left:0pt;top:266pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- SOLUCIÓN DE CONTINUIDAD VASCULAR (VENA Y/O ARTERIA)</span></div>
@@ -3081,10 +3092,10 @@ FORMATS.consEspecial={title:"Consentimiento especial",pw:8.5,ph:11,k:1,offx:42,W
 <div class="c s" style="left:0pt;top:640pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>NOMBRE COMPLETO Y FIRMA</span></div>
 <div class="c s" style="left:30pt;top:709pt;width:498pt;height:11pt;font-family:Times New Roman,serif;font-size:7pt;line-height:1.12;font-weight:400;align-items:center;text-align:left;padding:0"><span>AV. INSTITUTO POLITÉCNICO NACIONAL No. 5160   COL. MAGDALENA DE LAS SALINAS   C.P. 07760</span></div>
 <div class="c s" style="left:30pt;top:720pt;width:498pt;height:11pt;font-family:Times New Roman,serif;font-size:7pt;line-height:1.12;font-weight:400;align-items:center;text-align:left;padding:0"><span>DELEGACIÓN GUSTAVO A. MADERO   MEXICO D.F.   TELEFONOS: 5747-7560 EXT. 250 y 5586-4979</span></div>`}],c:{},f:{
- nombreCompleto:D=>D('nombreCompleto'),fnac:D=>D('fnac'),fecha:D=>D('fecha'),genero:D=>D('genero'),edad:D=>D('edad')?D('edad')+' AÑOS':'',expediente:D=>D('expediente'),diagnostico:D=>D('diagnostico'),cirugia:D=>D('cirugia')
+ nombreCompleto:D=>D('nombreCompleto'),fnac:D=>D('fnac'),fecha:D=>D('fecha'),genero:D=>D('genero'),edad:D=>D('edad')?D('edad')+' AÑOS':'',expediente:D=>D('expediente'),diagnostico:D=>D('diagnostico'),cirugia:D=>D('cirugia'),medico:D=>D('medico')
 }};
 const CAPTURE_FIELDS={
- consEspecial:['fecha','diagnostico','cirugia'],
+ consEspecial:['fecha','diagnostico','cirugia','medico'],
  interconsulta:['@icServicio','@icMotivo'],
  repCx:['fPlan','@repSurgeons','@repAnesthetist','@repInstrument','@repCirculating','@repRoom','@repDuration','@repInRoom','@repAnestStart','@repSurgeryStart','@repSurgeryEnd','@repAnestEnd','@repOutRoom','diagnostico','@repBleeding','cirugia','@repFindings','@repTechnique'],
  rx:['fecha','@study','diagnostico'],labsUrg:['fecha','diagnostico'],folio:['fecha','diagnostico'],folioB:['fecha','diagnostico'],medNuc:['fecha','diagnostico'],antibiotico:['fecha','diagnostico','resumen'],
@@ -3220,6 +3231,33 @@ function prepareRequestedText204(key,root){
 }
 
 /* 2.05 · Firmas homogéneas y faltantes de Solicitud de Cirugía. */
+/* v2.67 · Pendientes por sección, con enlace a la Hoja de Datos. */
+function pajaMissingSections(){
+  return [['cirugia','Cirugía'],['resumen','Resumen'],['fIngreso','Ingreso/HC']].map(([id,label])=>{
+    const fieldset=$(id)?.closest('fieldset');
+    const empty=fieldset?[...fieldset.querySelectorAll('input,select,textarea')].filter(el=>!el.closest('.is-off')&&!['button','hidden'].includes(el.type)&&!String(el.value||'').trim()):[];
+    return {id,label,fieldset,empty};
+  }).filter(section=>section.empty.length);
+}
+function updatePajaMissing(){
+  const rows=document.querySelector('#captureMiniNav .paja-nav-rows,#relNav .paja-nav-rows');
+  let panel=$('pajaMissing');
+  if(!rows){panel?.remove();return;}
+  if(!panel){panel=document.createElement('div');panel.id='pajaMissing';panel.className='paja-missing';panel.setAttribute('aria-label','Apartados con datos faltantes');}
+  if(rows.nextElementSibling!==panel)rows.after(panel);
+  const sections=pajaMissingSections();panel.hidden=!sections.length;
+  panel.innerHTML=sections.length?'<strong>Faltan Datos:</strong>'+sections.map(section=>'<button type="button" data-paja-missing="'+section.id+'">'+section.label+'</button>').join(''):'';
+}
+document.addEventListener('click',e=>{
+  const button=e.target.closest?.('[data-paja-missing]');if(!button)return;
+  const section=pajaMissingSections().find(item=>item.id===button.dataset.pajaMissing);if(!section)return;
+  back();
+  requestAnimationFrame(()=>{
+    const index=secFieldsets().indexOf(section.fieldset),link=$('secNav')?.querySelector('[data-sec="'+index+'"]');
+    if(link)link.click();else section.fieldset.scrollIntoView({block:'start',behavior:'smooth'});
+    section.empty[0]?.focus({preventScroll:true});
+  });
+});
 function updateTransfusionMissingChips(key){
  let panel=$('transfusionMissingChips');if(!panel){panel=document.createElement('div');panel.id='transfusionMissingChips';panel.className='transfusion-missing-chips';panel.setAttribute('aria-label','Datos faltantes de transfusión');$('relNav').before(panel);}
  const missing=key==='transfusion'?transfusionMissing():[];
@@ -3265,6 +3303,7 @@ function transfusionMissing(){return TRANSFUSION_FIELDS.filter(id=>!String($(id)
 function updateFormatNotice(key){
   const note=$("fnote"), panel=$("transfusionMissing"); if(!note||!panel) return;
   updateTransfusionMissingChips(key);
+  updatePajaMissing();
   note.classList.remove("transfusion-warning"); note.textContent=FORMAT_NOTE;
   document.body.classList.toggle("transfusion-side",key==="transfusion");
   panel.hidden=key!=="transfusion";
@@ -3306,11 +3345,11 @@ $("btnG0").onclick=()=>{["gestas","partos","abortos","cesareas"].forEach(id=>$(i
 const INDEX=[
  ["Solicitudes de Gabinete","g-gab",0,[["rx","Rayos X"],["labsUrg","Laboratorios Urgencias"],["folio","Laboratorio Folio A"],["folioB","Laboratorios Folio B"],["contrastados","Consentimiento Estudios Contrastados"],["consInterv","Consentimiento Intervencionismo"],["medNuc","Medicina Nuclear"],["bancoSangre","Laboratorios Banco de Sangre"]]],
  ["Paja","g-paja",0,[["informe","Hoja de Informes"],["hFrontal","Hoja Frontal"],["hCaritas","Hoja Caritas"],["hc","Historia Clínica"],["medicamentos","Hoja de Medicamentos"]]],
- ["Cirugía","g-cx",0,[["solCx","Solicitud de Cirugía"],["consInf","Consentimiento Informado"],["consEspecial","Consentimiento especial"],["marcaje","Marcaje Quirúrgico"],["cxSegura","Cirugía Segura"],["prequx","Nota Prequirúrgica"],["bj","BJ"],["cj","CJ"]]],
- ["Hospitalización","g-hosp",1,[["transfusion","Solicitud de Transfusión"],["consTransf","Consentimiento Transfusión"],["receta","Receta"],["interconsulta","Interconsulta"],["antibiotico","Solicitud de Antibiótico"],["ordenHosp","Orden Hospitalización"],["referencia","Referencia"],["apertura","Hoja de Apertura"],["notaEvol","Nota de Evolución"],["indicaciones","Indicaciones Médicas"],["laminillas","Solicitud de Laminillas"]]],
+ ["Cirugía","g-cx",0,[["solCx","Solicitud de Cirugía"],["consInf","Consentimiento Informado"],["bj","BJ"],["cj","CJ"],["consEspecial","Consentimiento especial"],["marcaje","Marcaje Quirúrgico"],["cxSegura","Cirugía Segura"],["prequx","Nota Prequirúrgica"]]],
+ ["Hospitalización","g-hosp",1,[["interconsulta","Interconsulta"],["receta","Receta"],["transfusion","Solicitud de Transfusión"],["consTransf","Consentimiento Transfusión"],["antibiotico","Solicitud de Antibiótico"],["ordenHosp","Orden Hospitalización"],["referencia","Referencia"],["apertura","Hoja de Apertura"],["notaEvol","Nota de Evolución"],["indicaciones","Indicaciones Médicas"],["laminillas","Solicitud de Laminillas"]]],
  ["Egreso","g-egr",0,[["pase","Pase"],["defuncion","Aviso de Defunción"],["__subtitle__","Indicaciones de alta"],["directDietaSeca","Dieta Seca"],["directDietaGrasa","Dieta Baja Grasa"],["directDrenajes","Hoja de Gastos"],["directCuidDrenaje","Cuidados de Drenaje"],["directCateter","Cuidados de Catéter"],["directMama","Ejercicios Post Mastectomía"]]]
 ];
-const INDEX_FREQUENT=new Set(["rx","labsUrg","folio","transfusion","receta","interconsulta","solCx","bj","cj"]);
+const INDEX_FREQUENT=new Set(["rx","labsUrg","folio","transfusion","receta","interconsulta","solCx","consInf","bj","cj","pase"]);
 const indexFrequentIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.2.9-4.5 4.4 1.1 6.2-5.5-2.9-5.5 2.9 1.1-6.2L3.6 9.5l6.2-.9Z"/></svg>';
 const grp=([g,cls,wide,items])=>`<section class="grp ${cls}"><h3>${g}</h3><div class="list">${items.map(([k,tt])=>
   k==="__subtitle__"?`<div class="index-subtitle">${tt}</div>`:k?`<button type="button" class="fmt ready${INDEX_FREQUENT.has(k)?" fmt-frequent":""}" data-fmt="${k}"${INDEX_FREQUENT.has(k)?` aria-label="${tt}, más usado"`:""}><span class="fmt-name">${tt}</span>${INDEX_FREQUENT.has(k)?`<span class="fmt-frequent-mark" title="Más usado">${indexFrequentIcon}</span>`:""}</button>`:`<button type="button" class="fmt" disabled title="Próximamente">${tt}</button>`).join("")}</div></section>`;
@@ -4598,7 +4637,7 @@ function sectionSwitcherHTML(keys,currentKey){
   }).join("");
 }
 function syncSectionSwitcher(key){
-  const clinicalKeys=["notas","indicaciones","repCx","alta"],pairs=[["transfusion","consTransf"],["contrastados","consInterv"],["bj","cj"]];
+  const clinicalKeys=["notas","indicaciones","repCx","alta"],pairs=[["transfusion","consTransf"],["contrastados","consInterv"]];
   const clinical=$("clinicalSectionSwitcher");clinical.innerHTML=sectionSwitcherHTML(clinicalKeys,key);
   let format=$("formatSectionSwitcher");
   if(!format){format=document.createElement("nav");format.id="formatSectionSwitcher";format.className="clinical-switcher section-switcher";format.setAttribute("aria-label","Cambiar formato");$("view-format").querySelector(".fbar").after(format);}
@@ -4724,11 +4763,12 @@ function renderRel(key){
   const nav=$("relNav");nav.classList.toggle("alta-composer-nav",key==="alta");
   if(key==="alta"){nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.innerHTML=altaControlsHTML();syncAltaMobileControls();arrangePresetControls(key);return;}
   appendLastRequestCard(key);
-  if(["consInf","consEspecial"].includes(key)&&nav.querySelector('.paja-nav-rows')){
+  if(["consInf","consEspecial","bj","cj"].includes(key)&&nav.querySelector('.paja-nav-rows')){
     const mini=document.createElement('nav');mini.id='captureMiniNav';mini.className='rel capture-mini-nav';mini.setAttribute('aria-label','Índice de Paja');
     const rows=nav.querySelector('.paja-nav-rows'),label=rows.previousElementSibling;if(label?.classList.contains('lbl'))mini.appendChild(label);mini.appendChild(rows);nav.before(mini);
     mini.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b&&b.dataset.go!==current)openFormat(b.dataset.go);});document.body.classList.add('capture-mini-side');
   }
+  updatePajaMissing();
   if(CAPTURE_FIELDS[key]&&key!=="transfusion"){nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.insertAdjacentHTML("afterbegin",capturePanelHTML(key));}
   if(key==="consInf"||key==="solCx")nav.insertAdjacentHTML("afterbegin",surgeryRelatedButtonHTML(key));
   if(key==="rx"){ nav.insertAdjacentHTML("beforeend",'<div class="rcsec rcbox" data-tipo="rx"></div>'); renderRecent("rx"); }
