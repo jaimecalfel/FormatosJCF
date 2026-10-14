@@ -2677,7 +2677,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.56 · Fecha de publicación: 13.10.26</div>
+  <div class="app-footer-version">Versión 2.57 · Fecha de publicación: 13.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -5429,7 +5429,9 @@ function mergeHist(lh,rh,del){
   lh=lh||{};rh=rh||{};const out={};
   for(const t of new Set([...Object.keys(rh),...Object.keys(lh)])){
     const m=new Map();
-    for(const r of [...(rh[t]||[]),...(lh[t]||[])]){ if(!r||!r.id||del[r.id])continue; const o=m.get(r.id); if(!o||(r.ts||0)>=(o.ts||0))m.set(r.id,r); }
+    /* v2.57 · un ts en el futuro (registro guardado con la fecha clínica de mañana) no puede ganarle a una edición hecha hoy */
+    const lim=Date.now()+300000, tsOf=x=>{ const v=Number(x&&x.ts)||0; return v>lim?1:v; };   // ts en el futuro = registro externo viejo: pierde ante cualquier edición
+    for(const r of [...(rh[t]||[]),...(lh[t]||[])]){ if(!r||!r.id||del[r.id])continue; const o=m.get(r.id); if(!o||tsOf(r)>=tsOf(o))m.set(r.id,r); }
     const arr=[...m.values()].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,histCap(t)); if(arr.length)out[t]=arr;
   }
   return out;
@@ -5577,6 +5579,7 @@ async function integrarPendientes(id,obj){
         if(!r0||!r0.p) continue;
         if(ya.has(clave(r0))) continue;                               // ya estaba (p. ej. integrada antes): no se duplica
         const r=JSON.parse(JSON.stringify(r0));
+        if(!(Number(r.ts)<=Date.now())) r.ts=Date.now();             // v2.57 · ts = momento de guardado, nunca en el futuro
         if(!r.id||ids.has(r.id)){ const ts=Number(r.ts)||Date.now(); do{ r.id="h"+ts.toString(36)+Math.random().toString(36).slice(2,5); }while(ids.has(r.id)); }
         ids.add(r.id); ya.add(clave(r)); lista.push(r); n++;
       }
