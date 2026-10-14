@@ -2677,7 +2677,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.57 · Fecha de publicación: 13.10.26</div>
+  <div class="app-footer-version">Versión 2.58 · Fecha de publicación: 13.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -2894,10 +2894,10 @@ function extraLastRequestsFrom(value){const out=emptyExtraLastRequests();if(valu
 const DEFAULTS = ()=>({fecha:todayStr(),indicacion:"PROTOCOLO PREOPERATORIO",servicio:"ONCOLOGIA",alergias:"NEGADAS",riesgos:RIESGOS_DEF,folioUltimaSolicitud:"",folioUltimaResidente:"",labsUrgUltimaSolicitud:"",labsUrgUltimaResidente:"",ultimasSolicitudes:emptyExtraLastRequests()});
 
 /* v47 · Botones homogéneos de los historiales: Ver (ojo), Imprimir (impresora) y Borrar (basura) */
-const RB_IC={view:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+const RB_IC={edit:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="m13.5 6.5 4 4"/></svg>',view:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
   print:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>',
   del:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>'};
-function rbBtn(kind,label,attrs){if(kind==="view")label=/^Ver [12]$/.test(label)?label:"Ver";else if(kind==="print")label="Imprimir";const cls={view:"rb rb-view",print:"rb rb-print",del:"rb rb-del del"}[kind];return `<button type="button" class="${cls}" ${attrs}>${RB_IC[kind]}<span class="rb-l">${label}</span></button>`;}
+function rbBtn(kind,label,attrs){if(kind==="view")label=/^Ver [12]$/.test(label)?label:"Ver";else if(kind==="edit")label="Editar";else if(kind==="print")label="Imprimir";const cls={view:"rb rb-view",edit:"rb rb-view rb-edit",print:"rb rb-print",del:"rb rb-del del"}[kind];return `<button type="button" class="${cls}" ${attrs}>${RB_IC[kind]}<span class="rb-l">${label}</span></button>`;}
 function rbArm(b){if(b.classList.contains("arm"))return true;const l=b.querySelector(".rb-l");b.classList.add("arm");if(l)l.textContent="¿Borrar?";setTimeout(()=>{if(b.isConnected){b.classList.remove("arm");if(l)l.textContent="Borrar";}},3000);return false;}
 let LOADED_EXP="", NOTIFIED_EXP="", PP_AUTO=false, PP_MANUAL=false, _expT=0, FOLIO_LAST="", FOLIO_LAST_BY="", LABSURG_LAST="", LABSURG_LAST_BY="", EXTRA_LAST_REQUESTS=emptyExtraLastRequests();
 const form = document.getElementById("datos");
@@ -4061,7 +4061,7 @@ function altaHalfHTML(fmt){return `<span class="lbl">Hoja completa</span><div cl
 function altaToggleHTML(fmt,label,help,extra=""){const on=!!ALTA_COMPOSE[fmt];return `<button type="button" class="alta-check ${extra}" role="checkbox" aria-checked="${on}" data-alta-toggle="${fmt}"><span class="alta-box">${on?"✓":""}</span><span>${esc(label)}<small>${esc(help)}</small></span></button>`;}
 function altaSuppToggleHTML(key,label,ready=true){const on=!!ALTA_COMPOSE[key];return `<button type="button" class="alta-check" role="checkbox" aria-checked="${on}" data-alta-supp="${key}" ${ready?"":"disabled"}><span class="alta-box">${on?"✓":""}</span><span>${esc(label)}${ready?"":'<small class="soon">Formato pendiente</small>'}</span></button>`;}
 function altaDatesHTML(){return `<div class="alta-dates"><label class="alta-date-field">Fecha de Ingreso<input data-alta-date="ingreso" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(ALTA_DATES.ingreso||"")}"></label><label class="alta-date-field">Fecha de Egreso<input data-alta-date="egreso" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(ALTA_DATES.egreso||"")}"></label></div>`;}
-function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">'+savedChangeLabel(r)+': '+esc(savedBy(r))+'</small></td><td>'+rbBtn("view","Ver",'data-alta-load="'+esc(r.id)+'"')+rbBtn("print","Imprimir",'data-alta-print="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
+function altaRecentsHTML(){const a=HIST.altas||[];return '<div class="alta-prev"><h3>Altas previas</h3><small>Se conserva la captura completa; aquí se muestra únicamente la fecha.</small>'+(a.length?'<table><thead><tr><th>Fecha del alta</th><th>Acciones</th></tr></thead><tbody>'+a.map(r=>'<tr><td>'+esc((r.p&&r.p.fecha)||r.t||'')+'<small class="alta-saved-by">'+savedChangeLabel(r)+': '+esc(savedBy(r))+'</small></td><td>'+rbBtn("edit","Editar",'data-alta-load="'+esc(r.id)+'"')+rbBtn("print","Imprimir",'data-alta-print="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table>':'<div class="alta-prev-empty">Todavía no hay altas guardadas para este paciente.</div>')+'</div>';}
 function applyAltaDates(){const root=BUILT.alta;if(!root)return;[['D11','ingreso'],['G11','egreso']].forEach(([ref,key])=>{const cell=root.querySelector(':scope > .paper:not(.alta-attach) [data-x="'+ref+'"]'),sp=cell&&cell.firstElementChild;if(!sp)return;const v=ALTA_DATES[key]||'';sp.textContent=v;cell.toggleAttribute('data-ov',!!v);});}
 function syncAltaDateControls(){document.querySelectorAll('[data-alta-date]').forEach(i=>{const v=ALTA_DATES[i.dataset.altaDate]||'';if(i.value!==v)i.value=v;});}
 /* v2.11 · Captura del alta; la plantilla y sus copias impresas se conservan. */
@@ -6091,7 +6091,7 @@ function renderClinicalRecents(tp){
   $("clinicalRecentTitle").textContent=tp==="notas"?"Últimas notas":"Últimas indicaciones";
   const list=arCollect([tp]); // Fecha y hora del documento, de más nueva a más antigua.
   $("clinicalRecentList").innerHTML=list.length?`<table class="clinical-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${list.map(e=>{const r=e.r,own=e.tp===tp;
-    const acts=own?`${rbBtn("view","Ver",`data-cl-edit="${esc(r.id)}"`)}${rbBtn("print","Imprimir",`data-cl-print="${esc(r.id)}"`)}`:arActions(e);
+    const acts=own?`${rbBtn("edit","Editar",`data-cl-edit="${esc(r.id)}"`)}${rbBtn("print","Imprimir",`data-cl-print="${esc(r.id)}"`)}`:arActions(e);
     return `<tr data-src="${esc(e.tp)}"><td><strong>${esc(e.fecha||"")}</strong><small>${esc(e.hora||"")}</small></td><td>${esc(own?((r.p&&r.p.tipo)||(tp==="notas"?"Nota":"Indicaciones")):e.tipo)}${!own&&e.detail?`<small class="clinical-detail">${esc(e.detail)}</small>`:""}<small class="clinical-saved-by">${savedChangeLabel(r)}: ${esc(savedBy(r))}</small></td><td>${acts}</td></tr>`;}).join("")}</tbody></table>`:`<div class="clinical-empty">Todavía no hay registros para este paciente.</div>`;
 }
 function openClinical(tp){
@@ -6205,7 +6205,8 @@ function arEntry(tp,r){
   return {tp,r,fecha,hora,tipo,detail,ms:arDateMs(fecha,hora,r.ts)};
 }
 function arCollect(src){return src.flatMap(tp=>(HIST[tp]||[]).map(r=>arEntry(tp,r))).sort((a,b)=>(b.ms-a.ms)||((b.r.ts||0)-(a.r.ts||0)));}
-function arActions(e,allowDelete=false){const a=`data-ar-tp="${esc(e.tp)}" data-ar-id="${esc(e.r.id)}"`;return rbBtn("view","Ver",a+' data-ar="view"')+rbBtn("print","Imprimir",a+' data-ar="print"')+(allowDelete?rbBtn("del","Borrar",a+' data-ar="del"'):"");}
+const AR_EDIT=new Set(["notas","indicaciones","prequx","altas","solCx","repCx"]);   // v2.58 · Editar en notas, indicaciones, procedimientos y altas
+function arActions(e,allowDelete=false){const a=`data-ar-tp="${esc(e.tp)}" data-ar-id="${esc(e.r.id)}"`;return (AR_EDIT.has(e.tp)?rbBtn("edit","Editar",a+' data-ar="view"'):rbBtn("view","Ver",a+' data-ar="view"'))+rbBtn("print","Imprimir",a+' data-ar="print"')+(allowDelete?rbBtn("del","Borrar",a+' data-ar="del"'):"");}
 const ARCHIVE_UI={patient:"",query:"",group:"all",sort:"desc",limits:{}};
 const AR_ICON_PATHS={all:'<path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 10h18"/>',notas:'<path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h7"/>',indicaciones:'<rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m8 11 1 1 2-2M13 11h3m-8 6 1 1 2-2M13 17h3"/>',solCx:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v5m-2.5-2.5h5"/>',repCx:'<path d="m3.5 18.5 9-9 2 2-9 9a1.4 1.4 0 0 1-2-2Z"/><path d="m13.5 8.5 7-6c.5 3-1.5 6-5 8l-2-2Z"/><path d="m12.5 9.5 1-1m0 2 1-1M7 16l2-2"/>',other:'<path d="M4 4h12v16H4zM8 8h5m-5 4h5m-5 4h3M16 7h4v15H8"/>'};
 function arIcon(key){return `<svg viewBox="0 0 24 24" aria-hidden="true">${AR_ICON_PATHS[key]||AR_ICON_PATHS.other}</svg>`;}
@@ -6421,13 +6422,13 @@ function savedRoleLabel(r){
   const name=savedBy(r);return name==="Sin identificar"?"Usuario":authorRoleForName(name)==="adscrito"?"Adscrito":"Residente";
 }
 function savedChangeLabel(r){return "Elaboró";}
-function reportRecentsTableHTML(newId){return '<div class="rc-head"><h2>Reportes Previos</h2></div>'+((HIST.repCx||[]).length?'<table class="report-recents-table"><thead><tr><th>Cirugía</th><th>Elaboró</th><th>Último cambio</th><th>Acciones</th></tr></thead><tbody>'+HIST.repCx.map(r=>'<tr class="rc-item'+(r.id===newId?' new':'')+'" data-id="'+esc(r.id)+'"><td>'+esc(r.t)+'</td><td>'+esc(savedBy(r))+'</td><td>'+esc(relTime(r.ts))+'</td><td><div class="rc-act">'+rbBtn('view','Ver','data-ra="use" data-n="0"')+rbBtn('print','Imprimir','data-ra="print" data-n="0"')+'</div></td></tr>').join('')+'</tbody></table>':'<div class="rc-empty">Todavía no hay reportes guardados para este paciente.</div>');}
+function reportRecentsTableHTML(newId){return '<div class="rc-head"><h2>Reportes Previos</h2></div>'+((HIST.repCx||[]).length?'<table class="report-recents-table"><thead><tr><th>Cirugía</th><th>Elaboró</th><th>Último cambio</th><th>Acciones</th></tr></thead><tbody>'+HIST.repCx.map(r=>'<tr class="rc-item'+(r.id===newId?' new':'')+'" data-id="'+esc(r.id)+'"><td>'+esc(r.t)+'</td><td>'+esc(savedBy(r))+'</td><td>'+esc(relTime(r.ts))+'</td><td><div class="rc-act">'+rbBtn('edit','Editar','data-ra="use" data-n="0"')+rbBtn('print','Imprimir','data-ra="print" data-n="0"')+'</div></td></tr>').join('')+'</tbody></table>':'<div class="rc-empty">Todavía no hay reportes guardados para este paciente.</div>');}
 function recentsHTML(tp,newId,owner=current){
   if(tp==='repCx')return reportRecentsTableHTML(newId);
   const C=RECENT_CFG[tp], R={list:HIST[tp]}, two=tp==="receta"&&recFields(owner).length>1;
   const trash='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
   return `<div class="rc-head"><h2>${C.title}</h2><small>Historial de este paciente · se guarda en su archivo</small></div><div class="rc-list">`
-   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedChangeLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?rbBtn("view","Ver 1",'data-ra="use" data-n="0"')+rbBtn("view","Ver 2",'data-ra="use" data-n="1"'):rbBtn("view","Ver",'data-ra="use" data-n="0"')}${rbBtn("print","Imprimir",'data-ra="print" data-n="0"')}</div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
+   +(R.list.length?R.list.map(r=>{ const s=C.show(r.t); return `<div class="rc-item${r.id===newId?" new":""}" data-id="${esc(r.id)}">${s.head?`<div class="rc-hd">${esc(s.head)}</div>`:""}<div class="rc-txt">${esc(s.body)}</div><div class="rc-meta">${relTime(r.ts)}<span class="recent-resident">${savedChangeLabel(r)}: ${esc(savedBy(r))}</span></div><div class="rc-act">${two?rbBtn("view","Ver 1",'data-ra="use" data-n="0"')+rbBtn("view","Ver 2",'data-ra="use" data-n="1"'):(["solCx","prequx","consInf"].includes(tp)?rbBtn("edit","Editar",'data-ra="use" data-n="0"'):rbBtn("view","Ver",'data-ra="use" data-n="0"'))}${rbBtn("print","Imprimir",'data-ra="print" data-n="0"')}</div></div>`; }).join(""):`<div class="rc-empty">${C.empty}<br>Se guardan al presionar <b>Guardar</b> o <b>Imprimir</b>.</div>`)
    +'</div>';
 }
 function surgeryRelatedButtonHTML(key){
