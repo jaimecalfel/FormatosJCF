@@ -2497,12 +2497,12 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 /* BJ/CJ: violeta, tanto en el índice superior como en el lateral. */
 .rel .rel-nav-row[data-paja-row="pathology"] button{--c:#7043A0;--t:#F0E9F8}
 </style>
-<style id="paja-missing-v267">
-.paja-missing{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;margin:9px 0 0;padding:9px 11px;background:#FFF9E7;border:1px solid #EED58D;border-radius:10px}
-.paja-missing[hidden]{display:none!important}
-.paja-missing strong{font-size:12px;color:#765A12;margin-right:3px}
-.rel .paja-missing button{--c:#765A12;--t:#FFF4CE;font-size:12px;padding:5px 10px}
-@media print{.paja-missing{display:none!important}}
+<style id="paja-missing-v268">
+@media screen{
+#view-format .stage.paja-with-notice{flex-direction:column;align-items:center;justify-content:flex-start}
+#pajaMissing{flex:none;align-self:stretch;box-sizing:border-box;margin:0 0 12px;padding:0;background:none;border:0;border-radius:0;grid-area:auto}
+}
+@media print{#pajaMissing{display:none!important}}
 </style>
 </head>
 <body>
@@ -2688,7 +2688,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.67 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.68 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -2960,6 +2960,8 @@ const HJM_STAFF=Object.freeze({
     "BLANCA MACIAS R6GO",
     "ESTEFANIA TASCON R6GO",
     "EDGAR PADILLA R7GO",
+    "ELIZABETH ESCALANTE R7GO",
+    "ZABDIEL SANCHEZ R6GO",
     "JONATHAN MORENO R5OM",
     "CLAUDIA ALMENDAREZ R6CO",
     "DIEGO CARVAJAL R6CO",
@@ -3242,11 +3244,12 @@ function pajaMissingSections(){
 function updatePajaMissing(){
   const rows=document.querySelector('#captureMiniNav .paja-nav-rows,#relNav .paja-nav-rows');
   let panel=$('pajaMissing');
-  if(!rows){panel?.remove();return;}
-  if(!panel){panel=document.createElement('div');panel.id='pajaMissing';panel.className='paja-missing';panel.setAttribute('aria-label','Apartados con datos faltantes');}
-  if(rows.nextElementSibling!==panel)rows.after(panel);
-  const sections=pajaMissingSections();panel.hidden=!sections.length;
-  panel.innerHTML=sections.length?'<strong>Faltan Datos:</strong>'+sections.map(section=>'<button type="button" data-paja-missing="'+section.id+'">'+section.label+'</button>').join(''):'';
+  const stage=$('holder').parentElement;
+  if(!rows){panel?.remove();stage.classList.remove('paja-with-notice');return;}
+  if(!panel){panel=document.createElement('div');panel.id='pajaMissing';panel.className='transfusion-missing-chips';panel.setAttribute('aria-label','Apartados con datos faltantes');}
+  if($('holder').previousElementSibling!==panel)$('holder').before(panel);
+  const sections=pajaMissingSections();panel.hidden=!sections.length;stage.classList.toggle('paja-with-notice',!!sections.length);
+  panel.innerHTML=sections.length?'<span class="transfusion-missing-label">Faltan Datos:</span>'+sections.map(section=>'<button type="button" data-paja-missing="'+section.id+'">'+section.label+'</button>').join(''):'';
 }
 document.addEventListener('click',e=>{
   const button=e.target.closest?.('[data-paja-missing]');if(!button)return;
@@ -4084,11 +4087,26 @@ function buildRxCatalogPage(){
 /* ---------- Nota de Alta con Receta y Pase opcionales ---------- */
 const altaComposeDefaults=()=>({receta:false,pase:false,recetaMode:"solo",paseMode:"solo",drenaje:false,cuidDrenaje:false,cateter:false,mama:false,dietaGrasa:false,dietaSeca:false});
 let ALTA_DATES={ingreso:"",egreso:""};
-const orderDatesDefaults=()=>({elaboracion:($("fecha")&&$("fecha").value)||todayStr(),internamiento:"",quirofano:""});
+const orderDatesDefaults=()=>({elaboracion:($("fecha")&&$("fecha").value)||todayStr(),internamiento:"",quirofano:"",motivo:""});
 let ORDER_DATES=orderDatesDefaults();
-function restoreOrderDates(){const a=SAVED_FMT.ordenHosp||{};ORDER_DATES={elaboracion:a.__fechaElaboracion!==undefined?a.__fechaElaboracion:(($("fecha")&&$("fecha").value)||todayStr()),internamiento:a.__fechaInternamiento||"",quirofano:a.__fechaQuirofano||""};}
-function applyOrderDates(){const root=BUILT.ordenHosp;if(!root)return;[["L10","elaboracion"],["AB10","internamiento"],["AR10","quirofano"]].forEach(([ref,key])=>{const cell=root.querySelector('[data-x="'+ref+'"]'),sp=cell&&cell.firstElementChild;if(!sp)return;const v=ORDER_DATES[key]||"";sp.textContent=v;cell.toggleAttribute("data-ov",!!v);});}
-function orderDatesHTML(){return '<div class="order-date-panel"><h2>Datos de hospitalización</h2><p>Formato DD.MM.AA</p>'+[["elaboracion","Fecha de Elaboración"],["internamiento","Fecha de Internamiento"],["quirofano","Fecha de Prog. Quirófano"]].map(x=>'<label>'+x[1]+'<input data-order-date="'+x[0]+'" data-date inputmode="numeric" placeholder="DD.MM.AA" value="'+esc(ORDER_DATES[x[0]]||'')+'"></label>').join('')+'<label><span class="capture-label">Diagnóstico<span class="cnt"></span></span><textarea id="orderDiagnosis" data-order-diagnosis rows="4">'+esc($("diagnostico").value||'')+'</textarea></label></div>';}
+function restoreOrderDates(){const a=SAVED_FMT.ordenHosp||{};ORDER_DATES={elaboracion:a.__fechaElaboracion!==undefined?a.__fechaElaboracion:(($("fecha")&&$("fecha").value)||todayStr()),internamiento:a.__fechaInternamiento||"",quirofano:a.__fechaQuirofano||"",motivo:a.__motivoHospitalizacion||""};}
+function applyOrderDates(){const root=BUILT.ordenHosp;if(!root)return;applyOrderReason(root);[["L10","elaboracion"],["AB10","internamiento"],["AR10","quirofano"]].forEach(([ref,key])=>{const cell=root.querySelector('[data-x="'+ref+'"]'),sp=cell&&cell.firstElementChild;if(!sp)return;const v=ORDER_DATES[key]||"";sp.textContent=v;cell.toggleAttribute("data-ov",!!v);});}
+/* v2.68 · Motivo opcional, texto libre en el espacio sobre el título original. */
+function applyOrderReason(root){
+  let el=root.querySelector('.order-reason-print');const text=String(ORDER_DATES.motivo||'').trim();
+  if(!text){el?.remove();return;}
+  if(!el){el=document.createElement('div');el.className='order-reason-print';
+    el.style.cssText='position:absolute;left:21pt;top:42pt;width:493.5pt;height:23pt;font-family:Arial,sans-serif;font-size:10pt;line-height:1.1;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;color:#000;background:none;border:0;padding:0;margin:0';
+    root.querySelector('.sheet').appendChild(el);
+  }
+  el.textContent=text;let size=10;el.style.fontSize=size+'pt';
+  while(el.clientHeight>0&&(el.scrollHeight>el.clientHeight+.5||el.scrollWidth>el.clientWidth+.5)&&size>5){size-=.25;el.style.fontSize=size+'pt';}
+}
+document.addEventListener('input',e=>{
+  if(!e.target.matches?.('[data-order-reason]'))return;
+  ORDER_DATES.motivo=e.target.value;markDirty();if(BUILT.ordenHosp)applyOrderReason(BUILT.ordenHosp);
+});
+function orderDatesHTML(){return '<div class="order-date-panel"><h2>Datos de hospitalización</h2><p>Formato DD.MM.AA</p>'+[["elaboracion","Fecha de Elaboración"],["internamiento","Fecha de Internamiento"],["quirofano","Fecha de Prog. Quirófano"]].map(x=>'<label>'+x[1]+'<input data-order-date="'+x[0]+'" data-date inputmode="numeric" placeholder="DD.MM.AA" value="'+esc(ORDER_DATES[x[0]]||'')+'"></label>').join('')+'<label><span class="capture-label">Diagnóstico<span class="cnt"></span></span><textarea id="orderDiagnosis" data-order-diagnosis rows="4">'+esc($("diagnostico").value||'')+'</textarea></label><label>Motivo de Hospitalización<textarea id="orderReason" data-order-reason rows="3">'+esc(ORDER_DATES.motivo||'')+'</textarea></label></div>';}
 const altaDefaultDates=()=>({ingreso:($("fIngreso")&&$("fIngreso").value)||"",egreso:($("fecha")&&$("fecha").value)||todayStr()});
 let ALTA_COMPOSE=altaComposeDefaults();
 const ALTA_AUTO={receta:false,pase:false};
@@ -5024,7 +5042,7 @@ function collect(){
       else if(sp.innerHTML!==sp.dataset.o||sp.classList.contains("on")!==!!sp.dataset.defon) m[sp.dataset.i]={h:sp.innerHTML,on:sp.classList.contains("on")};
     });
     if(HALF[k]){ m.__half=HALF[k]; m.__auto=!!HALF_AUTO[k]; }
-    if(k==="ordenHosp"){m.__fechaElaboracion=ORDER_DATES.elaboracion||"";m.__fechaInternamiento=ORDER_DATES.internamiento||"";m.__fechaQuirofano=ORDER_DATES.quirofano||"";}
+    if(k==="ordenHosp"){m.__fechaElaboracion=ORDER_DATES.elaboracion||"";m.__fechaInternamiento=ORDER_DATES.internamiento||"";m.__fechaQuirofano=ORDER_DATES.quirofano||"";m.__motivoHospitalizacion=ORDER_DATES.motivo||"";}
     if(k==="alta"){m.__addReceta=!!ALTA_COMPOSE.receta;m.__addPase=!!ALTA_COMPOSE.pase;m.__recetaMode=altaMode("receta");m.__paseMode=altaMode("pase");m.__suppDrenaje=!!ALTA_COMPOSE.drenaje;m.__suppCuidDrenaje=!!ALTA_COMPOSE.cuidDrenaje;m.__suppCateter=!!ALTA_COMPOSE.cateter;m.__suppMama=!!ALTA_COMPOSE.mama;m.__suppDietaGrasa=!!ALTA_COMPOSE.dietaGrasa;m.__suppDietaSeca=!!ALTA_COMPOSE.dietaSeca;m.__fechaIngreso=ALTA_DATES.ingreso||"";m.__fechaEgreso=ALTA_DATES.egreso||"";m.__altaCapture=readAltaCapture();}
     if(Object.keys(m).length) fmt[k]=m;
   }
@@ -6794,6 +6812,7 @@ $("residentGateForm").addEventListener("keydown",e=>{
 /* v100 · Controles de Orden vinculados a las celdas y al diagnóstico central. */
 function clearOrderDiagnosisOverrides(){BUILT.ordenHosp?.querySelectorAll('[data-sync="diagnostico"]').forEach(cell=>cell.removeAttribute("data-ov"));}
 function syncOrderControls(){
+ const reason=$('orderReason');if(reason&&reason.value!==(ORDER_DATES.motivo||''))reason.value=ORDER_DATES.motivo||'';
  document.querySelectorAll("[data-order-date]").forEach(el=>{const value=ORDER_DATES[el.dataset.orderDate]||"";if(el.value!==value)el.value=value;});
  const diagnosis=$("orderDiagnosis"),value=$("diagnostico").value;if(diagnosis&&diagnosis.value!==value)diagnosis.value=value;
  BUILT.ordenHosp?.querySelectorAll('[data-sync="diagnostico"] > span').forEach(sp=>{if(sp.textContent!==value){if(value.includes("\n"))sp.innerText=value;else sp.textContent=value;}});
