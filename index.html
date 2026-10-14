@@ -2370,7 +2370,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 /* Form fields remain in their original cells; compensate for the native Alta sheet scale. */
 [data-alta-print-role], [data-alta-print-role]>span{font-family:Arial,sans-serif!important;font-size:var(--alta-body-font)!important;line-height:1.12!important}
 [data-alta-print-role="content"], [data-alta-print-role="content"]>span{text-align:justify!important}
-[data-alta-print-role="content"][data-alta-fit],[data-alta-print-role="content"][data-alta-fit]>span{font-size:var(--alta-fit-font,var(--alta-body-font))!important}
+[data-alta-print-role][data-alta-fit],[data-alta-print-role][data-alta-fit]>span{font-size:var(--alta-fit-font,var(--alta-body-font))!important}
 [data-alta-print-role="date"], [data-alta-print-role="date"]>span{font-size:var(--alta-date-font)!important;font-weight:700!important;line-height:1.1!important}
 [data-alta-print-role="date"],[data-alta-print-role="signature"]{padding-top:0!important;padding-bottom:0!important}
 [data-alta-print-role="signature"], [data-alta-print-role="signature"]>span{text-align:right!important;justify-content:flex-end!important}
@@ -2677,7 +2677,7 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.58 · Fecha de publicación: 13.10.26</div>
+  <div class="app-footer-version">Versión 2.61 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -3031,7 +3031,60 @@ function lookup(d,key){
 }
 
 /* v102 · Captura lateral vinculada al formato y a la Hoja de Datos. */
+/* v2.61 · Consentimiento especial: plantilla del documento de referencia. */
+FORMATS.consEspecial={title:"Consentimiento especial",pw:8.5,ph:11,k:1,offx:42,W:528,
+ pages:[{offy:26,H:740,html:`<img src="${LOGOS.salud}" alt="Secretaría de Salud" style="position:absolute;left:-5pt;top:7pt;width:121pt;height:42pt;object-fit:contain">
+<img src="${LOGOS.hjm}" alt="Hospital Juárez de México" style="position:absolute;right:0;top:0;width:58pt;height:58pt;object-fit:contain">
+<div class="c s" style="left:128pt;top:5pt;width:337pt;height:25pt;font-family:Times New Roman,serif;font-size:18pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>HOSPITAL JUÁREZ DE MÉXICO</span></div>
+<div class="c s" style="left:190pt;top:31pt;width:260pt;height:20pt;font-family:Times New Roman,serif;font-size:13pt;line-height:1.12;font-weight:400;align-items:center;text-align:left;padding:0"><span>SERVICIO DE ONCOLOGÍA</span></div>
+<div class="c s" style="left:0pt;top:84pt;width:48pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>NOMBRE:</span></div>
+<div class="c s ed" style="left:48pt;top:84pt;width:263pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="nombreCompleto" data-sync="nombreCompleto"><span></span></div>
+<div class="c s" style="left:317pt;top:84pt;width:123pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>FECHA DE NACIMIENTO:</span></div>
+<div class="c s ed" style="left:440pt;top:84pt;width:88pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="fnac" data-sync="fnac"><span></span></div>
+<div class="c s" style="left:0pt;top:100pt;width:38pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>FECHA:</span></div>
+<div class="c s ed" style="left:38pt;top:100pt;width:65pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="fecha" data-sync="fecha"><span></span></div>
+<div class="c s" style="left:107pt;top:100pt;width:48pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>GÉNERO:</span></div>
+<div class="c s ed" style="left:155pt;top:100pt;width:84pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="genero" data-sync="genero"><span></span></div>
+<div class="c s" style="left:245pt;top:100pt;width:35pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>EDAD:</span></div>
+<div class="c s ed" style="left:280pt;top:100pt;width:61pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="edad" data-sync="edad"><span></span></div>
+<div class="c s" style="left:355pt;top:100pt;width:78pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>EXPEDIENTE:</span></div>
+<div class="c s ed" style="left:433pt;top:100pt;width:95pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="expediente" data-sync="expediente"><span></span></div>
+<div class="c s" style="left:0pt;top:116pt;width:62pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>SERVICIO:</span></div>
+<div class="c s ed" style="left:62pt;top:116pt;width:466pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>ONCOLOGÍA GINECOLÓGICA</span></div>
+<div class="c s" style="left:0pt;top:134pt;width:84pt;height:29pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>DIAGNÓSTICO:</span></div>
+<div class="c w fitdown ed" style="left:84pt;top:134pt;width:444pt;height:29pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="diagnostico" data-sync="diagnostico"><span></span></div>
+<div class="c s" style="left:0pt;top:165pt;width:102pt;height:29pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>PROCEDIMIENTO:</span></div>
+<div class="c w fitdown ed" style="left:102pt;top:165pt;width:426pt;height:29pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0" data-x="cirugia" data-sync="cirugia"><span></span></div>
+<div class="c s" style="left:0pt;top:197pt;width:139pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>AUTORIZO AL DR (A.):</span></div>
+<div class="c s ed" style="left:139pt;top:197pt;width:389pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>XICOTENCATL JIMENEZ VILLANUEVA MBOC</span></div>
+<div class="c s" style="left:0pt;top:239pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>RIESGOS QUIRURGICOS</span></div>
+<div class="c s" style="left:0pt;top:254pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- SOLUCIÓN DE CONTINUIDAD DE ÓRGANO VECINO</span></div>
+<div class="c s" style="left:0pt;top:266pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- SOLUCIÓN DE CONTINUIDAD VASCULAR (VENA Y/O ARTERIA)</span></div>
+<div class="c s" style="left:0pt;top:278pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- SOLUCIÓN DE CONTINUIDAD DE NERVIOS</span></div>
+<div class="c s" style="left:0pt;top:290pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- HEMORRAGIA</span></div>
+<div class="c s" style="left:0pt;top:302pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- CHOQUE HIPOVOLEMICO</span></div>
+<div class="c s" style="left:0pt;top:314pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- FORMACIÓN DE SEROMAS, HEMATOMAS</span></div>
+<div class="c s" style="left:0pt;top:326pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- INTERVENCIÓN  QUIRÚRGICA</span></div>
+<div class="c s" style="left:0pt;top:338pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- INFECCIÓN</span></div>
+<div class="c s" style="left:0pt;top:350pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- SEPSIS</span></div>
+<div class="c s" style="left:0pt;top:362pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- INFECCIÓN POR SARS COV 2 (COVID 19)</span></div>
+<div class="c s" style="left:0pt;top:374pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- DOLOR CRÓNICO</span></div>
+<div class="c s" style="left:0pt;top:386pt;width:528pt;height:13pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>- MUERTE</span></div>
+<div class="c s" style="left:0pt;top:423pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>AUTORIZO REALIZACIÓN DE PROCEDIMIENTO</span></div>
+<div class="c s" style="left:0pt;top:462pt;width:220pt;height:14pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>___________________________</span></div>
+<div class="c s" style="left:0pt;top:476pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>NOMBRE COMPLETO Y FIRMA DEL PACIENTE</span></div>
+<div class="c s" style="left:0pt;top:512pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>TESTIGO</span></div>
+<div class="c s" style="left:0pt;top:543pt;width:260pt;height:14pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>_____________________________________</span></div>
+<div class="c s" style="left:0pt;top:557pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>NOMBRE COMPLETO Y FIRMA</span></div>
+<div class="c s" style="left:0pt;top:596pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>MÉDICO</span></div>
+<div class="c s" style="left:0pt;top:626pt;width:275pt;height:14pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>_______________________________________</span></div>
+<div class="c s" style="left:0pt;top:640pt;width:528pt;height:15pt;font-family:Times New Roman,serif;font-size:10pt;line-height:1.12;font-weight:700;align-items:center;text-align:left;padding:0"><span>NOMBRE COMPLETO Y FIRMA</span></div>
+<div class="c s" style="left:30pt;top:709pt;width:498pt;height:11pt;font-family:Times New Roman,serif;font-size:7pt;line-height:1.12;font-weight:400;align-items:center;text-align:left;padding:0"><span>AV. INSTITUTO POLITÉCNICO NACIONAL No. 5160   COL. MAGDALENA DE LAS SALINAS   C.P. 07760</span></div>
+<div class="c s" style="left:30pt;top:720pt;width:498pt;height:11pt;font-family:Times New Roman,serif;font-size:7pt;line-height:1.12;font-weight:400;align-items:center;text-align:left;padding:0"><span>DELEGACIÓN GUSTAVO A. MADERO   MEXICO D.F.   TELEFONOS: 5747-7560 EXT. 250 y 5586-4979</span></div>`}],c:{},f:{
+ nombreCompleto:D=>D('nombreCompleto'),fnac:D=>D('fnac'),fecha:D=>D('fecha'),genero:D=>D('genero'),edad:D=>D('edad')?D('edad')+' AÑOS':'',expediente:D=>D('expediente'),diagnostico:D=>D('diagnostico'),cirugia:D=>D('cirugia')
+}};
 const CAPTURE_FIELDS={
+ consEspecial:['fecha','diagnostico','cirugia'],
  interconsulta:['@icServicio','@icMotivo'],
  repCx:['fPlan','@repSurgeons','@repAnesthetist','@repInstrument','@repCirculating','@repRoom','@repDuration','@repInRoom','@repAnestStart','@repSurgeryStart','@repSurgeryEnd','@repAnestEnd','@repOutRoom','diagnostico','@repBleeding','cirugia','@repFindings','@repTechnique'],
  rx:['fecha','@study','diagnostico'],labsUrg:['fecha','diagnostico'],folio:['fecha','diagnostico'],folioB:['fecha','diagnostico'],medNuc:['fecha','diagnostico'],antibiotico:['fecha','diagnostico','resumen'],
@@ -3080,7 +3133,7 @@ function captureFieldHTML(key,field){
  const source=$(field),limit=+(source?.dataset.max||0),value=captureValue(key,field),id='capture-'+key+'-'+field.replace('@','');
  const date=field==='fecha'||field==='fPlan',multi=['diagnostico','cirugia','resumen','indicacion','@study','@bloodRisk','@icMotivo'].includes(field);
  const attrs='id="'+id+'" data-side-field="'+field+'"'+(date?' data-date inputmode="numeric" placeholder="DD.MM.AA"':'')+(field==='medico'?' list="hjm-adscritos" autocomplete="off"':'')+(['peso','hb','hto','plt','tp','inr','tpt'].includes(field)?' inputmode="decimal"':'');
- return '<label for="'+id+'"><span class="capture-label">'+CAPTURE_LABELS[field]+(limit?'<span class="cnt'+(value.length>limit?' over':'')+'" data-side-count>'+ (value.length?value.length+'/'+limit:'máx. '+limit)+'</span>':'')+'</span>'+(multi?'<textarea '+attrs+' rows="'+(field==='resumen'?8:field==='indicacion'||field==='diagnostico'?3:2)+'"'+(field==='resumen'?' class="capture-summary"':'')+'>'+esc(value)+'</textarea>':'<input '+attrs+' value="'+esc(value)+'">')+'</label>';
+ return '<label for="'+id+'"><span class="capture-label">'+(key==='consEspecial'?({fecha:'Fecha',diagnostico:'Diagnóstico',cirugia:'Procedimiento'}[field]||CAPTURE_LABELS[field]):CAPTURE_LABELS[field])+(limit?'<span class="cnt'+(value.length>limit?' over':'')+'" data-side-count>'+ (value.length?value.length+'/'+limit:'máx. '+limit)+'</span>':'')+'</span>'+(multi?'<textarea '+attrs+' rows="'+(field==='resumen'?8:field==='indicacion'||field==='diagnostico'?3:2)+'"'+(field==='resumen'?' class="capture-summary"':'')+'>'+esc(value)+'</textarea>':'<input '+attrs+' value="'+esc(value)+'">')+'</label>';
 }
 function capturePanelHTML(key){return CAPTURE_FIELDS[key]?'<div class="capture-panel" data-capture-format="'+key+'">'+CAPTURE_FIELDS[key].map(f=>key==='repCx'?reportCaptureFieldHTML(f):captureFieldHTML(key,f)).join('')+'</div>':'';}
 function syncCaptureControls(){
@@ -3253,7 +3306,7 @@ $("btnG0").onclick=()=>{["gestas","partos","abortos","cesareas"].forEach(id=>$(i
 const INDEX=[
  ["Solicitudes de Gabinete","g-gab",0,[["rx","Rayos X"],["labsUrg","Laboratorios Urgencias"],["folio","Laboratorio Folio A"],["folioB","Laboratorios Folio B"],["contrastados","Consentimiento Estudios Contrastados"],["consInterv","Consentimiento Intervencionismo"],["medNuc","Medicina Nuclear"],["bancoSangre","Laboratorios Banco de Sangre"]]],
  ["Paja","g-paja",0,[["informe","Hoja de Informes"],["hFrontal","Hoja Frontal"],["hCaritas","Hoja Caritas"],["hc","Historia Clínica"],["medicamentos","Hoja de Medicamentos"]]],
- ["Cirugía","g-cx",0,[["solCx","Solicitud de Cirugía"],["consInf","Consentimiento Informado"],["marcaje","Marcaje Quirúrgico"],["cxSegura","Cirugía Segura"],["prequx","Nota Prequirúrgica"],["bj","BJ"],["cj","CJ"]]],
+ ["Cirugía","g-cx",0,[["solCx","Solicitud de Cirugía"],["consInf","Consentimiento Informado"],["consEspecial","Consentimiento especial"],["marcaje","Marcaje Quirúrgico"],["cxSegura","Cirugía Segura"],["prequx","Nota Prequirúrgica"],["bj","BJ"],["cj","CJ"]]],
  ["Hospitalización","g-hosp",1,[["transfusion","Solicitud de Transfusión"],["consTransf","Consentimiento Transfusión"],["receta","Receta"],["interconsulta","Interconsulta"],["antibiotico","Solicitud de Antibiótico"],["ordenHosp","Orden Hospitalización"],["referencia","Referencia"],["apertura","Hoja de Apertura"],["notaEvol","Nota de Evolución"],["indicaciones","Indicaciones Médicas"],["laminillas","Solicitud de Laminillas"]]],
  ["Egreso","g-egr",0,[["pase","Pase"],["defuncion","Aviso de Defunción"],["__subtitle__","Indicaciones de alta"],["directDietaSeca","Dieta Seca"],["directDietaGrasa","Dieta Baja Grasa"],["directDrenajes","Hoja de Gastos"],["directCuidDrenaje","Cuidados de Drenaje"],["directCateter","Cuidados de Catéter"],["directMama","Ejercicios Post Mastectomía"]]]
 ];
@@ -4381,19 +4434,22 @@ function vjOne(el){
 /* Reduce la letra (sin cambiar alineación) hasta que el texto quepa en el alto de su celda */
 function fitDownOne(el){const sp=el.firstElementChild;if(!sp)return;let f=+el.dataset.fs0||parseFloat(el.style.fontSize)||11;el.style.fontSize=f+"pt";let g=0;while(sp.scrollHeight>el.clientHeight+0.5&&f>7.5&&g++<30){f-=0.25;el.style.fontSize=f.toFixed(2)+"pt";}}
 function shrink(root){ root.querySelectorAll("[data-surgical-font-base]").forEach(fitSurgicalValue); fitSurgicalRiskRows(root); root.querySelectorAll(".c.bsfit,.c.fitdown").forEach(fitDownOne); root.querySelectorAll(".c.s,.c.vfit").forEach(shrinkOne); root.querySelectorAll(".c.spl").forEach(renderSplit); root.querySelectorAll(".c.fit").forEach(fitOne); root.querySelectorAll(".c.vj").forEach(vjOne); altaFitText(root); root.querySelectorAll(".frontal-bounded").forEach(fitFrontalCell); fitHcSignatures(root); }
-/* v51 · Nota de Alta: Resumen e Indicaciones con el MISMO tamaño de letra, el mayor que quepa en ambos cuadros (6 a 14 pt) */
+/* v2.59 · Alta: Arial 10 pt en campos de llenado; reducción individual por desbordamiento. */
 function applyAltaPrintTypography(root){
-  const scale=FORMATS.alta.k;root.style.setProperty('--alta-body-font',(10/scale)+'pt');root.style.setProperty('--alta-date-font',(11/scale)+'pt');
-  for(const field of ['diagnosticoIngreso','diagnosticoEgreso','resumen','indicaciones','adscrito','residente']){
+  const scale=FORMATS.alta.k;root.style.setProperty('--alta-body-font',(10/scale)+'pt');root.style.setProperty('--alta-date-font',(10/scale)+'pt');
+  for(const field of ['diagnosticoIngreso','diagnosticoEgreso','resumen','indicaciones','clinica','adscrito','residente']){
     const sp=altaCaptureSpan(root,field);if(sp)sp.parentElement.dataset.altaPrintRole=['adscrito','residente'].includes(field)?'signature':'content';
   }
   root.querySelectorAll('[data-x="D11"],[data-x="G11"]').forEach(cell=>cell.dataset.altaPrintRole='date');
+  root.querySelectorAll(':scope > .paper:not(.alta-attach):not(.print-copy) .c:is(.ed,[data-x]):not(.summary-line-underlay)').forEach(cell=>{
+    if(!cell.dataset.altaPrintRole&&!cell.querySelector('.tg'))cell.dataset.altaPrintRole='field';
+  });
 }
 document.addEventListener("input",e=>{ if(typeof current!=="undefined"&&current==="alta"&&e.target.closest&&e.target.closest("#paper .c")) altaFitText($("paper")); });
 function altaFitText(root){
-  root.querySelectorAll('[data-alta-print-role="content"]').forEach(cell=>{
+  root.querySelectorAll('[data-alta-print-role]').forEach(cell=>{
     const sp=cell.firstElementChild;if(!sp)return;
-    if(cell.clientHeight>100){
+    if(cell.clientHeight>0&&cell.clientWidth>0){
       /* Contenido / Indicaciones: letra predeterminada; solo si desborda se reduce hasta caber */
       const sc=FORMATS.alta.k,base=10/sc,min=5/sc;
       cell.style.removeProperty('--alta-fit-font');cell.dataset.altaFit='1';
@@ -4421,7 +4477,7 @@ function fitPaper(){
   const nav=$("relNav");if(current==="alta"&&nav){nav.style.setProperty("--alta-row-h",(fallbackH+24)*s+"px");alignAltaPageControls(s);}
 }
 const RELATED=[
-  {label:"Paja y cirugía",cls:"g-paja",keys:["informe","hFrontal","hCaritas","hc","medicamentos","consInf","marcaje","cxSegura","prequx"]},
+  {label:"Paja y cirugía",cls:"g-paja",keys:["informe","hFrontal","hCaritas","hc","medicamentos","consInf","consEspecial","marcaje","cxSegura","prequx","bj","cj"]},
   {label:"Estudios de patología",cls:"g-cx",keys:["bj","cj","laminillas"]},
   {label:"Transfusión",cls:"g-hosp",keys:["transfusion","consTransf"]},
   {label:"Consentimientos de estudios",cls:"g-gab",keys:["contrastados","consInterv"]},
@@ -4560,9 +4616,10 @@ document.addEventListener("click",e=>{
 function relatedGroupHTML(r,key){
   const button=k=>{const c=CAT[k]||{cls:r.cls,tt:FORMATS[k].title};return `<button type="button" class="${c.cls}" data-go="${k}"${k===key?' aria-current="page"':''}>${esc(c.tt)}</button>`;};
   if(r.label==="Paja y cirugía"){
-    const orange=r.keys.filter(k=>CAT[k].cls==="g-paja"),blue=r.keys.filter(k=>CAT[k].cls!=="g-paja"&&k!=="consInf");
+    const orange=r.keys.filter(k=>CAT[k].cls==="g-paja"),blue=r.keys.filter(k=>CAT[k].cls!=="g-paja"&&!["consInf","consEspecial","bj","cj"].includes(k));
     if(r.keys.includes("consInf"))blue.push("consInf");
-    return `<span class="lbl">${r.label}</span><div class="paja-nav-rows"><div class="rel-nav-row" data-paja-row="orange">${orange.map(button).join("")}</div><div class="rel-nav-row" data-paja-row="blue">${blue.map(button).join("")}</div></div>`;
+    if(r.keys.includes("consEspecial"))blue.push("consEspecial");
+    return `<span class="lbl">${r.label}</span><div class="paja-nav-rows"><div class="rel-nav-row" data-paja-row="orange">${orange.map(button).join("")}</div><div class="rel-nav-row" data-paja-row="blue">${blue.map(button).join("")}</div><div class="rel-nav-row" data-paja-row="pathology">${["bj","cj"].filter(k=>r.keys.includes(k)).map(button).join("")}</div></div>`;
   }
   return (r.label?`<span class="lbl">${r.label}</span>`:"")+r.keys.map(button).join("");
 }
@@ -4667,7 +4724,7 @@ function renderRel(key){
   const nav=$("relNav");nav.classList.toggle("alta-composer-nav",key==="alta");
   if(key==="alta"){nav.hidden=false;nav.classList.add("side");document.body.classList.add("rel-side");nav.innerHTML=altaControlsHTML();syncAltaMobileControls();arrangePresetControls(key);return;}
   appendLastRequestCard(key);
-  if(key==="consInf"&&nav.querySelector('.paja-nav-rows')){
+  if(["consInf","consEspecial"].includes(key)&&nav.querySelector('.paja-nav-rows')){
     const mini=document.createElement('nav');mini.id='captureMiniNav';mini.className='rel capture-mini-nav';mini.setAttribute('aria-label','Índice de Paja');
     const rows=nav.querySelector('.paja-nav-rows'),label=rows.previousElementSibling;if(label?.classList.contains('lbl'))mini.appendChild(label);mini.appendChild(rows);nav.before(mini);
     mini.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b&&b.dataset.go!==current)openFormat(b.dataset.go);});document.body.classList.add('capture-mini-side');
@@ -5893,8 +5950,30 @@ function clinicalRichHTML(value){
   const serialize=n=>{if(n.nodeType===3)return esc(n.nodeValue||"");if(n.nodeType!==1)return "";const inside=[...n.childNodes].map(serialize).join("");const tag=n.tagName;if(!allowed.has(tag))return inside;if(tag==="BR")return "<br>";const out=tag==="B"?"strong":tag.toLowerCase();return `<${out}>${inside}</${out}>`;};
   return [...t.content.childNodes].map(serialize).join("");
 }
+/* v2.59: conservar etiquetas, listas y selección al cambiar la caja. */
+function changeClinicalCase(button){
+  const editor=$(button.dataset.richEditor);if(!editor)return;
+  const selection=window.getSelection(),range=selection&&selection.rangeCount?selection.getRangeAt(0):null;
+  const partial=range&&!range.collapsed&&editor.contains(range.startContainer)&&editor.contains(range.endContainer);
+  const work=partial?range.cloneRange():document.createRange();if(!partial)work.selectNodeContents(editor);
+  const walker=document.createTreeWalker(editor,NodeFilter.SHOW_TEXT),edits=[];
+  while(walker.nextNode()){
+    const node=walker.currentNode;if(!work.intersectsNode(node))continue;
+    const start=node===work.startContainer?work.startOffset:0,end=node===work.endContainer?work.endOffset:node.length;
+    if(end>start)edits.push({node,start,end});
+  }
+  const selectedText=edits.map(({node,start,end})=>node.data.slice(start,end)).join('');
+  const toUpper=selectedText!==selectedText.toLocaleUpperCase('es-MX');
+  const convert=text=>toUpper?text.toLocaleUpperCase('es-MX'):text.toLocaleLowerCase('es-MX');
+  for(const item of edits){const {node,start,end}=item;item.text=convert(node.data.slice(start,end));node.replaceData(start,end-start,item.text);}
+  editor.focus();
+  if(partial&&edits.length){const first=edits[0],last=edits[edits.length-1];work.setStart(first.node,first.start);work.setEnd(last.node,last.start+last.text.length);selection.removeAllRanges();selection.addRange(work);}
+  editor.dispatchEvent(new Event('input',{bubbles:true}));
+}
+document.addEventListener('mousedown',e=>{if(e.target.closest('[data-rich-case]'))e.preventDefault();});
+document.addEventListener('click',e=>{const button=e.target.closest('[data-rich-case]');if(button)changeClinicalCase(button);});
 function clinicalRichField(id,label,value,{content=false,large=false}={}){
-  return `<div class="clinical-field main-text clinical-${id}"><span class="clinical-label">${label}</span><div class="rich-box"><div class="rich-tools"><button type="button" data-rich-command="bold" data-rich-editor="${id}" title="Negrita"><strong>B</strong></button><button type="button" data-rich-command="underline" data-rich-editor="${id}" title="Subrayado"><u>S</u></button><button type="button" data-rich-command="insertUnorderedList" data-rich-editor="${id}" title="Agregar viñetas">• Lista</button>${id==="cl-contenido"?'<button type="button" class="rich-clear-content" data-clear-note-content aria-live="polite" title="Borrar solo el contenido de la nota">Borrar todo</button>':""}</div><div id="${id}" class="rich-editor${content?" content":""}${large?" indication-large":""}" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí...">${clinicalRichHTML(value)}</div></div></div>`;
+  return `<div class="clinical-field main-text clinical-${id}"><span class="clinical-label">${label}</span><div class="rich-box"><div class="rich-tools"><button type="button" data-rich-command="bold" data-rich-editor="${id}" title="Negrita"><strong>B</strong></button><button type="button" data-rich-command="underline" data-rich-editor="${id}" title="Subrayado"><u>S</u></button><button type="button" data-rich-command="insertUnorderedList" data-rich-editor="${id}" title="Agregar viñetas">• Lista</button><button type="button" data-rich-case="toggle" data-rich-editor="${id}" title="Alternar mayúsculas/minúsculas en la selección o todo el cuadro" aria-label="Alternar mayúsculas y minúsculas">A/a</button>${id==="cl-contenido"?'<button type="button" class="rich-clear-content" data-clear-note-content aria-live="polite" title="Borrar solo el contenido de la nota">Borrar todo</button>':""}</div><div id="${id}" class="rich-editor${content?" content":""}${large?" indication-large":""}" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí...">${clinicalRichHTML(value)}</div></div></div>`;
 }
 function normalizedNoteType(value){
   return ({"Evolución":"Nota de Evolución","Agregada":"Nota Agregada","Gravedad":"Nota de Gravedad","Prequirúrgica":"Nota Preoperatoria","Postquirúrgica":"Nota Postoperatoria"})[value]||value||"Nota de Evolución";
