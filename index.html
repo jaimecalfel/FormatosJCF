@@ -2563,6 +2563,10 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
 #pPanel.collapsed{position:sticky;top:var(--pp-top,0px);z-index:13}
 .secnav .sn-i{display:inline-grid;place-items:center;flex:none;color:inherit}
 .secnav .sn-i .ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#ppList .pp-new{justify-content:center;align-items:center;gap:9px;background:#e4efff;border-color:#b8cfee;color:#315e9b;text-align:center}
+#ppList .pp-new:hover{background:#d3e4fc;border-color:#96b8e5;color:#244b80}
+#ppList .pp-new b{display:block;color:inherit;font-size:15px;-webkit-line-clamp:unset}
+#ppList .pp-new .ic{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7}
 /* v2.73 · Salir: botón circular solo con el icono */
 .band .band-exit{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;gap:0;margin-right:-8px;flex:none}
 .band .band-exit>span{display:none}
@@ -2741,7 +2745,7 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.79 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.80 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -5926,7 +5930,7 @@ function renderPP(){
   const items=DRIVE_FILES.filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
   $("ppList").innerHTML=items.length?items.slice(0,s?200:60).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
     return `<button type="button" class="dlg-item" data-id="${f.id}" data-exp="${esc(exp)}"><span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
-    :`<div class="dlg-empty">${DRIVE_FILES.length?"Sin coincidencias.":"Aún no hay pacientes guardados."}</div>`;
+    :`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
   ppMarkCurrent();
 }
 async function loadPatients(opt){
@@ -5944,7 +5948,7 @@ $("ppSearch").oninput=()=>{ clearTimeout(_expT); PP_MANUAL=true; PP_AUTO=false; 
 $("ppRefresh").onclick=()=>{ PP_LAST=0; loadPatients({fresco:true}); };   // ⟳ trae la lista directo de Drive (sin caché)
 const ppScroll=d=>{ const l=$("ppList"); l.scrollBy({left:d*Math.max(200,l.clientWidth*0.85),behavior:"smooth"}); };
 $("ppPrev").onclick=()=>ppScroll(-1); $("ppNext").onclick=()=>ppScroll(1);
-$("ppList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDriveFile(b.dataset.id).then(ppMarkCurrent).catch(driveError); };
+$("ppList").onclick=e=>{ if(e.target.closest("[data-pp-new]")){ $("btnClear").click(); return; } const b=e.target.closest("[data-id]"); if(b) openDriveFile(b.dataset.id).then(ppMarkCurrent).catch(driveError); };
 (function(){
   /* La lista de pacientes se muestra abierta por defecto también en el celular (antes se ocultaba en pantallas < 900 px) */
   const box=$("pPanel");
