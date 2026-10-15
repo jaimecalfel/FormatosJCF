@@ -2504,6 +2504,68 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 }
 @media print{#pajaMissing{display:none!important}}
 </style>
+<style id="data-tabs-v269">
+#datos > fieldset[hidden]{display:none!important}
+.data-tab-actions{clear:both;display:flex;justify-content:center;grid-column:1/-1;padding-top:18px;margin-top:12px;border-top:1px solid var(--line)}
+#secNav [role="tab"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media print{.data-tab-actions{display:none!important}}
+</style>
+<style id="v270-layout">
+/* v2.70 · cintilla: «Conectar» con el logo de Drive */
+.sync-st.conn{cursor:pointer;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4)}
+.sync-st.conn:hover{background:rgba(255,255,255,.24)}
+.sync-st.conn::before{display:none}
+.sync-st .sync-logo{display:block;flex:none;width:18px;height:16px;object-fit:contain}
+.sync-st.conn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media (max-width:620px){.sync-st.conn{gap:0}.sync-st .sync-logo{width:17px;height:15px}}
+/* v2.70 · sin el selector Guardar y abrir en */
+#view-data .intro .actions{display:block!important;grid-template-areas:none!important}
+/* v2.70 · tabla de pacientes: inicio ampliado con los formularios ocultos */
+body.pp-browse #datos,body.pp-browse #secNav{display:none!important}
+#pPanel.pp-xl #ppToggle,#pPanel.pp-xl #ppPrev,#pPanel.pp-xl #ppNext{display:none!important}
+#pPanel.pp-xl .pp-list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(244px,1fr));grid-auto-rows:var(--pp-row,112px);gap:8px;align-content:start;flex-wrap:initial;overflow-x:hidden;overflow-y:auto;scroll-snap-type:none;max-height:calc(var(--pp-row,112px)*4 + 24px + 20px)}
+#pPanel.pp-xl .pp-list .dlg-item{width:auto!important;max-width:none!important;min-width:0;flex:none;height:100%;box-sizing:border-box;overflow:hidden}
+#pPanel.pp-xl .pp-list .dlg-empty{grid-column:1/-1;height:auto}
+/* v2.70 · índice de formatos más bajo (mismo diseño) */
+@media screen{
+#view-data #formatos .idx-archive-btn{padding:9px 14px}
+#view-data #formatos .clinical-index{padding:8px 10px;gap:6px}
+#view-data #formatos .clinical-index button{min-height:40px!important;padding:3px 8px!important;gap:8px}
+#view-data #formatos .clinical-index button .clinical-index-icon{width:27px;height:27px}
+#view-data #formatos .clinical-index button .clinical-index-icon .ic{width:17px;height:17px}
+#view-data #formatos .index-formats-heading{padding:6px 14px}
+#view-data #formatos #index{padding:2px 10px 10px;gap:8px}
+#view-data #formatos #index .col{gap:8px}
+#view-data #formatos #index .grp h3{padding:5px 9px 4px}
+#view-data #formatos #index .list{padding:4px;gap:1px}
+#view-data #formatos #index .fmt{min-height:27px;padding:3px 7px}
+#view-data #formatos #index .index-subtitle{margin:2px 0 0;padding:5px 4px 2px}
+}
+</style>
+<style id="v271-layout">
+/* v2.71 · botones sobre el índice, a la altura de la tabla de pacientes colapsada */
+.rcol{display:flex;flex-direction:column;gap:14px;min-width:0;align-self:start}
+.rcol aside{position:static!important;top:auto!important;max-height:none!important;overflow:visible!important}
+.idx-actions{height:44px;flex:none}
+.idx-actions .acts{display:flex;flex-wrap:nowrap;gap:8px;width:100%;height:100%;justify-content:stretch}
+.idx-actions .acts .btn{flex:1 1 0;min-width:0;width:auto;height:100%;min-height:0;padding:0 8px;font-size:13.5px;white-space:nowrap;border-radius:11px}
+.idx-actions .btn[hidden]{display:none!important}
+body.pp-browse #btnSave{display:none!important}
+body.pp-browse #btnClear{font-size:15px;font-weight:700}
+/* índice: Indicaciones de alta desplegable */
+#view-data #formatos #index .index-toggle{display:flex;align-items:center;justify-content:space-between;gap:6px;width:calc(100% - 0px);margin:3px 0 0;padding:7px 7px;border:0;border-top:1px solid var(--line);background:transparent;color:var(--c);font:inherit;font-size:11px;font-weight:700;white-space:normal;text-align:left;cursor:pointer;border-radius:0}
+#view-data #formatos #index .index-toggle:hover{background:color-mix(in srgb,var(--c) 8%,var(--surface))}
+#view-data #formatos #index .index-toggle .ic{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:2;transition:transform .15s}
+#view-data #formatos #index .index-toggle[aria-expanded="true"] .ic{transform:rotate(180deg)}
+#view-data #formatos #index .index-sub-items{display:flex;flex-direction:column;gap:1px}
+#view-data #formatos #index .index-sub-items[hidden]{display:none!important}
+/* v2.76 · Buscar Paciente fijo (colapsado) bajo la cintilla */
+#pPanel.collapsed{position:sticky;top:var(--pp-top,0px);z-index:13}
+/* v2.73 · Salir: botón circular solo con el icono */
+.band .band-exit{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;gap:0;margin-right:-8px;flex:none}
+.band .band-exit>span{display:none}
+.band .band-exit .ic{margin:0}
+</style>
 </head>
 <body>
 
@@ -2545,31 +2607,10 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
 
 <main id="view-data">
   <div class="wrap">
-    <div class="intro">
-      <div><h2>Datos del Paciente</h2></div>
-      <div class="actions">
-        <div class="store" role="radiogroup" aria-label="Guardar y abrir pacientes en">
-          <span class="store-lbl">Guardar y abrir en</span>
-          <div class="seg">
-            <button type="button" role="radio" aria-checked="true" data-store="drive"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA5CAYAAACGRC3XAAAJTElEQVR42s2afYxU5RXGf+e9d+bODLO7sx8su/KhIKL1q7FQP7CVgrIINdZoimitUas1xjahQZPagLgSaGjaYCKJSmjBWBNdUBIxLSzgStUKItJEa6xdihatygq6gvsxc+97+seyiws7O1+XZd+/Z973nuc853nOe+4VTsZaOS1J+6G7QG7B6reAeFH7CF3A+0blqUWVnzze+Iu2I2E/qoQe/POzJ4Gu4eNDU2nvBC11Q8O1NV/x3Fkf/N1VvV1m8n6Yj2tCDb5pTh2qLxB1plKZDAXfhAQ8XP8JrqdTUV7QFuqGLwAES/HM2XT5kIhCZUKxJVDAGu4edVC/neyCTiDO2aRZOjxLYF3DVBzzMqoR9OjOGQv72iATFH6SCqOjad66oJXaqE/fnkKGgOkyi9eGDwNaprkgv8WVSF/NKxB1oCapaBEsUGHR6ANa6/n029MlgrJMW3CHDwAHYzcRNVeQtsdRWCE1QkhECwPBCheXHdHbar8QjtuSNBDjCjLcNDwAePGHlUBjVrV3BGrLQfKvAUeUZWM/w3OybNoDSqO+QuWpB6DTX4DnjMe3WR5WIRkTyuP5CaI1/LjmS70ydeTE7PcuH4gxng4WnFoRbJp1Ng67ECkbNDgR6M4o+9pk0N8pVLiWXef/W8+Kp2XQHsIAymEM35Ur+depYYDoEqJOWc7MqkIsIlQlB2eBGubXtelZiRzB95ZBlDIClpyaElg3swHX3EA6yFPYFKqTgucOLIgqTIx36fz6g5J395gGHG7QzTQMLQBrpsUQsxQjpqBW1zUwsjwr/RvHfEYqEuTfPitgMMBSbSE2dACUx+8g6kwhYwvs7BQq4sKIWH8WWMOM1GG9saY9u/BlWxkgxhTS3DE0Itg0pw4T7MaR0wiKaHBEoKNb+eDzvrOjwN/O26uXlHcUDgCAA1j+RzeT5Ro+PbkMMP4DeE5xwfcKYsITUkfvCdZwW+2h4oMHCACP04jywMllwLqrL8LR11CJF9XefvPUdAD/+ZyR0s1bF7YyxsuUdnXuSWUnyuUykz3hM2AxBtGluE5pwfeKl+citWUsHHuAMbFM6XMDC0SIE7BUF+cfV/4AnD/rOlwzO2/by3myEEnF37lr5BfvhHYp7waizOZyrgu3BJqmJTHeTlzn3Kwtb6ElYETJxGdp1QYQNmOR0qdHQATI8C4RLpHpHAmHAeLdi+eGEzxAxAHfbmTuhi3mKrbgs5FoSCzoscVz6ebecEpg/ZzTEbm/YM8fhPpkgg7UWdgrBxgWkqEjtFLIAIb7dQvjSgdAg8V4TnVJo61+2TdgeYy5f327j2AzeZuAx0JjQQDEqEZ5sDQA1s+8HEduCU34HIEu/yNUlg/w0Mvp4qNw5jxHBdHhp7qFy4oDoGWai5pl/cZcJQNgQFnC3E1tJ8jMHNpQluCEdJYCDlHs4OOz7AC0eTcPOOYqhfrpYCdUrM36m9GspZudoZVCGvD4Ad3cWJgNNjVUYeRNXBmPH0L6BTAEZGwDc7e8NGjiNjMDl2YsTijMcwGfvUSYItP5Ml8GHB1zhcT9qAOBNuUKHkBm8RI+TXghsaBnfHYmaebnVwLrG87BkV+GanvpoB2bW5GPAcaDpGkPzRbTgGG+bmJibgCU/MZchdneI8xtbs27YqbTSsAjoWmBBTwqEBoHB2Dd1Q245vrQbM810B20osGKIm53K+iiNVRbdLlRNzF9YADWTIshuqzgMVcu8bO6mLlb2wv+60zasSwO7eVdjy06CMu06Ri3jgGQjP2MqDM5tNqPGkjbFqh4tug9vuJZ0rSEbIuXkuLW/jbYNKcO47+FY+qLnvQcn3khTTqYxrytO0pKXDOXYtiOEg3NFgP+SyeT5Vo+72GA+L/Gc8MJvtf2LE+WGjyANLCDgCdDtUWPcXjc15OrdbOnIHY7IomSJz29/b7VNtI6mZua94dSvpsYi8NuDCMJQ5973ip9BXzPIMECIiac4HuVX3V5WMEDyNXsR1kemiP0jM/KscwXnp9xACMjQ/F910DGf5PrX76E4me8A7NAMWxjJ1Gm4IfEAst+4fH5FsLLfip94Yq6g7dtVvFD/QCrQ119qO6+WT8xq38lvqJh+KPFF+7c24WIV/qkVxmRSOiYUfUS2pX2OBv3A/jDPxYw48A2ukxpqig9e3a7iP8uTuQibGnqIiLUVKZALBqWmxwPgnFYNfFuLm7fiRd0YaX4y0JEhLTVdw3o6kK+3siW/VSyXOOeJ6onJ3iAiA34Z8Uknht9A1GbLjFhgOhqgxxZS5DZhRMtmpyu61JVnjqpwR8DQXnq9FvZnxiLq8WpoWeE7kB3+XFda1g1pQNYiLW2qA9GFKorKjXiupz88MFRy2exataecQeOBkXVfqBYR2Xh6Bd3d/QU0apJzdjM87ixgqkf82JakSwTq0MR/tEMBpaN9dewJ/Wdgksh5hjSVjfUtLzR3P8yJLqIoPswhQiLCDWpKkQMQ7kEpdPxeGLCPWRMJO9XSo4I6cAedly78MTb4Kpz3sPaR3G8vLNflhihI+KJIan9E1hgA16vvpjmUbPwgu68az+jrBzZvPu9gQciNv0H/K59mEjuRsoYalJVnMplFFaPv4tD0SqM2py21xEEH6Rd5/fZJ0J/PP8Q2MacZaBKZXmFepHoKcl+X+OpAXuTp/PMuJtzaoERQZGHxjXvODT4TLB+0tP4na9kLQVVIpGIVpalhlT4st68rfLM2Hm0JifiamZg4TOGLhu8Uusnnh58JgjQKD6GB1A/k61BqqmownUchsMyajkULWf1+J8jOrDt+aoZRH8j27f7uQEAeOKc17D+UzixE7KfiMe1bERyWGT/m7a4pe4qXq++DM/2F8S4Y0irfXrU1t2vZrsUZpmc+A/jdx1EnP79fkUVIsJwWoKSEZdVE+6h04n32aIjQqcfHIza4KHBbsUDrz+d9yHY5bheX/bLk2Uaj8VPqfBl14KAPakL2Fj/oz5bjBnBor+ratnzYeEAAIyIryTdsY1IAsd1qa6oFIbxclRZc8btfBqro8LA10Gwrbsj8miuuUj2tWJcJ2LnkencUJ0aSdTzGIbJP2aLKB+X1fHnCXeSyXRtyPg6b9yOHZ2DgpZz190rO5jw/fWnjb1oH9ha0Ep6PkUabmxQFY64yhutiTMfrD/y6qLL/rL161x/+j/5PZk7i82M7AAAAABJRU5ErkJggg==" alt="">Drive</button>
-            <button type="button" role="radio" aria-checked="false" data-store="local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Este equipo</button>
-          </div>
-          <div class="acct" id="acct"></div>
-        </div>
-        <div class="acts">
-        <button class="btn" type="button" id="btnOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13l3-9H7l-3 9"/></svg>Abrir</button>
-        <button class="btn primary" type="button" id="btnSave"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>Guardar</button>
-        <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg>Nuevo Paciente</button>
-        <input type="file" id="fileOpen" accept=".json,application/json" hidden>
-        </div>
-        <span class="store-st" id="storeStatus"></span>
-      </div>
-    </div>
-
     <div class="lcol" id="lcol">
-    <section class="ppanel" id="pPanel" hidden aria-label="Pacientes en Drive">
+    <section class="ppanel" id="pPanel" hidden aria-label="Buscar Paciente">
       <div class="pp-head">
-        <h2>Pacientes en Drive</h2>
+        <h2>Buscar Paciente</h2>
         <input type="search" id="ppSearch" placeholder="Buscar por nombre, expediente, cama o diagnóstico…" autocomplete="off" aria-label="Buscar paciente">
         <span class="pp-actions">
           <button type="button" id="ppPrev" title="Anteriores" aria-label="Anteriores"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
@@ -2595,9 +2636,9 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
           <div class="f s1"><label>Edad</label><div class="auto empty" data-out="edad">—</div></div>
           <div class="f s3 medico-field"><label for="medico">Médico tratante (adscrito)</label><input id="medico" class="up" placeholder="DRA. NOMBRE APELLIDO" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="medico-list" aria-expanded="false" autocomplete="off"><div id="medico-list" role="listbox" aria-label="Adscritos" hidden></div><small class="medico-hint">(Presiona / para agregar otro adscrito)</small></div>
           <div class="f s6"><label for="diagnostico">Diagnóstico <span class="cnt"></span></label><input id="diagnostico" class="up" data-max="80"></div>
-          <div class="f s6"><label>Nombre completo</label><div class="auto empty" data-out="nombreCompleto">Se arma con apellidos y nombre</div></div>
           <div class="f s3"><label for="servicio">Servicio</label><input id="servicio" class="up"></div>
           <div class="f s3"><label for="residente">Residente</label><input id="residente"></div>
+          <div class="f s6"><label>Nombre completo</label><div class="auto empty" data-out="nombreCompleto">Se arma con apellidos y nombre</div></div>
         </div>
       </fieldset>
       <fieldset>
@@ -2673,6 +2714,15 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
     </form>
     </div>
 
+    <div class="rcol" id="rcol">
+      <div class="idx-actions">
+        <div class="acts">
+        <button class="btn" type="button" id="btnOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13l3-9H7l-3 9"/></svg>Abrir</button>
+        <button class="btn primary" type="button" id="btnSave"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>Guardar</button>
+        <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg>Nuevo Paciente</button>
+        <input type="file" id="fileOpen" accept=".json,application/json" hidden>
+        </div>
+      </div>
     <aside aria-label="Formatos" id="formatos">
       <button type="button" class="idx-section-title idx-archive-btn" id="archiveOpen" title="Ver todo el archivo clínico del paciente"><span>Archivo Clínico</span><small>Ver todo<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></small></button>
       <div class="clinical-index" aria-label="Archivo clínico">
@@ -2685,10 +2735,11 @@ body #view-archive .rb-del:hover{background:#fff0f1!important}
       <div id="index"></div>
 
     </aside>
+    </div>
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.68 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.77 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -2893,7 +2944,7 @@ const LOGO_KEYS=Object.freeze({"hjm":["0de66c36f6","8262e47f83","cef6809be3","70
 for(const [kind,keys] of Object.entries(LOGO_KEYS)) for(const key of keys) IMGS[key]=LOGOS[kind];
 document.querySelectorAll("[data-logo]").forEach(img=>{img.src=LOGOS[img.dataset.logo]||"";});
 document.querySelectorAll("[data-logo-link]").forEach(link=>{link.href=LOGOS[link.dataset.logoLink]||"";});
-const DRIVE_ICON_SRC=document.querySelector('[data-store="drive"] img')?.src||"";
+const DRIVE_ICON_SRC="data:image/png;base64,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";
 document.querySelectorAll("[data-drive-logo]").forEach(img=>{if(DRIVE_ICON_SRC)img.src=DRIVE_ICON_SRC;});
 
 /* ---------- Valores predeterminados (como en el Excel) ---------- */
@@ -3267,7 +3318,7 @@ function updateTransfusionMissingChips(key){
  panel.hidden=!missing.length;document.body.classList.toggle('transfusion-has-missing',!!missing.length);
  panel.innerHTML=missing.length?'<span class="transfusion-missing-label">Faltan:</span>'+missing.map(id=>'<button type="button" data-transfusion-missing="'+id+'">'+esc(TRANSFUSION_LABELS[id])+'</button>').join(''):'';
 }
-document.addEventListener('click',e=>{const button=e.target.closest?.('[data-transfusion-missing]');if(!button)return;const id=button.dataset.transfusionMissing,field=document.querySelector('[data-side-field="'+id+'"]')||BUILT.transfusion?.querySelector('[data-sync="'+id+'"] > span[contenteditable="true"]');if(field){field.scrollIntoView({block:'center',behavior:'smooth'});field.focus();}else{back();$(id)?.scrollIntoView({block:'center',behavior:'smooth'});$(id)?.focus();}});
+document.addEventListener('click',e=>{const button=e.target.closest?.('[data-transfusion-missing]');if(!button)return;const id=button.dataset.transfusionMissing,field=document.querySelector('[data-side-field="'+id+'"]')||BUILT.transfusion?.querySelector('[data-sync="'+id+'"] > span[contenteditable="true"]');if(field){field.scrollIntoView({block:'center',behavior:'smooth'});field.focus();}else{back();revealDataField($(id));$(id)?.scrollIntoView({block:'center',behavior:'smooth'});$(id)?.focus();}});
 function fitHcSignatures(root){
  const cells=[...root.querySelectorAll('[data-hc-signature]')];if(!cells.length)return;
  let size=8;
@@ -3279,11 +3330,12 @@ function fitHcSignatures(root){
 /* ---------- Pulsera + campos automáticos ---------- */
 function refresh(){
   const d=data();
+  try{ ppLayout(); }catch(_){}
   document.querySelectorAll("[data-out]").forEach(el=>{
     const v=d[el.dataset.out]; el.classList.toggle("empty",!v);
     el.textContent=v|| (el.dataset.out==="nombreCompleto"?"Se arma con apellidos y nombre":"—");
   });
-  const n=$("bandName"); n.textContent=d.nombreCompleto||"Captura los datos del paciente"; n.classList.toggle("empty",!d.nombreCompleto);
+  const n=$("bandName"); n.textContent=d.nombreCompleto||bandPlaceholder(); n.classList.toggle("empty",!d.nombreCompleto);
   const meta=[["Edad",d.edad&&d.edad+" años"],["Exp.",d.expediente],["Cama",d.cama],["Dx",d.diagnostico]].filter(x=>x[1]);
   $("bandMeta").innerHTML=meta.map(([k,v])=>`<span>${k} <b>${esc(v)}</b></span>`).join("");
   form.querySelectorAll("[data-max]").forEach(el=>{
@@ -3336,7 +3388,7 @@ function fixPlt(){const el=$("plt");if(!el)return;const v=normalizePlt(el.value)
 document.addEventListener("focusout",e=>{if(e.target&&(e.target.id==="plt"||(e.target.closest&&e.target.closest('[data-sync="plt"]'))))setTimeout(fixPlt,0);});
 
 function fill(obj){setTimeout(()=>{try{afterDataLoad();}catch(_){}},0);inputs.forEach(i=>i.value=obj[i.id]??"");applySessionResident();FOLIO_LAST=obj.folioUltimaSolicitud||"";FOLIO_LAST_BY=obj.folioUltimaResidente||"";LABSURG_LAST=obj.labsUrgUltimaSolicitud||"";LABSURG_LAST_BY=obj.labsUrgUltimaResidente||"";EXTRA_LAST_REQUESTS=extraLastRequestsFrom(obj.ultimasSolicitudes);for(const k in BUILT)delete BUILT[k];SAVED_FMT={};HALF={};HALF_AUTO={};ALTA_COMPOSE=altaComposeDefaults();ALTA_DATES=altaDefaultDates();ORDER_DATES=orderDatesDefaults();ALTA_AUTO.receta=ALTA_AUTO.pase=false;HIST=histEmpty();LOADED_EXP="";NOTIFIED_EXP="";refresh();}
-$("btnClear").onclick=()=>{ fill(DEFAULTS()); $("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; clearTimeout(_expT); renderPP(); $("ppList").scrollLeft=0; toast("Hoja de datos limpia"); };
+$("btnClear").onclick=()=>{ fill(DEFAULTS()); $("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; clearTimeout(_expT); renderPP(); $("ppList").scrollLeft=0; PP_BROWSE=false; try{ ppLayout(); if(window.ppSetCollapsed) ppSetCollapsed(true); }catch(_){} toast("Hoja de datos limpia"); };
 $("btnNegados").onclick=()=>{["internamiento","hta","dm","otrasEnfHC","tumores","qtrt"].forEach(id=>{if(!$(id).value.trim())$(id).value="NEGADO"});refresh();};
 $("btnDesc").onclick=()=>{
   const V={alergias:"SE DESCONOCEN",otrasEnfHF:"SE DESCONOCEN",edoCivil:"SE DESCONOCE",religion:"SE DESCONOCE",ocupacion:"SE DESCONOCE",escolaridad:"SE DESCONOCE",lugarNac:"SE DESCONOCE",direccion:"SE DESCONOCE",bjPato:"SE DESCONOCE"};
@@ -3354,9 +3406,19 @@ const INDEX=[
 ];
 const INDEX_FREQUENT=new Set(["rx","labsUrg","folio","transfusion","receta","interconsulta","solCx","consInf","bj","cj","pase"]);
 const indexFrequentIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.2.9-4.5 4.4 1.1 6.2-5.5-2.9-5.5 2.9 1.1-6.2L3.6 9.5l6.2-.9Z"/></svg>';
-const grp=([g,cls,wide,items])=>`<section class="grp ${cls}"><h3>${g}</h3><div class="list">${items.map(([k,tt])=>
-  k==="__subtitle__"?`<div class="index-subtitle">${tt}</div>`:k?`<button type="button" class="fmt ready${INDEX_FREQUENT.has(k)?" fmt-frequent":""}" data-fmt="${k}"${INDEX_FREQUENT.has(k)?` aria-label="${tt}, más usado"`:""}><span class="fmt-name">${tt}</span>${INDEX_FREQUENT.has(k)?`<span class="fmt-frequent-mark" title="Más usado">${indexFrequentIcon}</span>`:""}</button>`:`<button type="button" class="fmt" disabled title="Próximamente">${tt}</button>`).join("")}</div></section>`;
+const idxChevron='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+const grp=([g,cls,wide,items])=>{
+  const fm=([k,tt])=>k?`<button type="button" class="fmt ready${INDEX_FREQUENT.has(k)?" fmt-frequent":""}" data-fmt="${k}"${INDEX_FREQUENT.has(k)?` aria-label="${tt}, más usado"`:""}><span class="fmt-name">${tt}</span>${INDEX_FREQUENT.has(k)?`<span class="fmt-frequent-mark" title="Más usado">${indexFrequentIcon}</span>`:""}</button>`:`<button type="button" class="fmt" disabled title="Próximamente">${tt}</button>`;
+  let h="",sub=false;
+  for(const it of items){
+    if(it[0]==="__subtitle__"){ sub=true; h+=`<button type="button" class="index-subtitle index-toggle" data-idx-toggle aria-expanded="false"><span>${it[1]}</span>${idxChevron}</button><div class="index-sub-items" hidden>`; }
+    else h+=fm(it);
+  }
+  if(sub) h+="</div>";
+  return `<section class="grp ${cls}"><h3>${g}</h3><div class="list">${h}</div></section>`;
+};
 $("index").innerHTML=`<div class="col">${[INDEX[0],INDEX[3]].map(grp).join("")}</div><div class="col">${[INDEX[1],INDEX[2],INDEX[4]].map(grp).join("")}</div>`;
+$("index").addEventListener("click",e=>{ const t=e.target.closest("[data-idx-toggle]"); if(!t) return; const box=t.nextElementSibling, open=t.getAttribute("aria-expanded")!=="true"; t.setAttribute("aria-expanded",String(open)); if(box) box.hidden=!open; });
 const PATIENT_ID_FIELDS=["expediente","apPaterno","apMaterno","nombres"];
 const PRINT_ONLY_FORMATS=new Set(["directDietaSeca","directDietaGrasa","directCateter","directCuidDrenaje","directDrenajes","directMama"]);
 function hasSelectedPatient(){return PATIENT_ID_FIELDS.some(id=>String($(id).value||"").trim());}
@@ -5020,7 +5082,7 @@ function warnMissing(d){
   const m=[]; if(!d.expediente) m.push("el número de expediente"); if(!d.nombreCompleto) m.push("el nombre del paciente");
   if(!m.length) return false;
   const first=!d.expediente?"expediente":"apPaterno";
-  const go=()=>{ if(current||currentClinical) back(); setTimeout(()=>{ const el=$(first); if(el){ el.scrollIntoView({block:"center",behavior:"smooth"}); el.focus(); } },80); };
+  const go=()=>{ if(current||currentClinical) back(); setTimeout(()=>{ const el=$(first); if(el){ revealDataField(el); el.scrollIntoView({block:"center",behavior:"smooth"}); el.focus(); } },80); };
   notify("Falta completar "+joinEs(m)+" para poder guardar.","warn",{action:(current||currentClinical)?{label:"Ir a datos",fn:go}:null});
   if(!current&&!currentClinical) go();
   return true;
@@ -5067,7 +5129,9 @@ function restore(obj){
   for(const k in BUILT) delete BUILT[k];
   if(current){ const c=current; current=null; $("paper").replaceChildren(); openFormat(c); }
   if(currentClinical){ const c=currentClinical; renderClinicalForm(c); renderClinicalRecents(c); }
-  refresh(); LOADED_EXP=((obj.datos||{}).expediente||"").trim(); NOTIFIED_EXP=LOADED_EXP; setBase(obj); setTimeout(afterDataLoad,0); return true;
+  refresh(); LOADED_EXP=((obj.datos||{}).expediente||"").trim(); NOTIFIED_EXP=LOADED_EXP; setBase(obj); setTimeout(afterDataLoad,0);
+  PP_BROWSE=false; try{ ppLayout(); if(window.ppSetCollapsed) ppSetCollapsed(true); }catch(_){}
+  return true;
 }
 function fileName(d){
   const exp=(d.expediente||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9_-]/g,"");
@@ -5097,6 +5161,7 @@ const LS = { get(k){ try{return localStorage.getItem(k)}catch(_){return null} },
 const CAN_DRIVE = !inFrame;          // en la vista previa de claude.ai no se puede llamar a Google
 let STORE = CAN_DRIVE ? (LS.get("hjm-store")||"drive") : "local";
 let USER=null, FOLDER=null, CONNECTING=false, CONNECT_FAIL=false;
+let PP_BROWSE=true, PP_MODE=null;   // v2.70 · true = inicio con la tabla ampliada y los formularios ocultos
 const FOLDER_ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
 const apiUrl=()=>(API_URL||LS.get("hjm-api")||"").trim().replace(/\/u\/\d+\//,"/");
 const apiKey=()=>LS.get("hjm-key")||API_KEY||"";
@@ -5198,7 +5263,7 @@ $("bandExit").onclick=async()=>{
         await savePatient(); gateStatus("Paciente guardado en este equipo. Hoja de datos limpia.","ok");
       }
     }
-    if(ok){ fill(DEFAULTS()); if($("ppSearch"))$("ppSearch").value=""; }
+    if(ok){ fill(DEFAULTS()); if($("ppSearch"))$("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; PP_BROWSE=true; try{ ppLayout(); renderPP(); }catch(_){} }
   }finally{EXITING=false;}
 };
 
@@ -5243,18 +5308,36 @@ const hhmm=t=>new Date(t).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-d
 function renderSync(){
   try{
     const el=$("syncSt"); if(!el) return;
-    if(STORE!=="drive"||!CAN_DRIVE){ el.hidden=true; return; }
+    if(!CAN_DRIVE){ el.hidden=true; return; }
     const n=outboxCount(), k=expKey(($("expediente")||{}).value||"");
     let cls="", txt="", tip="";
-    if(SAVING||FLUSHING){ cls="busy"; txt="Guardando…"; tip="Guardando en Google Drive"; }
+    const pend=n?(n===1?" · 1 paciente pendiente":" · "+n+" pacientes pendientes"):"";
+    if(STORE!=="drive"){ cls="conn"; txt="Conectar"; tip="Trabajando sin conexión. Toca para conectar con Google Drive"+pend; }
+    else if(CONNECTING){ cls="busy"; txt="Conectando…"; tip="Conectando con el Drive compartido"; }
+    else if(SAVING||FLUSHING){ cls="busy"; txt="Guardando…"; tip="Guardando en Google Drive"; }
+    else if(!apiKey()||CONNECT_FAIL||!USER||NET_FAIL||navigator.onLine===false){ cls="conn"; txt="Conectar"; tip="Sin conexión con Google Drive. Toca para conectar"+pend; }
     else if(n){ cls="warn"; txt=n===1?"1 pendiente":n+" pendientes"; tip="Guardado en este navegador; se sube solo a Drive en cuanto vuelva la conexión"; }
-    else if(NET_FAIL||(CONNECT_FAIL&&!USER)||navigator.onLine===false){ cls="err"; txt="Sin conexión"; tip="No hay conexión con el servidor de Google"; }
-    else if(!hasSelectedPatient()){ el.hidden=true; return; }
+    else if(!hasSelectedPatient()){ cls="ok"; txt="Conectado"; tip="Conectado con Google Drive"; }
     else if(DIRTY||!(LOADED_BASE&&LOADED_BASE.k===k)){ cls="dirty"; txt="Sin guardar"; tip="Hay cambios que aún no están en Drive"; }
-    else { cls="ok"; txt=LAST_SAVED&&LAST_SAVED_K===k?"Guardado "+hhmm(LAST_SAVED):"En Drive"; tip="Este paciente está al día en Google Drive"; }
-    el.hidden=false; el.className="sync-st "+cls; el.textContent=txt; el.title=tip;
+    else { cls="ok"; txt=LAST_SAVED&&LAST_SAVED_K===k?"Guardado":"Conectado"; tip="Este paciente está al día en Google Drive"; }
+    el.hidden=false; el.className="sync-st "+cls; el.title=tip;
+    if(cls==="conn"){ el.innerHTML=(DRIVE_ICON_SRC?'<img class="sync-logo" alt="" src="'+DRIVE_ICON_SRC+'">':"")+txt; el.setAttribute("role","button"); el.tabIndex=0; }
+    else { el.textContent=txt; el.setAttribute("role","status"); el.removeAttribute("tabindex"); }
   }catch(_){}
 }
+/* v2.70 · «Conectar» en la cintilla: reconecta con Drive (o pide la clave si este navegador no la tiene) */
+(function(){
+  const el=$("syncSt"); if(!el) return;
+  const go=()=>{
+    if(!el.classList.contains("conn")) return;
+    if(!CAN_DRIVE){ $("dlgInfo").showModal(); return; }
+    if(STORE!=="drive") setStore("drive");
+    if(!apiKey()){ openResidentGate({keepName:true}); return; }
+    CONNECT_FAIL=false; DRIVE_RETRIES=0; initDrive();
+  };
+  el.addEventListener("click",go);
+  el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } });
+})();
 /* Cualquier captura en la hoja de datos, formatos o archivo clínico marca "Sin guardar" */
 ["input","change"].forEach(t=>document.addEventListener(t,e=>{
   const el=e.target; if(!el||!el.closest) return;
@@ -5321,13 +5404,44 @@ function upsertDriveFile(rec){
 const SEC_SHORT={"Identificación":"Identificación","Cirugía programada":"Cirugía","Solicitud de transfusión":"Transfusión","Resumen / padecimiento actual":"Padecimiento","Resumen clínico":"Resumen clínico","Ingreso e historia clínica":"Ingreso / HC","Ingreso":"Ingreso","Historia clínica":"Historia clínica"};
 const secFieldsets=()=>[...document.querySelectorAll("#datos > fieldset")];
 function secTitle(fs){ const lg=fs.querySelector("legend"); const t=lg?[...lg.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim():""; const m=/^(\d+)\s*·\s*(.+)$/.exec(t); return m?{n:m[1],t:SEC_SHORT[m[2].trim()]||m[2].trim(),full:m[2].trim()}:{n:"",t,full:t}; }
+function showDataSection(index,{scroll=false,focusTab=false}={}){
+  const nav=$('secNav'),sections=secFieldsets();if(!nav||!sections[index])return;
+  nav.dataset.activeSection=String(index);
+  sections.forEach((fs,i)=>{fs.hidden=i!==index;});
+  nav.querySelectorAll('[data-sec]').forEach(button=>{
+    const active=+button.dataset.sec===index;button.classList.toggle('cur',active);
+    button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;
+    if(active){if(focusTab)button.focus({preventScroll:true});nav.scrollTo({left:button.offsetLeft-nav.clientWidth/2+button.offsetWidth/2,behavior:'smooth'});}
+  });
+  secNavTop();
+  if(scroll){const off=(parseFloat(nav.style.getPropertyValue('--secnav-top'))||0)+nav.offsetHeight+10;
+    scrollTo({top:Math.max(0,sections[index].getBoundingClientRect().top+scrollY-off),behavior:'smooth'});}
+}
+function revealDataField(el){
+  const index=secFieldsets().indexOf(el?.closest('fieldset'));if(index>=0)showDataSection(index);
+}
 function buildSecNav(){
-  const nav=$("secNav"); if(!nav) return;
-  nav.innerHTML=secFieldsets().map((fs,i)=>{ const s=secTitle(fs); return `<button type="button" class="sn" data-sec="${i}"><span class="sn-t">${esc(s.t)}</span><span class="sn-p"></span></button>`; }).join("");
-  nav.onclick=e=>{ const b=e.target.closest("[data-sec]"); if(!b) return; const fs=secFieldsets()[+b.dataset.sec]; if(!fs) return;
-    secNavTop(); const off=(parseFloat(nav.style.getPropertyValue("--secnav-top"))||0)+nav.offsetHeight+10;
-    scrollTo({top:Math.max(0,fs.getBoundingClientRect().top+scrollY-off),behavior:"smooth"}); };
-  secNavTop(); updateSecNav();
+  const nav=$('secNav');if(!nav)return;const sections=secFieldsets();
+  nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Apartados de la Hoja de Datos');
+  nav.innerHTML=sections.map((fs,i)=>{
+    if(!fs.id)fs.id='dataSection'+i;fs.setAttribute('role','tabpanel');fs.setAttribute('aria-labelledby','dataTab'+i);
+    return `<button type="button" role="tab" id="dataTab${i}" class="sn" data-sec="${i}" aria-controls="${fs.id}"><span class="sn-t">${esc(secTitle(fs).t)}</span><span class="sn-p"></span></button>`;
+  }).join('');
+  nav.onclick=e=>{const button=e.target.closest('[data-sec]');if(button)showDataSection(+button.dataset.sec);};
+  nav.onkeydown=e=>{
+    const button=e.target.closest('[data-sec]');if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+    e.preventDefault();const n=sections.length,i=+button.dataset.sec;
+    const target=e.key==='Home'?0:e.key==='End'?n-1:(i+(e.key==='ArrowRight'?1:-1)+n)%n;
+    showDataSection(target,{focusTab:true});
+  };
+  for(const [field,key,label] of [['hb','transfusion','Solicitud de Transfusión'],['fIngreso','informe','Paja']]){
+    const fs=$(field)?.closest('fieldset');if(!fs||fs.querySelector('[data-data-tab-go]'))continue;
+    const actions=document.createElement('div');actions.className='data-tab-actions';
+    const button=document.createElement('button');button.type='button';button.className='btn primary';button.dataset.dataTabGo=key;button.textContent=label;
+    button.onclick=()=>{if(!hasSelectedPatient()){toast('Primero selecciona o captura un paciente');showDataSection(0,{scroll:true});return;}openFormat(key);};
+    actions.appendChild(button);fs.appendChild(actions);
+  }
+  showDataSection(Number(nav.dataset.activeSection)||0);updateSecNav();
 }
 function updateSecNav(){
   const nav=$("secNav"); if(!nav||!nav.children.length) return; const fss=secFieldsets(); let DEF=null; try{ DEF=DEFAULTS(); }catch(_){}
@@ -5347,15 +5461,14 @@ function updateSecNav(){
 function secNavTop(){
   const band=document.querySelector(".band"), nav=$("secNav"); if(!band||!nav) return;
   const cs=getComputedStyle(band), top=cs.position==="sticky"?(parseFloat(cs.top)||0)+band.offsetHeight:0;
-  nav.style.setProperty("--secnav-top",top+"px");
-  document.documentElement.style.setProperty("--sec-scroll",(top+nav.offsetHeight+12)+"px");
+  const pp=$("pPanel"), ppH=(pp&&!pp.hidden&&pp.classList.contains("collapsed")&&getComputedStyle(pp).position==="sticky")?pp.offsetHeight+8:0;
+  document.documentElement.style.setProperty("--pp-top",top+"px");
+  nav.style.setProperty("--secnav-top",(top+ppH)+"px");
+  document.documentElement.style.setProperty("--sec-scroll",(top+ppH+nav.offsetHeight+12)+"px");
 }
 let _secRaf=0;
 function secNavActive(){
-  _secRaf=0; const nav=$("secNav"); if(!nav||!nav.offsetParent) return;
-  const y=nav.getBoundingClientRect().bottom+24; let idx=0;
-  secFieldsets().forEach((fs,i)=>{ if(fs.getBoundingClientRect().top<=y) idx=i; });
-  nav.querySelectorAll("[data-sec]").forEach(b=>{ const on=+b.dataset.sec===idx; if(b.classList.contains("cur")!==on){ b.classList.toggle("cur",on); if(on&&nav.scrollWidth>nav.clientWidth) nav.scrollTo({left:b.offsetLeft-nav.clientWidth/2+b.offsetWidth/2,behavior:"smooth"}); } });
+  _secRaf=0; // La pestaña activa depende del clic, no del desplazamiento vertical.
 }
 addEventListener("scroll",()=>{ if(!_secRaf) _secRaf=requestAnimationFrame(secNavActive); },{passive:true});
 addEventListener("resize",()=>{ secNavTop(); secNavActive(); });
@@ -5466,23 +5579,9 @@ function updateSaveFmt(){
   });
 }
 function renderAcct(){
-  const a=$("acct"), st=$("storeStatus");
-  ppVisibility();
-  if(STORE!=="drive"){ a.innerHTML=""; st.innerHTML="Se descarga un archivo con los datos del paciente en este equipo."; return; }
-  if(!CAN_DRIVE){ a.innerHTML=""; st.innerHTML="Google Drive funciona en la versión publicada de la app (no en la vista previa de claude.ai)."; return; }
-  if(apiKey()&&USER){
-    a.innerHTML=`<span class="who" title="Los pacientes se guardan en el Drive compartido del servicio"><span class="ini">H</span><span class="em">Acceso HJM</span>${API_KEY?"":'<button type="button" id="btnOut" title="Olvidar la clave de Drive en este navegador">Desconectar</button>'}</span>`;
-    st.innerHTML=`<span class="folder">${FOLDER_ICON}${esc(FOLDER?FOLDER.name:"Pacientes Oncología HJM")}</span>`;
-    const bo=$("btnOut"); if(bo) bo.onclick=()=>{ LS.del("hjm-key"); USER=null; FOLDER=null; CONNECT_FAIL=false; PP_LAST=0; DRIVE_FILES=[]; renderAcct(); toast("Drive desconectado en este navegador"); };
-    if(!PP_LAST&&!PP_LOADING) loadPatients();
-  } else if(CONNECTING){
-    a.innerHTML=`<span class="who"><span class="ini">H</span><span class="em">Conectando…</span></span>`;
-    st.innerHTML="Conectando con el Drive compartido…";
-  } else {
-    a.innerHTML=`<button type="button" class="btn small" id="btnKey">${!apiKey()?"Conectar a Drive":(CONNECT_FAIL?"Reintentar conexión":"Conectar")}</button>`;
-    st.innerHTML=CONNECT_FAIL?"No se pudo conectar con el servidor.":"Los pacientes se guardan en el Drive compartido del servicio.";
-    $("btnKey").onclick=()=>{ if(!apiKey()){ openResidentGate({keepName:true}); return; } CONNECT_FAIL=false; gcall("hjmUser").then(u=>{ USER=u; renderAcct(); }).catch(driveError); };
-  }
+  ppVisibility(); try{ ppLayout(); }catch(_){}
+  if(STORE==="drive"&&CAN_DRIVE&&apiKey()&&USER&&!PP_LAST&&!PP_LOADING) loadPatients();
+  renderSync();
 }
 document.querySelectorAll(".seg [data-store]").forEach(b=>b.onclick=()=>{ if(b.dataset.store==="drive"&&!CAN_DRIVE){ $("dlgInfo").showModal(); return; } setStore(b.dataset.store); });
 $("infoClose").onclick=$("infoOk").onclick=()=>$("dlgInfo").close();
@@ -5761,7 +5860,19 @@ $("dlgList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDrive
 /* ---------- Panel fijo de pacientes (visible en cuanto se conecta con Drive) ---------- */
 let PP_LAST=0, PP_LOADING=false;
 const ppOn=()=>STORE==="drive"&&CAN_DRIVE&&!!USER&&!!apiKey();
-function ppVisibility(){ const el=$("pPanel"); if(el) el.hidden=!ppOn(); }
+const ppBrowseWanted=()=>PP_BROWSE&&STORE==="drive"&&CAN_DRIVE&&!!apiKey()&&!CONNECT_FAIL;
+function ppVisibility(){ const el=$("pPanel"); if(el) el.hidden=!(ppOn()||(ppBrowseWanted()&&CONNECTING)); }
+/* v2.70 · Tabla de pacientes en 3 tamaños: Ampliada (inicio, formularios ocultos) · Colapsada (paciente cargado o nuevo) · Actual (se despliega con los formularios visibles) */
+const bandPlaceholder=()=>document.body.classList.contains("pp-browse")?"Selecciona un Paciente":"Captura los datos del paciente";
+function ppLayout(){
+  const box=$("pPanel"); if(!box||!window.ppSetCollapsed) return;
+  let want=ppBrowseWanted();
+  if(want&&hasSelectedPatient()){ PP_BROWSE=false; want=false; }
+  document.body.classList.toggle("pp-browse",want);
+  try{ const bn=$("bandName"); if(bn&&bn.classList.contains("empty")) bn.textContent=bandPlaceholder(); }catch(_){}
+  const mode=want?"xl":"form";
+  if(mode!==PP_MODE){ PP_MODE=mode; box.classList.toggle("pp-xl",want); window.ppSetCollapsed(!want); }
+}
 /* Expediente: si ya existe en Drive, aparece en la lista para abrirlo y no sobrescribirlo */
 const expOf=f=>String((f.meta&&f.meta.exp)||patientExpFromFileName(f.name)).trim();
 function expCheck(){
@@ -5810,10 +5921,10 @@ $("ppPrev").onclick=()=>ppScroll(-1); $("ppNext").onclick=()=>ppScroll(1);
 $("ppList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDriveFile(b.dataset.id).then(ppMarkCurrent).catch(driveError); };
 (function(){
   /* La lista de pacientes se muestra abierta por defecto también en el celular (antes se ocultaba en pantallas < 900 px) */
-  const box=$("pPanel"), col=LS.get("hjm-pp-col2");
-  const set=c=>{ box.classList.toggle("collapsed",c); $("ppToggle").setAttribute("aria-expanded",String(!c)); };
-  set(col==="1");
-  $("ppToggle").onclick=()=>{ const c=!box.classList.contains("collapsed"); set(c); LS.set("hjm-pp-col2",c?"1":"0"); };
+  const box=$("pPanel");
+  const set=c=>{ box.classList.toggle("collapsed",c); $("ppToggle").setAttribute("aria-expanded",String(!c)); try{ secNavTop(); }catch(_){} };
+  set(true); window.ppSetCollapsed=set;
+  $("ppToggle").onclick=()=>set(!box.classList.contains("collapsed"));
   /* Al buscar, la lista se abre sola */
   $("ppSearch").addEventListener("input",()=>{ if(box.classList.contains("collapsed")&&$("ppSearch").value.trim()) set(false); });
   window.ppExpand=()=>set(false);
