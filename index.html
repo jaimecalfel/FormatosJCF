@@ -2567,6 +2567,9 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
 #ppList .pp-new:hover{background:#d3e4fc;border-color:#96b8e5;color:#244b80}
 #ppList .pp-new b{display:block;color:inherit;font-size:15px;-webkit-line-clamp:unset}
 #ppList .pp-new .ic{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7}
+.band-btn#bandBack .bb-home,.band-btn#bandBack .bb-pac{display:inline-flex;align-items:center;gap:6px}
+body.showing-format #bandBack .bb-pac,body.showing-clinical #bandBack .bb-pac,body.showing-archive #bandBack .bb-pac{display:none}
+body:not(.showing-format):not(.showing-clinical):not(.showing-archive) #bandBack .bb-home{display:none}
 /* v2.73 · Salir: botón circular solo con el icono */
 .band .band-exit{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;gap:0;margin-right:-8px;flex:none}
 .band .band-exit>span{display:none}
@@ -2591,7 +2594,7 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
   </div>
   <span class="sync-st" id="syncSt" role="status" hidden></span>
   <button class="band-btn" id="bandIdx" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Formatos</button>
-  <button class="band-btn" id="bandBack" type="button" title="Inicio"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>
+  <button class="band-btn" id="bandBack" type="button" title="Pacientes"><span class="bb-home"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</span><span class="bb-pac"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.7-4.5 5.5-4.5s5 1.5 5.5 4.5M16 5.5a3 3 0 0 1 0 5.5M18 14.8c1.7.6 2.7 2 3 4.2"/></svg>Pacientes</span></button>
   <button class="band-btn band-exit" id="bandExit" type="button" title="Cambiar de usuario" aria-label="Salir y cambiar de usuario"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h11"/></svg><span>Salir</span></button>
 </div>
 
@@ -2745,7 +2748,7 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.80 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.81 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -4885,22 +4888,41 @@ function openFormat(key){
 }
 function back(){current=null;currentClinical=null;document.body.classList.remove("showing-archive","showing-format","showing-clinical","rec-side","transfusion-side");$("recPanel").hidden=true;$("bandBack").hidden=false;$("bandIdx").hidden=false;window.scrollTo(0,0);}
 $("bandIdx").onclick=()=>$("formatos").scrollIntoView({behavior:"smooth",block:"start"});
-/* v2.78 · Inicio también en la página principal: guarda, limpia al paciente y vuelve a «Selecciona un Paciente» */
+/* v2.81 · En la Hoja de Datos el botón se llama «Pacientes»: vuelve de inmediato a la tabla y el guardado sigue en segundo plano
+   (se toma una copia del paciente, se deja en la bandeja de pendientes y se sube sin que haya que esperar) */
 let HOME_BUSY=false;
 async function goHome(){
   if(HOME_BUSY) return; HOME_BUSY=true;
   try{
+    let bg=false;
     if(hasSelectedPatient()){
       const d=data();
       if(!d.expediente||!d.nombreCompleto){ notify("No se limpió la hoja: falta expediente o nombre. Los datos se conservaron.","warn"); return; }
-      let ok=true;
-      if(STORE==="drive"&&CAN_DRIVE) ok=await driveSaveNow({silent:true}).catch(()=>false);
-      else { try{ await savePatient(); }catch(_){ ok=false; } }
-      if(!ok){ notify("No se pudo guardar al paciente. Los datos se conservaron para no perderlos.","warn"); return; }
+      if(STORE==="drive"&&CAN_DRIVE){
+        for(let i=0;SAVING&&i<60;i++) await sleep(250);          // si hay un guardado en curso, que termine antes de limpiar
+        const key=expKey(d.expediente), name=fileName(d);
+        const mine=!!LOADED_EXP&&expKey(LOADED_EXP)===key;
+        const exists=DRIVE_FILES.some(f=>expKey(expOf(f))===key);
+        const clean=!DIRTY&&LOADED_BASE&&LOADED_BASE.k===key;
+        if(clean){ /* nada nuevo que guardar */ }
+        else if(exists&&!mine){
+          /* ya existe en Drive y no es el abierto: hay que decidir (abrir o combinar), así que se guarda con aviso */
+          const ok=await driveSaveNow({silent:true}).catch(()=>false);
+          if(!ok){ notify("No se pudo guardar al paciente. Los datos se conservaron para no perderlos.","warn"); return; }
+        } else {
+          const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
+          const baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null;
+          outboxAdd(name,collect(),meta,baseSnap); bg=true;
+        }
+      } else {
+        let ok=true; try{ await savePatient(); }catch(_){ ok=false; }
+        if(!ok){ notify("No se pudo guardar al paciente. Los datos se conservaron para no perderlos.","warn"); return; }
+      }
     }
     fill(DEFAULTS()); if($("ppSearch")) $("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; PP_BROWSE=true;
     try{ ppLayout(); renderPP(); refresh(); }catch(_){}
     window.scrollTo(0,0);
+    if(bg) flushOutbox({quiet:false});
   }finally{ HOME_BUSY=false; }
 }
 $("bandBack").onclick=()=>{ if(current||currentClinical||document.body.classList.contains("showing-archive")) back(); else goHome(); };
