@@ -2561,6 +2561,8 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
 #view-data #formatos #index .index-sub-items[hidden]{display:none!important}
 /* v2.76 · Buscar Paciente fijo (colapsado) bajo la cintilla */
 #pPanel.collapsed{position:sticky;top:var(--pp-top,0px);z-index:13}
+.secnav .sn-i{display:inline-grid;place-items:center;flex:none;color:inherit}
+.secnav .sn-i .ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 /* v2.73 · Salir: botón circular solo con el icono */
 .band .band-exit{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;gap:0;margin-right:-8px;flex:none}
 .band .band-exit>span{display:none}
@@ -2585,7 +2587,7 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
   </div>
   <span class="sync-st" id="syncSt" role="status" hidden></span>
   <button class="band-btn" id="bandIdx" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Formatos</button>
-  <button class="band-btn" id="bandBack" type="button" title="Volver a la Hoja de Datos" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>
+  <button class="band-btn" id="bandBack" type="button" title="Inicio"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>
   <button class="band-btn band-exit" id="bandExit" type="button" title="Cambiar de usuario" aria-label="Salir y cambiar de usuario"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h11"/></svg><span>Salir</span></button>
 </div>
 
@@ -2739,7 +2741,7 @@ body.pp-browse #btnClear{font-size:15px;font-weight:700}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.77 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.79 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -3435,7 +3437,7 @@ updateIndexAvailability();
 $("formatos").addEventListener("click",e=>{
   const b=e.target.closest("[data-fmt]"); if(!b) return;
   if(!hasSelectedPatient()&&!PRINT_ONLY_FORMATS.has(b.dataset.fmt)){
-    notify("Primero selecciona o captura un paciente. Es suficiente con expediente, apellido paterno, apellido materno o nombre.","warn",{center:true,ms:4800});
+    notify("Primero selecciona o captura un paciente.","warn",{center:true,ms:4800});
     return;
   }
   if(DIRECT_SUPP[b.dataset.fmt]){printDirectSupplement(b.dataset.fmt);return;}
@@ -4877,9 +4879,27 @@ function openFormat(key){
   document.body.classList.toggle("rec-side",recentSide); $("recPanel").hidden=!recentSide; if(RECENT_CFG[key]) renderRecent(key);
   syncFormatSaveButtons();syncSectionSwitcher(key);fitPaper(); window.scrollTo(0,0);
 }
-function back(){current=null;currentClinical=null;document.body.classList.remove("showing-archive","showing-format","showing-clinical","rec-side","transfusion-side");$("recPanel").hidden=true;$("bandBack").hidden=true;$("bandIdx").hidden=false;window.scrollTo(0,0);}
+function back(){current=null;currentClinical=null;document.body.classList.remove("showing-archive","showing-format","showing-clinical","rec-side","transfusion-side");$("recPanel").hidden=true;$("bandBack").hidden=false;$("bandIdx").hidden=false;window.scrollTo(0,0);}
 $("bandIdx").onclick=()=>$("formatos").scrollIntoView({behavior:"smooth",block:"start"});
-$("bandBack").onclick=back;
+/* v2.78 · Inicio también en la página principal: guarda, limpia al paciente y vuelve a «Selecciona un Paciente» */
+let HOME_BUSY=false;
+async function goHome(){
+  if(HOME_BUSY) return; HOME_BUSY=true;
+  try{
+    if(hasSelectedPatient()){
+      const d=data();
+      if(!d.expediente||!d.nombreCompleto){ notify("No se limpió la hoja: falta expediente o nombre. Los datos se conservaron.","warn"); return; }
+      let ok=true;
+      if(STORE==="drive"&&CAN_DRIVE) ok=await driveSaveNow({silent:true}).catch(()=>false);
+      else { try{ await savePatient(); }catch(_){ ok=false; } }
+      if(!ok){ notify("No se pudo guardar al paciente. Los datos se conservaron para no perderlos.","warn"); return; }
+    }
+    fill(DEFAULTS()); if($("ppSearch")) $("ppSearch").value=""; PP_AUTO=false; PP_MANUAL=false; PP_BROWSE=true;
+    try{ ppLayout(); renderPP(); refresh(); }catch(_){}
+    window.scrollTo(0,0);
+  }finally{ HOME_BUSY=false; }
+}
+$("bandBack").onclick=()=>{ if(current||currentClinical||document.body.classList.contains("showing-archive")) back(); else goHome(); };
 /* El logotipo del Hospital funciona como botón de Inicio, con teclado y lector de pantalla. */
 const hospitalLogo=document.querySelector(".top > .seal:first-child");
 if(hospitalLogo){
@@ -5403,6 +5423,12 @@ function upsertDriveFile(rec){
 /* ---------- v2.52 · Barra de secciones de la Hoja de Datos (usa el mismo conteo de vacíos de cada sección) ---------- */
 const SEC_SHORT={"Identificación":"Identificación","Cirugía programada":"Cirugía","Solicitud de transfusión":"Transfusión","Resumen / padecimiento actual":"Padecimiento","Resumen clínico":"Resumen clínico","Ingreso e historia clínica":"Ingreso / HC","Ingreso":"Ingreso","Historia clínica":"Historia clínica"};
 const secFieldsets=()=>[...document.querySelectorAll("#datos > fieldset")];
+const SEC_ICONS=[
+ '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.5 1.8-2 3-2s2.4.5 3 2M15 10h3M15 14h3"/></svg>',
+ '<svg class="ic" viewBox="0 0 24 24"><path d="m3.5 18.5 9-9 2 2-9 9a1.4 1.4 0 0 1-2-2Z"/><path d="m13.5 8.5 7-6c.5 3-1.5 6-5 8l-2-2Z"/></svg>',
+ '<svg class="ic" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h6"/></svg>',
+ '<svg class="ic" viewBox="0 0 24 24"><path d="M12 3s6 6.3 6 10.5a6 6 0 0 1-12 0C6 9.3 12 3 12 3z"/></svg>',
+ '<svg class="ic" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.5h6V4M8 10h8M8 14h8M8 18h5"/></svg>'];
 function secTitle(fs){ const lg=fs.querySelector("legend"); const t=lg?[...lg.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join("").trim():""; const m=/^(\d+)\s*·\s*(.+)$/.exec(t); return m?{n:m[1],t:SEC_SHORT[m[2].trim()]||m[2].trim(),full:m[2].trim()}:{n:"",t,full:t}; }
 function showDataSection(index,{scroll=false,focusTab=false}={}){
   const nav=$('secNav'),sections=secFieldsets();if(!nav||!sections[index])return;
@@ -5425,7 +5451,7 @@ function buildSecNav(){
   nav.setAttribute('role','tablist');nav.setAttribute('aria-label','Apartados de la Hoja de Datos');
   nav.innerHTML=sections.map((fs,i)=>{
     if(!fs.id)fs.id='dataSection'+i;fs.setAttribute('role','tabpanel');fs.setAttribute('aria-labelledby','dataTab'+i);
-    return `<button type="button" role="tab" id="dataTab${i}" class="sn" data-sec="${i}" aria-controls="${fs.id}"><span class="sn-t">${esc(secTitle(fs).t)}</span><span class="sn-p"></span></button>`;
+    return `<button type="button" role="tab" id="dataTab${i}" class="sn" data-sec="${i}" aria-controls="${fs.id}"><span class="sn-i" aria-hidden="true">${SEC_ICONS[i]||""}</span><span class="sn-t">${esc(secTitle(fs).t)}</span><span class="sn-p"></span></button>`;
   }).join('');
   nav.onclick=e=>{const button=e.target.closest('[data-sec]');if(button)showDataSection(+button.dataset.sec);};
   nav.onkeydown=e=>{
@@ -6407,7 +6433,7 @@ async function printClinicalSet(tp,ids){
 function printClinical(tp,id){return printClinicalSet(tp,[id]);}
 document.querySelectorAll("[data-clinical]").forEach(b=>b.onclick=()=>{
   if(b.closest(".clinical-index")&&!hasSelectedPatient()){
-    notify("Primero selecciona o captura un paciente. Es suficiente con expediente, apellido paterno, apellido materno o nombre.","warn",{center:true,ms:4800});
+    notify("Primero selecciona o captura un paciente.","warn",{center:true,ms:4800});
     return;
   }
   openClinical(b.dataset.clinical);
@@ -6503,7 +6529,7 @@ $("arSort").addEventListener("change",()=>{ARCHIVE_UI.sort=$("arSort").value;ARC
 $("arClear").onclick=()=>{ARCHIVE_UI.query="";ARCHIVE_UI.group="all";ARCHIVE_UI.sort="desc";ARCHIVE_UI.limits={};$("arSearch").value="";$("arSort").value="desc";renderArchive();};
 $("view-archive").addEventListener("click",e=>{const group=e.target.closest("[data-ar-group]");if(group){ARCHIVE_UI.group=group.dataset.arGroup;renderArchive();return;}const more=e.target.closest("[data-ar-more]");if(more){const k=more.dataset.arMore;ARCHIVE_UI.limits[k]=(ARCHIVE_UI.limits[k]||8)+8;renderArchive();}});
 function openArchive(){
-  if(!hasSelectedPatient()){notify("Primero selecciona o captura un paciente. Es suficiente con expediente, apellido paterno, apellido materno o nombre.","warn",{center:true,ms:4800});return;}
+  if(!hasSelectedPatient()){notify("Primero selecciona o captura un paciente.","warn",{center:true,ms:4800});return;}
   if(current)captureCurrentRecent();
   current=null;currentClinical=null;document.body.classList.remove("showing-format","showing-clinical","rec-side","transfusion-side");document.body.classList.add("showing-archive");
   $("recPanel").hidden=true;$("bandIdx").hidden=true;$("bandBack").hidden=false;renderArchive();window.scrollTo(0,0);
