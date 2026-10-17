@@ -2748,7 +2748,7 @@ body:not(.showing-format):not(.showing-clinical):not(.showing-archive) #bandBack
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.82 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.83 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -5779,6 +5779,7 @@ async function driveSaveNow(opt={}){
     /* Sin aviso de "Guardado": solo se avisa si se combinaron cambios de otro equipo o se reunieron archivos duplicados */
     if(combined||twins.length>1) notify((combined?"Se sumaron cambios hechos desde otro equipo":"")+(combined&&twins.length>1?" · ":"")+(twins.length>1?`Había ${twins.length} archivos con este expediente: todo quedó reunido en ${name}`:""),"info",{ms:7000});
     if(res&&res.id&&res.modified) upsertDriveFile(res); else loadPatients();
+    if(twins.length>1&&res&&res.id) trashExtras(twins.filter(f=>f.id!==res.id));   // v2.83 · los repetidos ya quedaron dentro de este archivo
     return true;
   }catch(e){
     if(String(e&&e.message)==="cancelado"){ $("popHost").replaceChildren(); return false; }
@@ -5797,9 +5798,55 @@ async function driveSaveNow(opt={}){
 function patientExpFromFileName(name){return String(name||"").trim().replace(/\.json$/i,"").replace(/^JCF/i,"");}
 function onlyJsonFiles(list){return (Array.isArray(list)?list:[]).filter(f=>f&&/\.json$/i.test(String(f.name||"").trim()));}
 let DRIVE_FILES=[];
+/* v2.83 · Un solo archivo por paciente: la lista muestra una ficha por expediente (la del archivo principal JCF<exp>.json o, si no existe, la más reciente);
+   si en Drive hay varios archivos del mismo expediente se combinan en el principal y los demás se mandan a la papelera (hjmBorrarDuplicado). */
+const fileTime=f=>Date.parse(f&&f.modified)||0;
+const canonName=f=>"JCF"+(expOf(f).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9_-]/g,"")||"PACIENTE")+".json";
+function pickMain(twins){ return twins.find(f=>f.name===canonName(f))||[...twins].sort((a,b)=>fileTime(b)-fileTime(a))[0]; }
+function uniqueFiles(list){
+  const groups=new Map(); for(const f of list){ const k=expKey(expOf(f)); if(!k){ groups.set(Symbol(),[f]); continue; } (groups.get(k)||groups.set(k,[]).get(k)).push(f); }
+  const out=[]; for(const g of groups.values()) out.push(g.length>1?pickMain(g):g[0]);
+  const ord=new Map(list.map((f,i)=>[f,i])); return out.sort((a,b)=>ord.get(a)-ord.get(b));
+}
+let UNIFY_NODEL=false, UNIFYING=false;
+async function trashExtras(extras){
+  if(UNIFY_NODEL) return false; let ok=true;
+  for(const f of extras){
+    try{ await gcall("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); }
+    catch(e){ ok=false; if(isOldServer(e)||e.code==="accion"||/Acci[oó]n no permitida/.test(String(e&&e.message))){ UNIFY_NODEL=true; SRV_OLD=false; break; } }
+  }
+  if(ok) try{ renderPP(); if($("dlgDrive").open) renderDriveList(); }catch(_){}
+  return ok;
+}
+/* Reúne en el archivo principal todo lo de los archivos repetidos de un expediente y manda los repetidos a la papelera. Devuelve el id del principal. */
+async function unificarPaciente(id){
+  const f0=DRIVE_FILES.find(f=>f.id===id); if(!f0) return id;
+  const key=expKey(expOf(f0)); if(!key) return id;
+  const twins=DRIVE_FILES.filter(f=>expKey(expOf(f))===key); if(twins.length<2) return id;
+  if(UNIFYING) return pickMain(twins).id;
+  UNIFYING=true;
+  try{
+    const main=pickMain(twins), extras=twins.filter(f=>f.id!==main.id);
+    let payload=null, base="";
+    for(const f of [...twins].sort((a,b)=>fileTime(a)-fileTime(b))){      // del más viejo al más nuevo
+      const r=await readRemoteFull(f.id); if(!r.obj) continue;
+      payload=payload?mergePatient(r.obj,payload,null):r.obj;             // lo más nuevo manda, no se pierde nada
+      if(f.id===main.id) base=r.modified||"";
+    }
+    if(!payload) return main.id;
+    payload.guardado=new Date().toISOString();
+    const res=await gcall("hjmSave",FOLDER.id,main.name,JSON.stringify(payload),JSON.stringify(main.meta||{}),JSON.stringify({forzar:true,base}));
+    if(!res||res.conflicto) return main.id;                               // otro equipo guardó en ese instante: se reintenta la próxima vez
+    if(res.id&&res.modified) try{ upsertDriveFile(res); }catch(_){}
+    await trashExtras(extras);
+    notify(`Había ${twins.length} archivos de este paciente: se unificaron en ${main.name}`+(UNIFY_NODEL?" (los repetidos siguen en Drive: falta actualizar Codigo.gs para poder borrarlos)":""),"info",{ms:7000});
+    return main.id;
+  }catch(_){ return id; }
+  finally{ UNIFYING=false; }
+}
 function renderDriveList(){
   const s=$("dlgSearch").value.trim().toUpperCase();
-  const items=DRIVE_FILES.filter(f=>{const p=f.meta||{}; return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s);});
+  const items=uniqueFiles(DRIVE_FILES).filter(f=>{const p=f.meta||{}; return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s);});
   $("dlgList").innerHTML = items.length ? items.map(f=>{ const p=f.meta||{}; const nm=p.nombre||patientExpFromFileName(f.name); const ini=nm.split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("");
     return `<button type="button" class="dlg-item" data-id="${f.id}"><span class="av">${esc(ini||"?")}</span><span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(p.exp||patientExpFromFileName(f.name))}</span>${p.cama?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
     : `<div class="dlg-empty">${DRIVE_FILES.length?"Sin coincidencias.":"No hay pacientes guardados aquí."}</div>`;
@@ -5897,6 +5944,7 @@ async function openDriveFile(id){
   notify("Cargando paciente…","info",{center:true,loading:true,persist:true});
   try{
     if(outboxCount()) await flushOutbox({quiet:true});
+    try{ id=await unificarPaciente(id); }catch(_){}                       // v2.83 · un solo archivo por paciente
     const txt=await gcall("hjmRead",id);let obj=null;try{obj=JSON.parse(txt);}catch(_){}
     let integ=0, altasPend=[]; if(obj&&obj.app==="solicitudes-hjm"){ try{ const r=await integrarPendientes(id,obj); if(r){ if(r.obj) obj=r.obj; integ=r.n; altasPend=r.altasPend||[]; } }catch(_){} }   // v2.53 · notas de PendientesJCF
     if(obj&&restore(obj)){
@@ -5949,7 +5997,7 @@ function ppMarkCurrent(){
 }
 function renderPP(){
   const s=($("ppSearch").value||"").trim().toUpperCase();
-  const items=DRIVE_FILES.filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
+  const items=uniqueFiles(DRIVE_FILES).filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
   $("ppList").innerHTML=items.length?items.slice(0,s?200:60).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
     return `<button type="button" class="dlg-item" data-id="${f.id}" data-exp="${esc(exp)}"><span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
     :`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
