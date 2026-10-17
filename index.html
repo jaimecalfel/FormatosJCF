@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.86">
+<meta name="application-version" content="2.88">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2777,7 +2777,7 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.86 · Fecha de publicación: 17.10.26</div>
+  <div class="app-footer-version">Versión 2.88 · Fecha de publicación: 17.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -3221,7 +3221,20 @@ function fillReportLinkedCells(root,d){
   cell.firstElementChild.textContent=value;
  });
 }
+/* v2.88 · La fecha del consentimiento admite borrado completo y conserva la edición del formato. */
+function consentDateValue(){
+ const root=BUILT.consInf;if(!root)return $('fPlan').value||'';
+ const values=['AK6','AO6','AZ6'].map(ref=>root.querySelector('[data-x="'+ref+'"] > span')?.textContent.trim()||'');
+ return values.some(Boolean)?values.join('.'):'';
+}
+function setConsentDateCapture(value){
+ const digits=String(value||'').replace(/\D/g,'').slice(0,6),values=[digits.slice(0,2),digits.slice(2,4),digits.slice(4,6)],root=BUILT.consInf;
+ ['AK6','AO6','AZ6'].forEach((ref,i)=>{const cell=root?.querySelector('[data-x="'+ref+'"]');if(cell){cell.firstElementChild.textContent=values[i];cell.setAttribute('data-ov','');shrinkOne(cell);}});
+ refreshMirror('consInf');
+ return digits.replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2}\.\d{2})(\d)/,'$1.$2');
+}
 function captureValue(key,field){
+ if(key==='consInf'&&field==='fPlan')return consentDateValue();
  if(key==='repCx'&&field==='fPlan')return reportDateValue();
  if(key==='repCx'&&field==='diagnostico')return BUILT.repCx?.querySelector('[data-c="I27"] > span')?.innerText||'';
  if(key==='repCx'&&field==='cirugia')return BUILT.repCx?.querySelector('[data-c="H28"] > span')?.innerText||'';
@@ -3275,6 +3288,9 @@ function handleCaptureSheetInput(sp,cell){
   syncCaptureControls();if(current==='repCx')renderFormat(current);else refreshMirror(current);return true;
  }
  const part=cell.dataset.sideDatePart;if(!part)return false;
+ if(current==='consInf'&&cell.dataset.sync==='fPlan'){
+  cell.setAttribute('data-ov','');shrinkOne(cell);syncCaptureControls();refreshMirror(current);return true;
+ }
  const field=cell.dataset.sideDateField||cell.dataset.sync,source=$(field);if(!source)return false;
  const value=sp.textContent.trim(),date=parts(source.value)||(field==='fPlan'?parts($('fecha').value):null)||{dd:'',mm:'',yy:''};
  let result='';if(value){if(part==='full')result=parseFullDate(value);else{
@@ -3289,6 +3305,7 @@ function handleCaptureSheetInput(sp,cell){
 document.addEventListener('input',e=>{
  const el=e.target.closest?.('[data-side-field]');if(!el)return;
  const panel=el.closest('[data-capture-format]'),key=panel.dataset.captureFormat,field=el.dataset.sideField;
+ if(key==='consInf'&&field==='fPlan'){el.value=setConsentDateCapture(el.value);return;}
  if(field.startsWith('@')){
   const value=el.value.toUpperCase(),pos=el.selectionStart;el.value=value;el.setSelectionRange(pos,pos);
   BUILT[key]?.querySelectorAll('[data-side-local="'+field.slice(1)+'"] > span').forEach(sp=>{sp.textContent=value;sp.parentElement.setAttribute('data-ov','');shrinkOne(sp.parentElement);});if(key==='repCx')renderFormat(key);else refreshMirror(key);return;
@@ -6277,6 +6294,12 @@ function clinicalRichField(id,label,value,{content=false,large=false}={}){
 function normalizedNoteType(value){
   return ({"Evolución":"Nota de Evolución","Agregada":"Nota Agregada","Gravedad":"Nota de Gravedad","Prequirúrgica":"Nota Preoperatoria","Postquirúrgica":"Nota Postoperatoria"})[value]||value||"Nota de Evolución";
 }
+/* v2.87 · Plantillas editables en el mismo cuadro; el espacio tras cada subtítulo no lleva negritas. */
+const CLINICAL_NOTE_TEMPLATES={"Nota Preoperatoria": "<div><strong>Diagnostico Preoperatorio:</strong> </div><div><strong>Procedimiento Planeado:</strong> </div><div><strong>Cirujano:</strong> </div><div><strong>Ayudantes:</strong> </div><div><strong>Anestesiologo:</strong> </div><div><strong>Antibiotico Profilactico:</strong> </div><div><strong>Tiempo Quirurgico Estimado:</strong> </div><div><strong>Tipo de Anestesia Planeada:</strong> </div><div><strong>Tipo de Procedimiento:</strong> Urgencia</div><div><strong>Sangrado Estimado:</strong> </div><div><br></div><div><strong>Riesgo Quirúrgico</strong> </div><div>Paciente no exento de complicaciones generales como: hemorragia, infección de sitio quirúrgico, sepsis, trombosis venosa profunda, tromboembolia pulmonar, complicaciones anestésicas, paro cardiorrespiratorio y muerte.</div><div><br></div><div><strong>Plan Preoperatorio</strong> </div><div>Consentimiento informado firmado y agregado al expediente clínico, ayuno, profilaxis antibiótica intravenosa, marcaje de sitio quirúrgico , tromboprofilaxis mecánica y farmacológica según escala de Caprini, valoración preanestésica, colocación de sonda nasogástrica a derivación para descompresión gastrointestinal y sonda vesical para monitorización estricta de uresis.</div>", "Nota Postoperatoria": "<div><strong>Diagnóstico de Ingreso:</strong> </div><div><strong>Diagnóstico de Egreso:</strong> </div><div><strong>Cirugía programada:</strong> </div><div><strong>Cirugía realizada:</strong> </div><div><strong>Cirujano:</strong> </div><div><strong>Ayudantes:</strong> </div><div><strong>Anestesiología:</strong> </div><div><strong>Anestesia:</strong> </div><div><strong>Instrumentista:</strong> </div><div><strong>Circulante:</strong> </div><div><strong>Tiempo Quirúrgico:</strong> </div><div><strong>Tiempo Anestésico:</strong> </div><div><strong>Antibiótico profiláctico:</strong> </div><div><strong>Sangrado estimado:</strong> </div><div><strong>Tipo de cirugía:</strong> Limpia-contaminada</div><div><strong>Cuenta textil:</strong> </div><div><strong>Envío de muestras a patología:</strong> </div><div><strong>HALLAZGOS TRANSOPERATORIOS:</strong> </div><div><strong>TÉCNICA QUIRÚRGICA:</strong> </div><div><strong>INCIDENTES Y ACCIDENTES:</strong> </div><div>Ninguno</div><div><strong>PLAN DE MANEJO, TRATAMIENTO POSTOPERATORIO Y PRONÓSTICO:</strong> </div><div>Ayuno hasta nueva orden, con inicio de vía oral progresiva según tolerancia y presencia de peristalsis.</div><div>Líquidos parenterales a requerimiento basal.</div><div>Antibioticoterapia: Continuar esquema.</div><div>Analgesia Multimodal.</div><div>Profilaxis Antitrombótica (según Score de Caprini).</div><div>Vigilancia estrecha: Monitorización de signos vitales, diuresis horaria</div><div>Protocolo ERAS: Movilización temprana asistida y fisioterapia pulmonar incentiva.</div><div>Pronóstico reservado a evolución postquirúrgica inmediata.</div>"};
+function clinicalNoteTemplate(tipo){
+  const key=normalizedNoteType(tipo);
+  return CLINICAL_NOTE_TEMPLATES[key==="Nota Prequirúrgica"?"Nota Preoperatoria":key==="Nota Postquirúrgica"?"Nota Postoperatoria":key]||"";
+}
 function clinicalDateTimeFields(prefix,v){
   return `<div class="clinical-field clinical-date-field"><div class="clinical-shortcut-head"><label for="${prefix}-fecha">Fecha</label><span class="clinical-shortcuts" role="group" aria-label="Elegir fecha"><button type="button" data-cl-date="${prefix}-fecha" data-cl-days="0">Hoy</button><button type="button" data-cl-date="${prefix}-fecha" data-cl-days="1">Mañana</button></span></div><input id="${prefix}-fecha" data-date inputmode="numeric" placeholder="DD.MM.AA" value="${esc(v.fecha||"")}"></div>
   <div class="clinical-field clinical-time-field"><div class="clinical-shortcut-head"><label for="${prefix}-hora">Hora</label><span class="clinical-shortcuts" role="group" aria-label="Elegir hora">${["07:00"].map(h=>`<button type="button" data-cl-time="${prefix}-hora" data-cl-hour="${h}" aria-label="Establecer hora ${h}">${h}</button>`).join("")}</span></div>${clinicalTimeInput(prefix+"-hora",v.hora)}</div>`;
@@ -6290,7 +6313,7 @@ const NOTE_VITAL_FIELDS=[
   {key:"so2",label:"SO2 (%)",print:"SO2",placeholder:"97",mode:"numeric",unit:"%"},
   {key:"uresis",label:"Uresis",print:"Uresis",placeholder:"",mode:"text"}
 ];
-function clinicalNoteUsesTable(tipo){return !["Nota de Ingreso","Nota de Defunción"].includes(normalizedNoteType(tipo));}
+function clinicalNoteUsesTable(tipo){return !["Nota de Ingreso","Nota de Defunción","Nota Preoperatoria","Nota Prequirúrgica","Nota Postoperatoria","Nota Postquirúrgica"].includes(normalizedNoteType(tipo));}
 function syncClinicalNoteVitals(){const vitals=$("clinicalForm").querySelector(".clinical-note-vitals");if(vitals)vitals.hidden=!clinicalNoteUsesTable($("cl-tipo").value);}
 function clinicalNoteVitals(v){
   const signs=v.signos||{};
@@ -6348,7 +6371,7 @@ function clinicalFields(tp,v,opt={}){
     ${clinicalDateTimeFields("cl",v)}
     <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Prequirúrgica","Nota Postoperatoria","Nota de Ingreso","Reingreso a piso","Nota de Diferimiento","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
     ${clinicalNoteVitals(v)}
-    ${clinicalRichField("cl-contenido","Contenido",v.contenido,{content:true})}
+    ${clinicalRichField("cl-contenido","Contenido",v.contenido||clinicalNoteTemplate(v.tipo),{content:true})}
     ${clinicalResponsibleFields("cl",v)}
   </div>`;
   return `<section class="indication-capture" data-indication-slot="${slot}"><div class="clinical-grid" data-kind="indicaciones">
@@ -6407,7 +6430,18 @@ function renderClinicalForm(tp,v=clinicalDefaults(tp),v2=null){
   };
   form.oninput=e=>{resetClearConfirmation();if(e.target.matches("[data-cl-others]")){suggestClinicalOthers(e.target);return;}if(e.target.matches("[data-date]")){const dg=e.target.value.replace(/\D/g,"").slice(0,6);e.target.value=dg.replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2}\.\d{2})(\d)/,"$1.$2");}else if(e.target.matches("[data-time]"))e.target.value=normalizeClinicalTime(e.target.value,true);};
   form.onkeydown=clinicalOthersKeydown;
-  form.onchange=e=>{if(e.target.id==="cl-tipo")syncClinicalNoteVitals();};
+  let draftNoteType=isNote?$("cl-tipo").value:"";
+  const noteDrafts=new Map(isNote?[[draftNoteType,$("cl-contenido").innerHTML]]:[]);
+  form.onchange=e=>{
+    if(e.target.id!=="cl-tipo")return;
+    const editor=$("cl-contenido"),nextType=e.target.value;
+    noteDrafts.set(draftNoteType,editor.innerHTML);
+    if(noteDrafts.has(nextType))editor.innerHTML=noteDrafts.get(nextType);
+    else {const template=clinicalNoteTemplate(nextType);if(template)editor.innerHTML=clinicalRichHTML(template);}
+    draftNoteType=nextType;
+    editor.dispatchEvent(new Event("input",{bubbles:true}));
+    syncClinicalNoteVitals();
+  };
   form.onfocusout=e=>{if(e.target.matches("[data-clear-note-content]"))resetClearConfirmation();if(e.target.matches("[data-cl-others]")){hideClinicalOthers(e.target);return;}if(!e.target.matches("[data-time]"))return;const normalized=normalizeClinicalTime(e.target.value);if(normalized)e.target.value=normalized;};
   form.onmousedown=e=>{if(e.target.closest("[data-cl-other-choice]")){e.preventDefault();return;}const b=e.target.closest("[data-rich-command]");if(!b)return;e.preventDefault();const editor=$(b.dataset.richEditor);if(!editor)return;editor.focus();document.execCommand("styleWithCSS",false,false);document.execCommand(b.dataset.richCommand,false,null);};
   form.onpaste=e=>{if(!e.target.closest(".rich-editor"))return;e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text"));};
