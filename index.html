@@ -2575,6 +2575,18 @@ body:not(.showing-format):not(.showing-clinical):not(.showing-archive) #bandBack
 .band .band-exit>span{display:none}
 .band .band-exit .ic{margin:0}
 </style>
+<style id="v283-browse">
+@media screen{
+#bandNew{display:none!important}
+body.pp-browse #bandNew{display:inline-flex!important;align-items:center;gap:6px;background:#FFFFFF;border:1px solid #FFFFFF;color:#173B5E;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+body.pp-browse #bandNew .ic{width:18px;height:18px;stroke:#173B5E;fill:none;stroke-width:1.8;flex:none}
+body.pp-browse #bandNew:hover,body.pp-browse #bandNew:focus-visible{background:#EAF2F8;border-color:#EAF2F8;color:#0F2D4A}
+body.pp-browse #bandBack{display:none!important}
+body.pp-browse #rcol{display:none!important}
+body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
+}
+@media print{#bandNew{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -2594,7 +2606,7 @@ body:not(.showing-format):not(.showing-clinical):not(.showing-archive) #bandBack
   </div>
   <span class="sync-st" id="syncSt" role="status" hidden></span>
   <button class="band-btn" id="bandIdx" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Formatos</button>
-  <button class="band-btn" id="bandBack" type="button" title="Pacientes"><span class="bb-home"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</span><span class="bb-pac"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.7-4.5 5.5-4.5s5 1.5 5.5 4.5M16 5.5a3 3 0 0 1 0 5.5M18 14.8c1.7.6 2.7 2 3 4.2"/></svg>Pacientes</span></button>
+  <button class="band-btn" id="bandBack" type="button" title="Pacientes"><span class="bb-home"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</span><span class="bb-pac"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.7-4.5 5.5-4.5s5 1.5 5.5 4.5M16 5.5a3 3 0 0 1 0 5.5M18 14.8c1.7.6 2.7 2 3 4.2"/></svg>Pacientes</span></button><button class="band-btn" id="bandNew" type="button" title="Nuevo Paciente"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg>Nuevo Paciente</button>
   <button class="band-btn band-exit" id="bandExit" type="button" title="Cambiar de usuario" aria-label="Salir y cambiar de usuario"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M9 8l-4 4 4 4"/><path d="M5 12h11"/></svg><span>Salir</span></button>
 </div>
 
@@ -2748,7 +2760,7 @@ body:not(.showing-format):not(.showing-clinical):not(.showing-archive) #bandBack
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.83 · Fecha de publicación: 14.10.26</div>
+  <div class="app-footer-version">Versión 2.84 · Fecha de publicación: 14.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -4925,6 +4937,7 @@ async function goHome(){
     if(bg) flushOutbox({quiet:false});
   }finally{ HOME_BUSY=false; }
 }
+$("bandNew").onclick=()=>$("btnClear").click();
 $("bandBack").onclick=()=>{ if(current||currentClinical||document.body.classList.contains("showing-archive")) back(); else goHome(); };
 /* El logotipo del Hospital funciona como botón de Inicio, con teclado y lector de pantalla. */
 const hospitalLogo=document.querySelector(".top > .seal:first-child");
