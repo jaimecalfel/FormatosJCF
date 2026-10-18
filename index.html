@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.88">
+<meta name="application-version" content="2.89">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2777,7 +2777,7 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.88 · Fecha de publicación: 17.10.26</div>
+  <div class="app-footer-version">Versión 2.89 · Fecha de publicación: 17.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -6257,7 +6257,7 @@ function clinicalDefaults(tp,dayOffset=0){
   const last=arCollect([tp])[0],lp=last&&last.r&&last.r.p;
   if(tp==="notas")return {fecha:todayStr(),hora:roundedNoteTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
   const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&typeof lp[k]==="string")?lp[k]:INDICATION_DEFAULTS[k];
-  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,pendientes:"",...linked};
+  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,pendientes:(lp&&typeof lp.pendientes==="string")?lp.pendientes:"",...linked};
 }
 function clinicalRichHTML(value){
   const raw=String(value||""), hasMarkup=/<\/?(?:b|strong|u|ul|ol|li|br|div|p)\b/i.test(raw), t=document.createElement("template");
@@ -6380,7 +6380,7 @@ function clinicalFields(tp,v,opt={}){
     ${clinicalRichField(prefix+"-soluciones","Soluciones",v.soluciones)}
     ${clinicalRichField(prefix+"-medicamentos","Medicamentos",v.medicamentos,{large:true})}
     ${clinicalRichField(prefix+"-cuidados","Cuidados generales",v.cuidados,{large:true})}
-    ${clinicalRichField(prefix+"-pendientes","Pendientes",v.pendientes||"")}
+    ${clinicalRichField(prefix+"-pendientes","Pendientes / Laboratorios / Otros",v.pendientes||"")}
     ${clinicalResponsibleFields(prefix,v)}
   </div></section>`;
 }
