@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.131">
+<meta name="application-version" content="2.132">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2981,7 +2981,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.131 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.132 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -7407,10 +7407,10 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats .st-stat.ok{background:#2E8B57}
 #dlgStats input[type=checkbox]{width:15px!important;height:15px!important;min-width:0!important;max-width:15px;padding:0!important;margin:0!important;flex:none;accent-color:#173B5E}
 #dlgStats label:has(#stMedAll){font-size:11.5px!important;font-weight:600!important;gap:5px!important}
-#hjmCamaMini{position:fixed;inset:auto auto 14px 14px;margin:0;border:0;padding:9px 14px;border-radius:12px;background:#173B5E;color:#fff;font:600 12.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 8px 24px rgba(8,35,61,.35);max-width:min(80vw,340px);display:none}
+#hjmCamaMini{position:fixed;inset:auto auto 7px 7px;margin:0;border:0;padding:6px 11px;border-radius:10px;background:#173B5E;color:#fff;font:600 11.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 6px 18px rgba(8,35,61,.32);max-width:min(80vw,300px);display:none}
 #hjmCamaMini.on{display:flex;align-items:center;gap:8px}
 #hjmCamaMini.ok{background:#2E8B57}
-#hjmCamaMini .sp{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
+#hjmCamaMini .sp{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
 @keyframes cmSpin{to{transform:rotate(360deg)}}
 @media print{#hjmCamaMini{display:none!important}}
 #dlgStats .st-x{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:10px;width:34px;height:34px;font-size:18px;cursor:pointer}
@@ -7868,11 +7868,12 @@ syncAdminClass(); window.__hjmStatsBump=bump;
 </script>
 
 <style id="hjm-offline-css">
-#hjmOffMini{position:fixed;inset:auto auto 62px 14px;margin:0;border:0;padding:9px 14px;border-radius:12px;background:#173B5E;color:#fff;font:600 12.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 8px 24px rgba(8,35,61,.35);max-width:min(84vw,360px);display:none}
+#hjmOffMini{position:fixed;inset:auto auto 7px 7px;margin:0;border:0;padding:6px 11px;border-radius:10px;background:#173B5E;color:#fff;font:600 11.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 6px 18px rgba(8,35,61,.32);max-width:min(84vw,320px);display:none}
+#hjmOffMini.on~#hjmCamaMini.on,body:has(#hjmOffMini.on) #hjmCamaMini.on{inset:auto auto 40px 7px}
 #hjmOffMini.on{display:flex;align-items:center;gap:8px}
 #hjmOffMini.ok{background:#2E8B57}
 #hjmOffMini.warn{background:#B26A00}
-#hjmOffMini .sp{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
+#hjmOffMini .sp{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
 @media print{#hjmOffMini{display:none!important}}
 </style>
 <script id="hjm-offline-js">
