@@ -4,11 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.97">
+<meta name="application-version" content="2.98">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
 <meta name="theme-color" content="#1F3864">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Oncología HJM">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2824,7 +2828,7 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.97 · Fecha de publicación: 18.10.26</div>
+  <div class="app-footer-version">Versión 2.98 · Fecha de publicación: 18.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -7182,5 +7186,11 @@ function labelMobileRecordTables(){
 let mobileTableFrame=0;
 new MutationObserver(()=>{if(mobileTableFrame)return;mobileTableFrame=requestAnimationFrame(()=>{mobileTableFrame=0;labelMobileRecordTables();});}).observe(document.body,{childList:true,subtree:true});
 labelMobileRecordTables();
-</script></body>
+</script><script>
+/* v2.98 · Permite instalar la página como aplicación (requiere manifest.webmanifest, sw.js y los íconos en la misma carpeta) */
+if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+  addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+}
+</script>
+</body>
 </html>
