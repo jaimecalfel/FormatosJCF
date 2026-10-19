@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.142">
+<meta name="application-version" content="2.144">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2741,7 +2741,7 @@ body.pp-browse .band #bandIdx{display:none!important}
 }
 </style>
 <style id="pp-views-v2106">
-/* v2.106 · Tabla de pacientes de la página principal: botones «Cama» y «Recientes» (la tabla pequeña de la hoja de datos no los lleva) */
+/* v2.106 · Tabla de pacientes de la página principal: botones «Cama» y «Todos» (la tabla pequeña de la hoja de datos no los lleva) */
 .pp-view-btns{display:none}
 body.pp-browse .pp-view-btns{display:inline-flex;align-items:center;gap:4px;margin:0 6px 0 4px}
 .pp-actions .pp-view-btns button{width:auto;height:28px;padding:0 11px;border:1px solid rgba(128,148,170,.55);border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:700;line-height:1;display:inline-flex;align-items:center;white-space:nowrap}
@@ -2865,7 +2865,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
           <button type="button" id="ppPrev" title="Anteriores" aria-label="Anteriores"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
           <button type="button" id="ppNext" title="Siguientes" aria-label="Siguientes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button type="button" id="ppRefresh" title="Actualizar lista" aria-label="Actualizar lista"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg></button>
-          <span class="pp-view-btns" role="group" aria-label="Vista de la tabla de pacientes"><button type="button" id="ppViewCama" data-pp-view="cama" aria-pressed="true" title="Pacientes hospitalizados con cama modificados en las últimas 36 horas">Hospitalizado</button><button type="button" id="ppViewRec" data-pp-view="recientes" aria-pressed="false" title="Pacientes recientes">Recientes</button></span>
+          <span class="pp-view-btns" role="group" aria-label="Vista de la tabla de pacientes"><button type="button" id="ppViewCama" data-pp-view="cama" aria-pressed="true" title="Pacientes hospitalizados con cama modificados en las últimas 36 horas">Hospitalizados</button><button type="button" id="ppViewRec" data-pp-view="recientes" aria-pressed="false" title="Todos los pacientes">Todos</button></span>
           <button type="button" id="ppToggle" title="Mostrar u ocultar la lista" aria-label="Mostrar u ocultar la lista" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
         </span>
       </div>
@@ -2987,7 +2987,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.142 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.144 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -6291,7 +6291,7 @@ function renderPP(){
   $("ppList").innerHTML=items.length?items.slice(0,ppShown).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
     const bed=camaMode&&p.cama?`<span class="cama-badge${String(p.cama).trim().length>3?" long":""}" title="Cama ${esc(p.cama)}">${esc(String(p.cama).trim().replace(/^UCI\s*/i,"UCI "))}</span>`:"";
     return `<button type="button" class="dlg-item${bed?" has-bed":""}" data-id="${f.id}" data-exp="${esc(exp)}">${bed}<span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama&&!bed?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
-    :camaMode?'<div class="dlg-empty">Sin pacientes hospitalizados modificados en las últimas 36 horas. Usa «Recientes» o el buscador.</div>':`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
+    :camaMode?'<div class="dlg-empty">Sin pacientes hospitalizados modificados en las últimas 36 horas. Usa «Todos» o el buscador.</div>':`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
   ppMarkCurrent();
 }
 async function loadPatients(opt){
@@ -7434,6 +7434,7 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats .st-tabs button[aria-selected=true]{background:#173B5E;color:#fff}
 #dlgStats .st-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;box-sizing:border-box;margin-left:5px;border-radius:99px;background:#4F86B8;color:#fff;font-size:11px;font-weight:800;vertical-align:middle}
 #dlgStats .st-tabs button[aria-selected=true] .st-cnt{background:#fff;color:#173B5E}
+#dlgStats .st-cnt.st-bad,#dlgStats .st-tabs button[aria-selected=true] .st-cnt.st-bad{background:#D93025;color:#fff}
 #dlgStats .st-in{font:inherit;font-size:13px;padding:8px 12px;border:1px solid #C9D8E8;border-radius:10px;width:100%;box-sizing:border-box}
 #dlgStats .st-tw{overflow:auto;max-height:52vh}
 #dlgStats .st-sm{font-size:11px;padding:3px 9px}
@@ -7688,9 +7689,9 @@ function renderPac(body){
   const bor=((remoteCache&&remoteCache.borrados)||[]).slice(-5).reverse();
   body.innerHTML=`<div class="st-card" id="stPacStats"></div><div class="st-card"><h3>Archivos de pacientes en Drive</h3><input class="st-in" id="stPacQ" placeholder="Buscar por expediente o nombre…" value="${esc(pacQ)}"><div style="display:flex;gap:8px;align-items:center;margin:8px 0"><small id="stPacCount" style="color:#6A7D93"></small><span class="st-msg" id="stPacMsg" style="margin:0"></span></div><div class="st-tw" id="stPacTbl"></div>
   <div class="st-msg" style="margin-top:8px">Eliminar manda el archivo a la papelera de Drive (se puede restaurar desde ahí). «Modificó» se registra desde esta versión en cada guardado; los archivos antiguos lo mostrarán vacío («—») hasta que se vuelvan a guardar.</div>
-  ${bor.length?`<div class="st-msg" style="margin-top:8px"><b>Últimas eliminaciones</b>\n${bor.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · Exp. ${esc(c.exp)} · ${esc(c.nombre||"")} · ${esc(c.by)}`).join("\n")}</div>`:""}</div><div class="st-card" id="stDup"></div>`;
+  ${bor.length?`<div class="st-msg" style="margin-top:8px"><b>Últimas eliminaciones</b>\n${bor.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · Exp. ${esc(c.exp)} · ${esc(c.nombre||"")} · ${esc(c.by)}`).join("\n")}</div>`:""}</div>`;
   $s("stPacQ").oninput=e=>{ pacQ=e.target.value; pacRows(); };
-  pacRows(); drawDup(); drawPacStats(); analyzeAll((d,t)=>{ drawPacStats(`· analizando ${d} de ${t}…`); if($s("stPacTbl")) pacRows(); }).then(()=>{ drawPacStats(); if($s("stPacTbl")) pacRows(); });
+  pacRows(); drawPacStats(); analyzeAll((d,t)=>{ drawPacStats(`· analizando ${d} de ${t}…`); if($s("stPacTbl")) pacRows(); }).then(()=>{ drawPacStats(); if($s("stPacTbl")) pacRows(); });
 }
 const pendInfo=it=>{ let o=null; try{ o=JSON.parse(it.content||""); }catch(_){}
   if(!o) return {kind:"ilegible",by:"",bad:"JSON ilegible"};
@@ -7764,8 +7765,8 @@ async function scanBad(msg,force){
 function renderErr(body){
   const all=[]; Object.entries((remoteCache&&remoteCache.errs)||{}).forEach(([d,l])=>{ if(d!==dev&&Array.isArray(l)) l.forEach(x=>all.push(Object.assign({d},x))); }); errLocal.forEach(x=>all.push(Object.assign({d:dev},x)));
   all.sort((a,b)=>b.ts-a.ts); const sh=all.slice(0,100);
-  body.innerHTML=`<div class="st-card"><h3>Errores y avisos registrados <small style="font-weight:500;color:#6A7D93">· ${all.length} en total (se guardan los últimos 100 por equipo)</small></h3>${sh.length?`<div class="st-tw"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Mensaje</th><th>Equipo</th></tr></thead><tbody>${sh.map(x=>`<tr><td>${new Date(x.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}</td><td>${esc(x.u||"")}</td><td><span class="lv ${x.lvl==="warn"?"warn":""}">${x.lvl==="warn"?"aviso":"error"}</span></td><td style="text-align:left">${esc(x.msg||"")}</td><td>${esc(x.d)}</td></tr>`).join("")}</tbody></table></div><div style="margin-top:9px"><button type="button" class="st-btn" id="stErrClr">Borrar registro de errores</button></div>`:'<div class="st-msg">Sin errores registrados.</div>'}</div>`;
-  const c=$s("stErrClr"); if(c) c.onclick=async()=>{ errLocal=[]; LS.set("hjm-err-log","[]"); dirty=true; await syncRemote({clearErrs:true}); render(); };
+  body.innerHTML=`<div class="st-card" id="stDup"></div>`;
+  drawDup();
   const card=document.createElement("div"); card.className="st-card"; body.appendChild(card);
   const rm=async x=>{ await G(x.where==="Pendientes"?"hjmBorrarPendiente":"hjmBorrarDuplicado",x.id); DRIVE_FILES=DRIVE_FILES.filter(f=>f.id!==x.id); };
   const drawBad=(busy)=>{ card.innerHTML=`<h3>Archivos no viables ${badFiles?`<small style="font-weight:500;color:#6A7D93">· ${badFiles.length} encontrado(s)</small>`:""}</h3><div class="st-msg" style="margin:0 0 8px">Se revisan solos al abrir esta pestaña: archivos dañados, de otro formato (.bak, .doc, .error…) o que no corresponden a la app, en pacientes y pendientes. Los respaldos de la carpeta de respaldo se revisan abajo.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBadGo" ${busy?"disabled":""}>Volver a revisar</button>${badFiles&&badFiles.length?'<button type="button" class="st-btn" id="stBadAll">Eliminar todos</button>':""}<span class="st-msg" id="stBadMsg" style="margin:0">${busy?"Revisando…":esc(BADERR)}</span></div>${badFiles?(badFiles.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Carpeta</th><th>Nombre del archivo</th><th>Problema</th><th></th></tr></thead><tbody>${badFiles.map((x,i)=>`<tr><td>${x.where}</td><td style="text-align:left;word-break:break-all">${esc(x.name||"")}</td><td style="text-align:left">${esc(x.why)}</td><td><button type="button" class="st-btn st-sm" data-bdel="${i}">Eliminar</button></td></tr>`).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Todos los archivos revisados son viables.</div>'):""}`;
@@ -7810,6 +7811,16 @@ function drawQueueCard(body){
   };
   draw(); load().then(draw);
 }
+/* ---------- v2.143 · Marca roja en la pestaña «Errores» cuando alguna tabla tiene elementos con error ---------- */
+let QERR=0;
+const errCount=()=>{ let n=0; try{ n+=dupGroups().length; }catch(_){} n+=(badFiles||[]).length; n+=QERR; n+=(bakData||[]).filter(x=>!x.original).length; return n; };
+async function markErr(){
+  try{ const Q=window.__hjmOffQ; QERR=Q?(await Q.list()).filter(r=>r.err).length:0; }catch(_){}
+  const b=document.querySelector('#dlgStats [data-tab="err"]'); if(!b) return; const n=errCount();
+  const cur=b.querySelector(".st-bad"); if(!n){ if(cur) cur.remove(); return; }
+  if(cur){ if(cur.textContent!==String(n)) cur.textContent=n; } else b.insertAdjacentHTML("beforeend",` <span class="st-cnt st-bad" title="Hay elementos con error">${n}</span>`);
+}
+setInterval(()=>{ try{ const d=$s("dlgStats"); if(d&&d.open) markErr(); }catch(_){} },1500);
 /* ---------- v2.131 · Respaldos (.bak) de la carpeta de respaldo: JSON original vs. respaldo, con Restaurar / Borrar ---------- */
 let bakData=null, bakBusy=false, bakMsg="", bakQ="", bakRows=[];
 const noAccion=e=>!!e&&(e.code==="accion"||/Acci[oó]n no permitida/.test(String(e.message||"")));
@@ -7828,14 +7839,13 @@ function drawBakCard(body){
     const busy=bakBusy, sinJson=(bakData||[]).filter(x=>!x.original).length;
     card.innerHTML=`<h3>Respaldos (.bak) ${bakData?`<small style="font-weight:500;color:#6A7D93">· ${bakData.length} respaldo(s)${sinJson?` · ${sinJson} sin JSON original`:""}</small>`:""}</h3>
     <div class="st-msg" style="margin:0 0 8px">Copias de seguridad de la carpeta de respaldo junto con el JSON actual del mismo expediente. «Restaurar» reemplaza el JSON del paciente por el contenido del respaldo (el .bak se conserva; el JSON anterior queda en el historial de versiones de Drive). «Borrar» manda el .bak a la papelera de Drive.</div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBakGo" ${busy?"disabled":""}>${bakData?"Actualizar":"Cargar respaldos"}</button><input class="st-in" id="stBakQ" placeholder="Buscar por expediente, nombre o archivo…" value="${esc(bakQ)}" style="max-width:300px"><span class="st-msg" id="stBakMsg" style="margin:0">${busy?"Cargando…":esc(bakMsg)}</span></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBakGo" ${busy?"disabled":""}>Actualizar</button><span class="st-msg" id="stBakMsg" style="margin:0">${busy?"Cargando…":esc(bakMsg)}</span></div>
     ${bakData?(bakRows.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Exp. / Paciente</th><th>JSON original</th><th>Peso</th><th>Respaldo (.bak)</th><th>Peso</th><th></th></tr></thead><tbody>${bakRows.map((x,i)=>{ const o=x.original, mas=o&&x.size>o.size, menos=o&&x.size<o.size;
       return `<tr><td style="text-align:left"><b>${esc(x.exp||"—")}</b><br><small style="color:#6A7D93">${esc(String((o&&o.nombre)||"").slice(0,34))}</small></td>
       <td style="text-align:left;word-break:break-all">${o?`${esc(o.name)}<br><small style="color:#6A7D93">${when(o.modified)}</small>`:'<span class="lv warn">sin JSON original</span>'}</td><td>${o?kb(o.size):"—"}</td>
       <td style="text-align:left;word-break:break-all">${esc(x.name)}<br><small style="color:#6A7D93">${when(x.modified)}</small></td><td>${kb(x.size)}${mas?' <span class="lv warn" title="El respaldo pesa más que el JSON actual">mayor</span>':menos?' <small style="color:#6A7D93">menor</small>':""}</td>
       <td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-brest="${i}">Restaurar respaldo</button> <button type="button" class="st-btn st-sm" data-bbak="${i}">Borrar respaldo</button></td></tr>`; }).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Sin respaldos'+(q?" que coincidan.":".")+'</div>'):""}`;
     $s("stBakGo").onclick=async()=>{ draw(); await loadBak(); draw(); };
-    const qi=$s("stBakQ"); qi.oninput=()=>{ bakQ=qi.value; const pos=qi.selectionStart; draw(); const n=$s("stBakQ"); n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} };
     const two=(b,label,fn)=>{ if(!isAdmin()) return; if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent=label; b.classList.remove("st-danger"); } },4000); return; } fn(); };
     card.querySelectorAll("[data-brest]").forEach(b=>b.onclick=()=>two(b,"Restaurar respaldo",async()=>{ const x=bakRows[+b.dataset.brest]; if(!x) return; b.disabled=true; bakMsg="Restaurando "+x.name+"…"; draw();
       try{ await bg(async()=>{ await G("hjmRestaurarRespaldo",x.id); try{ PP_LAST=0; await loadPatients({fresco:true}); }catch(_){} await loadBak(); }); bakMsg="Respaldo restaurado: "+x.name; }
@@ -7848,7 +7858,7 @@ function drawBakCard(body){
 }
 async function render(){
   const body=$s("stBody");
-  const npac=uniqueFiles(DRIVE_FILES).length, tabs=[["stats","Estadísticas"],["pac",`Pacientes <span class="st-cnt">${npac}</span>`],["pend","Pendientes"],["err","Errores"]];
+  const npac=uniqueFiles(DRIVE_FILES).length, nerr=errCount(), tabs=[["stats","Estadísticas"],["pac",`Pacientes <span class="st-cnt">${npac}</span>`],["pend","Pendientes"],["err","Errores"+(nerr?` <span class="st-cnt st-bad" title="Hay elementos con error">${nerr}</span>`:"")]];
   let bar=body.querySelector(".st-tabs"); 
   body.innerHTML='<div class="st-tabs">'+tabs.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${tab===k}">${l}</button>`).join("")+'</div><div id="stTab"></div>';
   body.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; render(); });
@@ -7872,7 +7882,7 @@ async function openStats(){
   const dlg=$s("dlgStats"); $s("stSub").textContent="Solo visible para "+userName();
   if(!PEND_RUN) pendData=null; if(!BAD_RUN) badFiles=null; TASK={stats:false,pac:false,pend:false,err:false}; PROG={}; updStatus();
   $s("stBody").innerHTML='<div class="st-msg">Cargando…</div>'; if(!dlg.open) dlg.showModal();
-  startPend(); startBad();
+  startPend(); startBad(); try{ if(bakData===null&&!bakBusy) loadBak(); }catch(_){}
   analyzeAll((d,t)=>{ PROG.f={d,t}; updStatus(); }).then(()=>taskDone("pac"));
   if(dirty) await syncRemote(); else await loadRemote();
   taskDone("stats"); render();
@@ -7927,7 +7937,7 @@ function mini(text,state,ms){ try{
   try{ if(MINI.showPopover&&!MINI.matches(":popover-open")) MINI.showPopover(); }catch(_){}
   if(ms) MINI_T=setTimeout(()=>{ if(OFF.on) showOffMini(); else mini(""); },ms);
 }catch(_){} }
-function showOffMini(){ mini("Sin conexión · "+(COPY_N()?"copia local":"paciente nuevo")+(QN?" · "+QN+" por subir":""),"warn"); }
+function showOffMini(){ mini(""); }   /* v2.143 · sin aviso inferior: el estado «Sin conexión» ya se ve arriba y en el pie */
 /* ---------- Texto fijo abajo a la izquierda: última copia sin conexión y pendientes ---------- */
 const fdt=t=>{ try{ return new Date(t).toLocaleString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}); }catch(_){ return ""; } };
 function updInfo(){ try{
@@ -8040,7 +8050,7 @@ function enter(){
   FOLDER=FOLDER||folder(); USER=USER||{shared:true,offline:true};
   try{ DRIVE_FILES=onlyJsonFiles(FILES().slice().sort((x,y)=>String(y.modified).localeCompare(String(x.modified)))); PP_LAST=Date.now(); LIST_FULL=Date.now(); }catch(_){}
   if(!COPY_N()){ try{ PP_BROWSE=false; ppLayout(); }catch(_){} }   /* sin copia local: entra como paciente nuevo */
-  if(COPY_N()) showOffMini(); else mini("Sin base de datos","warn",4500);   /* sin copia local: primero «Sin base de datos» y luego el aviso normal */
+  showOffMini();
   updInfo(); try{ renderAcct(); }catch(_){} try{ renderPP(); }catch(_){} renderSync();
   clearInterval(PROBE_T); PROBE_T=setInterval(tryExit,15000);
   /* un intento de conexión que seguía en curso al arrancar puede marcar «falló» después: se corrige para que la tabla siga visible */
