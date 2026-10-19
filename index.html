@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.103">
+<meta name="application-version" content="2.104">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2703,6 +2703,44 @@ body.pp-browse .band #bandIdx{display:none!important}
   body:not(.pp-browse) #view-data #formatos #index{grid-row:5}
 }
 </style>
+<style id="clinical-compact-v2104">
+/* v2.104 · Móvil y Z Fold: Notas Médicas, Indicaciones, Reporte de Cirugía y Nota de Alta con mini índice, título y
+   fila de botones más bajos. La vista de PC (>900 px) no cambia. */
+@media screen and (max-width:900px){
+  /* mini índice */
+  body #view-clinical .section-switcher,body #view-format.clinical-format-workspace .section-switcher{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:calc(100% - 20px);margin:0 auto 8px;padding:3px;gap:4px;border-radius:10px}
+  body #view-clinical .section-switcher .clinical-switch,body #view-format.clinical-format-workspace .section-switcher .clinical-switch{min-height:32px;padding:3px 7px;gap:6px;border-radius:8px}
+  body #view-clinical .section-switcher .clinical-switch span,body #view-format.clinical-format-workspace .section-switcher .clinical-switch span{font-size:11.5px;line-height:1.15}
+  body #view-clinical .section-switcher .clinical-switch-icon,body #view-format.clinical-format-workspace .section-switcher .clinical-switch-icon{width:18px;height:18px}
+  body #view-clinical .section-switcher .clinical-switch-icon .ic,body #view-format.clinical-format-workspace .section-switcher .clinical-switch-icon .ic{width:16px;height:16px}
+  /* título + fila de botones: Notas e Indicaciones */
+  body #view-clinical{padding-top:6px}
+  body #view-clinical .clinical-head{gap:6px;margin-bottom:8px;padding:7px 10px}
+  body #view-clinical .clinical-head .ftitle>span:not(.clinical-title-row){display:none}
+  body #view-clinical .clinical-head .ftitle:before{display:none}
+  body #view-clinical .clinical-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+  body #view-clinical .clinical-head h1{font-size:19px;line-height:1.15;margin:0}
+  body #view-clinical .clinical-head .actions{gap:6px}
+  body #view-clinical .clinical-head .actions .btn{min-height:34px;padding:4px 10px;font-size:12.5px}
+  /* Reporte de Cirugía / Nota de Alta */
+  body #view-format.clinical-format-workspace .fbar{gap:6px;margin:0 0 8px;padding:7px 10px}
+  body #view-format.clinical-format-workspace .fbar .ftitle .fcat{display:none}
+  body #view-format.clinical-format-workspace .fbar .ftitle h1{font-size:19px;line-height:1.15;margin:0}
+  body #view-format.clinical-format-workspace .fbar .actions{gap:6px}
+  body #view-format.clinical-format-workspace .fbar .actions .btn{min-height:34px;padding:4px 10px;font-size:12.5px}
+  body #view-format.clinical-format-workspace .fnote{margin:0 12px 8px;font-size:10.5px;line-height:1.3}
+}
+@media screen and (max-width:700px){
+  /* teléfono: una sola fila de 4, con el icono arriba y el nombre abajo */
+  body #view-clinical .section-switcher .clinical-switch,body #view-format.clinical-format-workspace .section-switcher .clinical-switch{flex-direction:column;gap:1px;min-height:44px;padding:4px 2px 3px;text-align:center}
+  body #view-clinical .section-switcher .clinical-switch>span,body #view-format.clinical-format-workspace .section-switcher .clinical-switch>span{align-self:center!important;justify-self:center}
+  body #view-clinical .section-switcher .clinical-switch span,body #view-format.clinical-format-workspace .section-switcher .clinical-switch span{font-size:10.5px;line-height:1.1;text-align:center}
+  body #view-clinical .clinical-head .actions .btn,body #view-format.clinical-format-workspace .fbar .actions .btn{font-size:12px;gap:5px;padding:4px 7px}
+  body #view-clinical #clinicalSaveTop .sv-ic,body #view-format.clinical-format-workspace #btnSaveFmt .sv-ic{display:none}
+  body #view-clinical #clinicalSaveTop .clinical-save-label{white-space:nowrap}
+}
+</style>
+
 
 
 
@@ -2882,7 +2920,7 @@ body.pp-browse .band #bandIdx{display:none!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.103 · Fecha de publicación: 18.10.26</div>
+  <div class="app-footer-version">Versión 2.104 · Fecha de publicación: 18.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
