@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.135">
+<meta name="application-version" content="2.141">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2850,7 +2850,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
     <label class="resident-gate-field" id="residentGateKeyRow" hidden><span class="resident-key-label"><img class="resident-drive-logo" data-drive-logo alt="Google Drive"><b>CLAVE DE DRIVE</b></span><input id="residentGateKey" type="password" autocomplete="current-password" placeholder="Clave del Servicio de Oncología"></label>
     <a class="resident-gate-request" id="residentGateRequest" href="https://docs.google.com/document/d/1Effsqt0pE4AqIOkhyP8eYwJw8J79aVuK4P7YhaMTlx8/edit?usp=sharing" target="_blank" rel="noopener noreferrer" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M16 6l3 3M14 8l2 2"/></svg>Solicitar Clave</a>
     <p class="resident-gate-msg" id="residentGateMsg" role="alert"></p>
-    <div class="resident-gate-buttons"><button class="resident-gate-offline" id="residentGateOffline" type="button" hidden>Trabajar sin conexión</button><button class="resident-gate-submit" id="residentGateSubmit" type="submit">Ingresar</button></div>
+    <div class="resident-gate-buttons"><button class="resident-gate-submit" id="residentGateSubmit" type="submit">Ingresar</button></div>
   </form>
 </dialog>
 
@@ -2967,10 +2967,8 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
     <div class="rcol" id="rcol">
       <div class="idx-actions">
         <div class="acts">
-        <button class="btn" type="button" id="btnOpen"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13l3-9H7l-3 9"/></svg>Abrir</button>
         <button class="btn primary" type="button" id="btnSave"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>Guardar</button>
         <button class="btn clear" type="button" id="btnClear"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg>Nuevo Paciente</button>
-        <input type="file" id="fileOpen" accept=".json,application/json" hidden>
         </div>
       </div>
     <aside aria-label="Formatos" id="formatos">
@@ -2989,9 +2987,10 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.135 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.141 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
+    <p id="hjmOffInfo" role="status" hidden></p>
   </footer>
 </main>
 
@@ -5468,7 +5467,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxk5VCgou7P8Kpe13OMV2WW
 const API_KEY = "";   // ← (opcional) clave del equipo. Si se deja vacía, la app la pide una vez o la toma del enlace  ...#k=CLAVE
 const LS = { get(k){ try{return localStorage.getItem(k)}catch(_){return null} }, set(k,v){ try{localStorage.setItem(k,v)}catch(_){} }, del(k){ try{localStorage.removeItem(k)}catch(_){} } };
 const CAN_DRIVE = !inFrame;          // en la vista previa de claude.ai no se puede llamar a Google
-let STORE = CAN_DRIVE ? (LS.get("hjm-store")||"drive") : "local";
+let STORE = CAN_DRIVE ? "drive" : "local";   /* v2.136 · ya no hay «Este equipo»: el modo sin conexión usa la copia local de expedientes */
 let USER=null, FOLDER=null, CONNECTING=false, CONNECT_FAIL=false;
 let PP_BROWSE=true, PP_MODE=null;   // v2.70 · true = inicio con la tabla ampliada y los formularios ocultos
 const FOLDER_ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
@@ -5494,7 +5493,6 @@ function updateGateClinic(){
 function openResidentGate(opt={}){
   const dlg=$("dlgResidentGate"),needsKey=!apiKey();
   $("residentGateKeyRow").hidden=!needsKey;$("residentGateRequest").hidden=!needsKey;$("residentGateKey").required=false;
-  $("residentGateOffline").hidden=!needsKey||!CAN_DRIVE;
   $("residentGateKey").value="";$("residentGateName").value=opt.keepName?sessionUserName():"";$("residentGateMsg").textContent="";$("residentGateMsg").classList.remove("ok","info");
   hideGateSuggestions();
   if(!dlg.open)dlg.showModal();
@@ -5525,16 +5523,6 @@ function applyGateUser(name){
   refresh();
   if(currentClinical&&typeof renderClinicalRecents==="function")renderClinicalRecents(currentClinical);
 }
-/* Trabajar sin conexión: entra con el usuario y cambia a guardar en Este equipo */
-$("residentGateOffline").onclick=()=>{
-  const name=resolveGateUser();
-  if(!name)return;
-  applyGateUser(name);
-  setStore("local");
-  IDLE_LOCKED=false;
-  $("dlgResidentGate").close();
-  toast("Trabajando sin conexión · los pacientes se guardan en este equipo");
-};
 /* Salir: vuelve a pedir el usuario actual (y la clave de Drive solo si este navegador no la tiene) */
 let EXITING=false;
 /* Inactividad: si la página no se usa en 10 minutos, al volver a usarla se pide de nuevo el usuario actual.
@@ -5885,8 +5873,6 @@ function setStore(v){
   STORE=v; LS.set("hjm-store",v);
   document.querySelectorAll(".seg [data-store]").forEach(b=>b.setAttribute("aria-checked", b.dataset.store===v));
   $("btnSave").lastChild.textContent = "Guardar";
-  $("btnOpen").lastChild.textContent = "Abrir";
-  $("btnOpen").hidden = (v==="drive"&&CAN_DRIVE);          // con Drive se abre desde el panel de pacientes
   updateSaveFmt();
   renderAcct();
 }
@@ -7184,14 +7170,6 @@ const doSave=()=>{if(loadedFormatRecord()){saveLoadedFormat("new");return;}confi
 function doSaveNow(){ captureCurrentRecent(); if(STORE==="drive"&&CAN_DRIVE) driveSaveNow().catch(driveError); else if(STORE==="drive") $("dlgInfo").showModal(); else savePatient(); }
 $("btnSave").onclick=doSave; $("btnSaveFmt").onclick=doSave;
 $("btnEditFmt").onclick=()=>saveLoadedFormat("edit");
-$("btnOpen").onclick=()=>{ if(STORE==="drive"&&CAN_DRIVE) driveOpen().catch(e=>{ if($("dlgDrive").open) $("dlgDrive").close(); driveError(e); }); else if(STORE==="drive") $("dlgInfo").showModal(); else $("fileOpen").click(); };
-$("fileOpen").onchange=async e=>{
-  const f=e.target.files[0]; e.target.value=""; if(!f) return;
-  if(!/\.json$/i.test(f.name)){ notify("Solo se pueden abrir archivos .json de pacientes.","err"); return; }
-  const txt=await f.text(); let obj=null;
-  try{ obj=JSON.parse(txt); }catch(_){}
-  if(obj&&restore(obj)) notify("Paciente abierto · "+f.name,"ok"); else notify("Ese archivo no tiene datos de un paciente guardado.","err");
-};
 setStore(STORE); initDrive();
 
 
@@ -7415,7 +7393,7 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats .st-stat.ok{background:#2E8B57}
 #dlgStats input[type=checkbox]{width:15px!important;height:15px!important;min-width:0!important;max-width:15px;padding:0!important;margin:0!important;flex:none;accent-color:#173B5E}
 #dlgStats label:has(#stMedAll){font-size:11.5px!important;font-weight:600!important;gap:5px!important}
-#hjmCamaMini{position:fixed;inset:auto auto 7px 7px;margin:0;border:0;padding:6px 11px;border-radius:10px;background:#173B5E;color:#fff;font:600 11.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 6px 18px rgba(8,35,61,.32);max-width:min(80vw,300px);display:none}
+#hjmCamaMini{position:fixed;inset:auto auto 7px 6px;margin:0;border:0;padding:6px 11px;border-radius:10px;background:#173B5E;color:#fff;font:600 11.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 6px 18px rgba(8,35,61,.32);max-width:min(80vw,300px);display:none}
 #hjmCamaMini.on{display:flex;align-items:center;gap:8px}
 #hjmCamaMini.ok{background:#2E8B57}
 #hjmCamaMini .sp{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
@@ -7801,7 +7779,36 @@ function renderErr(body){
       try{ await rm(x); badFiles.splice(+b.dataset.bdel,1); try{ renderPP(); }catch(_){} drawBad(); }catch(e){ drawBad(); $s("stBadMsg").textContent="No se pudo eliminar: "+friendly(e); } }); };
   const run=()=>{ badFiles=null; startBad(true,true); drawBad(true); };
   if(badFiles===null&&!BAD_RUN) startBad(); drawBad(BAD_RUN||badFiles===null);
+  drawQueueCard(body);
   drawBakCard(body);
+}
+
+/* ---------- v2.136 · Cambios hechos sin conexión pendientes de subir: Intentar subir / Borrar ---------- */
+function drawQueueCard(body){
+  const card=document.createElement("div"); card.className="st-card"; body.appendChild(card);
+  let rows=null, msg="", busy=false;
+  const when=t=>new Date(Number(t)||0).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});
+  const nCamb=r=>{ const p=r.pend||{}; return (p.cambios||[]).length+Object.values(p.historial||{}).reduce((a,l)=>a+(l||[]).length,0); };
+  const load=async()=>{ const Q=window.__hjmOffQ; rows=Q?await Q.list():[]; };
+  const draw=()=>{ if(!card.isConnected) return;
+    card.innerHTML=`<h3>Pendientes por subir (sin conexión) ${rows?`<small style="font-weight:500;color:#6A7D93">· ${rows.length}</small>`:""}</h3>
+    <div class="st-msg" style="margin:0 0 8px">Lo guardado sin conexión en este dispositivo espera aquí hasta subirse a Drive. «Intentar subir» lo sube ahora si hay conexión; «Borrar» descarta esos cambios de este dispositivo (no se suben).</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stQGo" ${busy||!rows||!rows.length?"disabled":""}>Intentar subir todos</button><button type="button" class="st-btn" id="stQAll" ${busy||!rows||!rows.length?"disabled":""}>Borrar todos</button><button type="button" class="st-btn" id="stQRef" ${busy?"disabled":""}>Actualizar</button><span class="st-msg" id="stQMsg">${esc(msg)}</span></div>
+    ${rows?(rows.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Exp. / Paciente</th><th>Tipo</th><th>Cambios</th><th>Última edición</th><th>Estado</th><th></th></tr></thead><tbody>${rows.map((r,i)=>{ const nm=(r.cur&&r.cur.datos&&r.cur.datos.nombreCompleto)||(r.meta&&r.meta.nombre)||((r.cur&&r.cur.datos)?[r.cur.datos.nombres,r.cur.datos.apPaterno,r.cur.datos.apMaterno].filter(Boolean).join(" "):"");
+      return `<tr><td style="text-align:left"><b>${esc(r.exp||"—")}</b><br><small style="color:#6A7D93">${esc(String(nm||"").slice(0,34))}</small></td><td>${r.nuevo?"Paciente nuevo":"Cambios"}</td><td>${r.nuevo?"—":nCamb(r)}</td><td>${when(r.last)}<br><small style="color:#6A7D93">${esc(r.user||"")}</small></td>
+      <td style="text-align:left">${r.err?`<span class="lv warn" title="${esc(r.err)}">error al subir</span><br><small style="color:#6A7D93">${esc(String(r.err).slice(0,60))}</small>`:'<span class="lv">en espera</span>'}</td>
+      <td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-qup="${i}">Intentar subir</button> <button type="button" class="st-btn st-sm" data-qdel="${i}">Borrar</button></td></tr>`; }).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">No hay nada pendiente de subir.</div>'):'<div class="st-msg" style="margin-top:8px">Cargando…</div>'}`;
+    const Q=window.__hjmOffQ;
+    const tryUp=async()=>{ busy=true; msg="Subiendo…"; draw(); let n=0;
+      try{ n=Q?await Q.flush():0; msg=n<0?"Sin conexión con Drive: se reintentará solo al volver.":n?`Se subieron ${n}.`:"No se pudo subir; revisa el estado de cada uno."; }catch(e){ msg="No se pudo subir: "+friendly(e); }
+      await load(); busy=false; draw(); };
+    $s("stQGo").onclick=tryUp; $s("stQRef").onclick=async()=>{ await load(); msg=""; draw(); };
+    const two=(b,label,fn)=>{ if(!isAdmin()) return; if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent=label; b.classList.remove("st-danger"); } },4000); return; } fn(); };
+    $s("stQAll").onclick=function(){ two(this,"Borrar todos",async()=>{ busy=true; draw(); for(const r of rows) try{ await Q.del(r.k); }catch(_){} await load(); busy=false; msg="Pendientes borrados de este dispositivo."; draw(); }); };
+    card.querySelectorAll("[data-qdel]").forEach(b=>b.onclick=()=>two(b,"Borrar",async()=>{ const r=rows[+b.dataset.qdel]; if(!r) return; try{ await Q.del(r.k); }catch(_){} await load(); msg="Pendiente borrado: "+(r.exp||""); draw(); }));
+    card.querySelectorAll("[data-qup]").forEach(b=>b.onclick=()=>tryUp());
+  };
+  draw(); load().then(draw);
 }
 /* ---------- v2.131 · Respaldos (.bak) de la carpeta de respaldo: JSON original vs. respaldo, con Restaurar / Borrar ---------- */
 let bakData=null, bakBusy=false, bakMsg="", bakQ="", bakRows=[];
@@ -7877,12 +7884,15 @@ syncAdminClass(); window.__hjmStatsBump=bump;
 </script>
 
 <style id="hjm-offline-css">
-#hjmOffMini{position:fixed;inset:auto auto 7px 7px;margin:0;border:0;padding:6px 11px;border-radius:10px;background:#173B5E;color:#fff;font:600 11.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 6px 18px rgba(8,35,61,.32);max-width:min(84vw,320px);display:none}
-#hjmOffMini.on~#hjmCamaMini.on,body:has(#hjmOffMini.on) #hjmCamaMini.on{inset:auto auto 40px 7px}
+#hjmOffMini{position:fixed;inset:auto auto 7px 6px;margin:0;border:0;padding:6px 11px;border-radius:10px;background:#173B5E;color:#fff;font:600 11.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 6px 18px rgba(8,35,61,.32);max-width:min(84vw,320px);display:none}
+#hjmOffMini.on~#hjmCamaMini.on,body:has(#hjmOffMini.on) #hjmCamaMini.on{inset:auto auto 40px 6px}
 #hjmOffMini.on{display:flex;align-items:center;gap:8px}
 #hjmOffMini.ok{background:#2E8B57}
 #hjmOffMini.warn{background:#B26A00}
 #hjmOffMini .sp{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
+#hjmOffInfo[hidden]{display:none!important}
+
+#hjmOffInfo .pen{color:#B26A00;font-weight:700}
 @media print{#hjmOffMini{display:none!important}}
 </style>
 <script id="hjm-offline-js">
@@ -7899,9 +7909,12 @@ const IDB=(()=>{ let p=null;
   const tx=async(s,m,f)=>{ const d=await open(); return new Promise((res,rej)=>{ const t=d.transaction(s,m), st=t.objectStore(s); let out; const rq=f(st); if(rq) rq.onsuccess=()=>{ out=rq.result; }; t.oncomplete=()=>res(out); t.onerror=t.onabort=()=>rej(t.error||new Error("idb")); }); };
   return { get:(s,k)=>tx(s,"readonly",st=>st.get(k)), put:(s,k,v)=>tx(s,"readwrite",st=>st.put(v,k)), del:(s,k)=>tx(s,"readwrite",st=>st.delete(k)), keys:s=>tx(s,"readonly",st=>st.getAllKeys()), all:s=>tx(s,"readonly",st=>st.getAll()) }; })();
 let LIST=null, IDX={}, QN=0, SYNCING=false, FLQ=false, PROBE_T=0, VARIOS=true, MINI=null, MINI_T=0;
-const loaded=(async()=>{ try{ LIST=(await IDB.get("meta","list"))||null; IDX=(await IDB.get("meta","idx"))||{}; QN=(await IDB.keys("queue")).length; }catch(_){ LIST=null; } try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch(_){} })();
-const ready=()=>!!LIST&&Object.keys(IDX).length>0;
+const loaded=(async()=>{ try{ LIST=(await IDB.get("meta","list"))||{files:[],folder:null,at:0}; IDX=(await IDB.get("meta","idx"))||{}; QN=(await IDB.keys("queue")).length; }catch(_){ LIST={files:[],folder:null,at:0}; } updInfo(); try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch(_){} })();
+/* v2.138 · PC vs. móvil por el tipo de dispositivo (no por el ancho): una ventana de Windows a media pantalla sigue siendo PC */
+const IS_PC=()=>!/Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(navigator.userAgent)&&!(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+const ready=()=>!!LIST&&IS_PC();
 const FILES=()=>((LIST&&LIST.files)||[]).filter(f=>IDX[f.id]||f.local);
+const COPY_N=()=>FILES().filter(f=>!f.local).length;
 const fdate=t=>{ try{ return new Date(t).toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } };
 
 /* ---------- Mensaje inferior izquierdo ---------- */
@@ -7914,7 +7927,17 @@ function mini(text,state,ms){ try{
   try{ if(MINI.showPopover&&!MINI.matches(":popover-open")) MINI.showPopover(); }catch(_){}
   if(ms) MINI_T=setTimeout(()=>{ if(OFF.on) showOffMini(); else mini(""); },ms);
 }catch(_){} }
-function showOffMini(){ mini("Sin conexión · copia del "+fdate((LIST&&LIST.at)||Date.now())+(QN?" · "+QN+(QN===1?" cambio":" cambios")+" por subir":""),"warn"); }
+function showOffMini(){ mini("Sin conexión · "+(COPY_N()?"copia local":"paciente nuevo")+(QN?" · "+QN+" por subir":""),"warn"); }
+/* ---------- Texto fijo abajo a la izquierda: última copia sin conexión y pendientes ---------- */
+const fdt=t=>{ try{ return new Date(t).toLocaleString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}); }catch(_){ return ""; } };
+function updInfo(){ try{
+  const el=$o("hjmOffInfo"); if(!el) return;
+  if(!IS_PC()){ el.hidden=true; return; } el.hidden=false;
+  const n=COPY_N(), at=LIST&&LIST.at;
+  const l1=at&&n?"Última copia sin conexión guardada: "+fdt(at):"Sin copia sin conexión guardada";
+  const l2=QN?"Pendiente de subir: "+QN+(QN===1?" paciente":" pacientes"):"Nada pendiente de subir";
+  el.textContent=l1+" · "; const b=document.createElement("span"); b.textContent=l2; if(QN) b.className="pen"; el.append(b);
+}catch(_){} }
 
 /* ---------- ¿hay internet de verdad? (el navegador puede decir «en línea» con Wi-Fi sin salida) ---------- */
 async function probe(){
@@ -7973,8 +7996,8 @@ window.__hjmAplicarOffline=aplicar;
 /* ---------- Respuestas locales cuando no hay internet ---------- */
 const folder=()=>(LIST&&LIST.folder)||FOLDER||{id:"",name:"Pacientes"};
 async function docOf(id){ const d=await IDB.get("docs",id); if(!d){ const e=new Error("Este paciente todavía no está en la copia sin conexión de este equipo."); e.code="offline"; throw e; } return d; }
-async function persistList(){ try{ await IDB.put("meta","list",LIST); await IDB.put("meta","idx",IDX); }catch(_){} }
-async function qCount(){ try{ QN=(await IDB.keys("queue")).length; }catch(_){} try{ renderSync(); }catch(_){} if(OFF.on) showOffMini(); }
+async function persistList(){ try{ await IDB.put("meta","list",LIST); await IDB.put("meta","idx",IDX); }catch(_){} updInfo(); }
+async function qCount(){ try{ QN=(await IDB.keys("queue")).length; }catch(_){} try{ renderSync(); }catch(_){} updInfo(); if(OFF.on) showOffMini(); }
 async function offSave(a){
   const name=String(a[1]||""), content=String(a[2]||""), meta=(()=>{ try{ return JSON.parse(a[3]||"{}")||{}; }catch(_){ return {}; } })();
   const obj=JSON.parse(content), k=expKey((obj.datos||{}).expediente||meta.exp); if(!k) throw new Error("Falta el expediente");
@@ -7983,7 +8006,7 @@ async function offSave(a){
   const doc=ent?await IDB.get("docs",ent.id):null;
   const rec=old||{k,exp:String((obj.datos||{}).expediente||meta.exp||"").trim(),name:ent?ent.name:name,fileId:ent?ent.id:"local-"+now.toString(36),rmod:ent?(IDX[ent.id]||ent.modified):"",
     nuevo:!doc,base:doc?(doc.rcontent||doc.content):null,created:now,user:String(sessionUserName()||"").toLocaleUpperCase("es-MX")};
-  rec.cur=obj; rec.last=now; rec.meta=Object.assign({},meta,{ed:rec.user||meta.ed}); if(!rec.user) rec.user=String(sessionUserName()||"").toLocaleUpperCase("es-MX");
+  rec.cur=obj; rec.last=now; rec.err=null; rec.meta=Object.assign({},meta,{ed:rec.user||meta.ed}); if(!rec.user) rec.user=String(sessionUserName()||"").toLocaleUpperCase("es-MX");
   if(!rec.nuevo){ const x=diffObj(JSON.parse(rec.base),obj,rec.pend); rec.pend=mkPend(rec,x); rec.vacio=x.vacio; }
   if(!rec.nuevo&&rec.vacio) await IDB.del("queue",k); else await IDB.put("queue",k,rec);
   const id=ent?ent.id:rec.fileId;
@@ -8015,7 +8038,9 @@ function enter(){
   if(OFF.on) return; OFF.on=true; NET_FAIL=false; CONNECT_FAIL=false;
   FOLDER=FOLDER||folder(); USER=USER||{shared:true,offline:true};
   try{ DRIVE_FILES=onlyJsonFiles(FILES().slice().sort((x,y)=>String(y.modified).localeCompare(String(x.modified)))); PP_LAST=Date.now(); LIST_FULL=Date.now(); }catch(_){}
-  showOffMini(); try{ renderAcct(); }catch(_){} try{ renderPP(); }catch(_){} renderSync();
+  if(!COPY_N()){ try{ PP_BROWSE=false; ppLayout(); }catch(_){} }   /* sin copia local: entra como paciente nuevo */
+  if(COPY_N()) showOffMini(); else mini("Sin base de datos","warn",4500);   /* sin copia local: primero «Sin base de datos» y luego el aviso normal */
+  updInfo(); try{ renderAcct(); }catch(_){} try{ renderPP(); }catch(_){} renderSync();
   clearInterval(PROBE_T); PROBE_T=setInterval(tryExit,15000);
   /* un intento de conexión que seguía en curso al arrancar puede marcar «falló» después: se corrige para que la tabla siga visible */
   let n=0; const fx=setInterval(()=>{ if(!OFF.on||++n>14){ clearInterval(fx); return; } if(CONNECT_FAIL){ CONNECT_FAIL=false; try{ renderAcct(); renderPP(); renderSync(); }catch(_){} } },1000);
@@ -8046,7 +8071,7 @@ window.renderSync=function(){
     el.textContent=QN?"Sin conexión · "+QN+" por subir":"Sin conexión";
     el.title="Trabajando con la copia de este equipo; lo que captures se sube solo a Drive cuando vuelva el internet"; el.hidden=false; }catch(_){}
 };
-addEventListener("offline",async()=>{ await loaded; if(!OFF.on&&ready()&&!(await probe())) enter(); });
+addEventListener("offline",async()=>{ await loaded; if(!OFF.on&&ready()&&apiKey()&&!(await probe())) enter(); });
 addEventListener("online",()=>{ if(OFF.on) tryExit(); });
 
 /* ---------- Subir la cola al volver el internet ---------- */
@@ -8066,13 +8091,13 @@ async function aplicarDirecto(rec,twins,pend){            // Codigo.gs sin hjmSu
 async function cleanLocal(rec){ if(rec&&/^local-/.test(rec.fileId||"")){ try{ await IDB.del("docs",rec.fileId); }catch(_){} delete IDX[rec.fileId]; if(LIST) LIST.files=LIST.files.filter(f=>f.id!==rec.fileId); await persistList(); } }
 async function flushQueue(){
   if(FLQ||OFF.on) return 0; let recs=[]; try{ recs=await IDB.all("queue"); }catch(_){ return 0; }
-  if(!recs.length) return 0; FLQ=true; let sent=0, directo=0, fail=null;
+  if(!recs.length) return 0; FLQ=true; let sent=0, directo=0, fail=null, cur=null;
   try{
     mini("Subiendo cambios hechos sin conexión… ("+recs.length+")");
     if(!FOLDER||!FOLDER.id) FOLDER=await _call("hjmGetFolder");
     let list=onlyJsonFiles(await _call("hjmList",null,{fresco:true}));
     recs.sort((a,b)=>a.last-b.last);
-    for(const rec of recs){
+    for(const rec of recs){ cur=rec;
       let twins=list.filter(f=>expKey(expOf(f))===rec.k);
       if((rec.nuevo&&!twins.length)||(!rec.nuevo&&!twins.length)){      // el paciente no existe en Drive: se crea
         const res=await _call("hjmSave",FOLDER.id,rec.name,JSON.stringify(rec.cur),JSON.stringify(rec.meta||{}),JSON.stringify({}));
@@ -8086,7 +8111,7 @@ async function flushQueue(){
       catch(e){ if(sinAccion(e)){ await aplicarDirecto(rec,twins,pend); directo++; } else throw e; }
       await IDB.del("queue",rec.k); await cleanLocal(rec); sent++;
     }
-  }catch(e){ fail=e; }
+  }catch(e){ fail=e; if(cur){ cur.err=String((e&&e.message)||e).slice(0,200); cur.errAt=Date.now(); try{ await IDB.put("queue",cur.k,cur); }catch(_){} } }
   finally{ FLQ=false; await qCount(); }
   if(sent){ mini("✓ "+sent+(sent===1?" paciente con cambios sin conexión subido":" pacientes con cambios sin conexión subidos"),"ok",7000);
     try{ notify(directo?`Se subieron los cambios hechos sin conexión (${sent}). Se integraron directo en cada expediente porque Codigo.gs aún no tiene la acción hjmSubirPendiente (v7).`:`Se subieron a PendientesJCF los cambios hechos sin conexión (${sent}). Se integran al abrir cada paciente.`,directo?"warn":"ok",{ms:9000}); }catch(_){} }
@@ -8097,7 +8122,7 @@ async function flushQueue(){
 
 /* ---------- Mantener la copia local al día (en cada conexión con Drive) ---------- */
 async function sync(){
-  if(!matchMedia("(min-width:901px)").matches) return;   // la copia local solo se descarga en PC (>900 px)
+  if(!IS_PC()) return;   // la copia local solo se descarga en PC (no en celular/tableta)
   if(OFF.on||SYNCING||FLQ||!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()||!USER||USER.offline||!FOLDER||navigator.onLine===false) return;
   SYNCING=true; await loaded;
   try{
@@ -8132,23 +8157,24 @@ async function sync(){
 window.initDrive=async function(){ const r=await _initDrive.apply(this,arguments); if(USER&&!USER.offline) setTimeout(sync,6000); return r; };
 setInterval(()=>{ if(!document.hidden) sync(); },300000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!OFF.on&&LIST&&Date.now()-((LIST&&LIST.at)||0)>600000) sync(); });
-loaded.then(async()=>{ if(!USER&&ready()&&(navigator.onLine===false||!(await probe()))) enter(); setTimeout(()=>{ if(USER&&!USER.offline) sync(); },10000); });
-window.__hjmOffSync=sync; window.__hjmOffFlush=flushQueue;
+loaded.then(async()=>{ updInfo();
+  if(IS_PC()&&!apiKey()&&!USER&&(navigator.onLine===false||!(await probe()))){ LS.set("hjm-key","__sin-conexion__"); try{ $o("residentGateKeyRow").hidden=true; }catch(_){} }   /* sin internet no hace falta la clave: se pedirá al volver la conexión */
+  if(!USER&&ready()&&apiKey()&&(navigator.onLine===false||!(await probe()))) enter(); setTimeout(()=>{ if(USER&&!USER.offline) sync(); },10000); });
 
-/* v2.135 · Sin conexión con copia local: la vista y el buscador de pacientes funcionan igual que con conexión.
-   El botón «Trabajar sin conexión» ya no cambia a «Este equipo» si el expediente está en la copia local (eso apagaba la tabla y el buscador). */
+
+window.__hjmOffSync=sync; window.__hjmOffFlush=flushQueue;
+window.__hjmOffQ={
+  list:async()=>{ await loaded; try{ return (await IDB.all("queue")).sort((a,b)=>b.last-a.last); }catch(_){ return []; } },
+  flush:async()=>{ await loaded; if(!(await probe())) return -1; if(OFF.on){ await tryExit(); return (await IDB.keys("queue")).length?0:1; } return flushQueue(); },
+  del:async k=>{ const rec=await IDB.get("queue",k); if(!rec) return; await IDB.del("queue",k);
+    if(/^local-/.test(rec.fileId||"")) await cleanLocal(rec);
+    else { const d=await IDB.get("docs",rec.fileId); if(d&&d.rcontent){ await IDB.put("docs",rec.fileId,Object.assign({},d,{content:d.rcontent,modified:d.rmod||d.modified})); } }
+    await qCount(); try{ renderPP(); }catch(_){} },
+  on:()=>OFF.on };
+updInfo();
+
+/* v2.136 · Sin conexión: avisos claros cuando un expediente no está en la copia local */
 (function(){
-  const gb=document.getElementById("residentGateOffline"); if(!gb) return; const prev=gb.onclick;
-  gb.onclick=function(ev){
-    if(window.__hjmOff&&LIST&&FILES().length){
-      const name=resolveGateUser(); if(!name) return;
-      if(!apiKey()) LS.set("hjm-key","__sin-conexion__");   /* marca temporal: si luego Drive la rechaza, vuelve a pedir la clave real */
-      applyGateUser(name); IDLE_LOCKED=false; document.getElementById("dlgResidentGate").close();
-      OFF.on=false; enter(); try{ expCheck(); }catch(_){}
-      toast("Sin conexión · usando la copia de pacientes de este equipo"); return;
-    }
-    return prev&&prev.call(this,ev);
-  };
   const _de=window.driveError;
   window.driveError=function(err){
     if(err&&err.code==="offline"){ notify("Ese expediente no está en la copia sin conexión de este equipo; se podrá abrir cuando haya conexión.","warn"); return; }
