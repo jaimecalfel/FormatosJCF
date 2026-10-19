@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.112">
+<meta name="application-version" content="2.114">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2981,7 +2981,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.112 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.114 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -5149,8 +5149,11 @@ async function goHome(){
       const d=data();
       if(!d.expediente||!d.nombreCompleto){ notify("No se limpió la hoja: falta expediente o nombre. Los datos se conservaron.","warn"); return; }
       if(STORE==="drive"&&CAN_DRIVE){
-        for(let i=0;SAVING&&i<60;i++) await sleep(250);          // si hay un guardado en curso, que termine antes de limpiar
         const key=expKey(d.expediente), name=fileName(d);
+        /* v2.113 · si hay un guardado en curso no se espera: se deja una copia del paciente para que termine en segundo plano */
+        if(SAVING&&window.__savingKey!==key) for(let i=0;SAVING&&i<60;i++) await sleep(250);   // guardado de otro paciente: ese sí se espera
+        if(SAVING){ window.__bgSnap={k:key,data:collect()}; bg=false; }
+        else {
         const mine=!!LOADED_EXP&&expKey(LOADED_EXP)===key;
         const exists=DRIVE_FILES.some(f=>expKey(expOf(f))===key);
         const clean=!DIRTY&&LOADED_BASE&&LOADED_BASE.k===key;
@@ -5163,6 +5166,7 @@ async function goHome(){
           const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
           const baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null;
           outboxAdd(name,collect(),meta,baseSnap); bg=true;
+        }
         }
       } else {
         let ok=true; try{ await savePatient(); }catch(_){ ok=false; }
@@ -5661,7 +5665,8 @@ const OUTBOX_KEY="hjm-pendientes"; let OUTBOX_MEM=null, FLUSH_T=0;
 function outboxGet(){ if(OUTBOX_MEM) return OUTBOX_MEM; let o={}; try{ o=JSON.parse(LS.get(OUTBOX_KEY)||"{}")||{}; }catch(_){} return OUTBOX_MEM=o; }
 function outboxCount(){ return Object.keys(outboxGet()).length; }
 function outboxSave(){ const o=outboxGet(), txt=JSON.stringify(o); if(Object.keys(o).length){ LS.set(OUTBOX_KEY,txt); } else LS.del(OUTBOX_KEY); renderSync(); return !Object.keys(o).length||LS.get(OUTBOX_KEY)===txt; }
-function outboxAdd(name,payload,meta,base){ outboxGet()[name]={name,payload,meta,base:base||null,ts:Date.now()}; const ok=outboxSave(); scheduleFlush(); return ok; }
+function outboxAdd(name,payload,meta,base){ try{ const u=String(sessionUserName()||"").toLocaleUpperCase("es-MX"); if(u){ payload.ultimoEditor={u,ts:Date.now()}; meta.ed=u; } }catch(_){}
+  outboxGet()[name]={name,payload,meta,base:base||null,ts:Date.now()}; const ok=outboxSave(); scheduleFlush(); return ok; }
 function scheduleFlush(ms=60000){ clearTimeout(FLUSH_T); if(outboxCount()) FLUSH_T=setTimeout(()=>flushOutbox(),ms); }
 async function flushOutbox(opt={}){
   if(FLUSHING||!outboxCount()||!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()) return;
@@ -6003,7 +6008,7 @@ async function driveSaveNow(opt={}){
   if(SAVING) return false;
   if(opt.silent&&(!apiUrl()||!apiKey())){ notify("No se guardó en Drive: falta conectar con la clave de acceso.","warn"); return false; }
   SAVING=true; renderSync();                                         // v2.52 · el estado se ve en la cinta del paciente (sin aviso emergente)
-  const name=fileName(d), key=expKey(d.expediente), baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null;
+  const name=fileName(d), key=expKey(d.expediente), baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null; window.__savingKey=key;
   const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
   let payload=null;
   try{
@@ -6016,12 +6021,14 @@ async function driveSaveNow(opt={}){
     const conflict=(id,nm)=>{ notify(`Ya existe en Drive el expediente ${d.expediente}${nm?" ("+nm+")":""}. Para no sobrescribir ni duplicar, ábrelo desde la lista o combina lo que capturaste aquí con lo que ya tiene.`,"warn",
         {ms:40000,center:true,actions:[{label:"Abrir el de Drive",fn:()=>openDriveFile(id).catch(driveError)},{label:"Combinar y guardar",fn:()=>driveSaveNow({combinar:true}).catch(driveError)}]}); return false; };
     if(target&&!mine&&!opt.combinar) return conflict(target.id,(target.meta||{}).nombre||"");
-    const local=collect(); payload=local; let base="";
+    const away=()=>!!(window.__bgSnap&&window.__bgSnap.k===key), cur=()=>away()?window.__bgSnap.data:collect();
+    const local=cur(); payload=local; let base="";
     if(target){
       for(const f of [...twins].reverse()){ const r=await readRemoteFull(f.id); if(r.obj) payload=mergePatient(payload,r.obj); if(f.name===name) base=r.modified||""; }   // también recoge lo de archivos duplicados viejos
     }
     if(JSON.stringify(payload).length>1900000){ notify("El archivo de este paciente ya es demasiado grande para guardarse (límite de Drive del servidor). Borra registros antiguos que no necesites.","err",{ms:20000,center:true}); return false; }
     /* Control de versión: si otro equipo guardó este paciente después de leerlo, se vuelve a combinar y se reintenta */
+    try{ const u=String(sessionUserName()||"").toLocaleUpperCase("es-MX"); if(u){ payload.ultimoEditor={u,ts:Date.now()}; meta.ed=u; } }catch(_){}
     let res=null;
     for(let i=0;;i++){
       res=await gcall("hjmSave",FOLDER.id,name,JSON.stringify(payload),JSON.stringify(meta),JSON.stringify({forzar:!!target||i>0,base}));
@@ -6030,9 +6037,9 @@ async function driveSaveNow(opt={}){
       if(i>=3) throw new Error("Otro equipo está guardando este mismo paciente en este momento. Espera unos segundos y vuelve a guardar.");
       const r=await readRemoteFull(res.id); if(r.obj) payload=mergePatient(payload,r.obj); base=r.modified||"";
     }
-    const combined=applyMerged(payload,local);
-    setBase(payload); LOADED_EXP=d.expediente; NOTIFIED_EXP=d.expediente;
-    DIRTY=false; LAST_SAVED=Date.now(); LAST_SAVED_K=key;
+    const combined=away()?false:applyMerged(payload,local);
+    if(!away()){ setBase(payload); LOADED_EXP=d.expediente; NOTIFIED_EXP=d.expediente; DIRTY=false; }
+    LAST_SAVED=Date.now(); LAST_SAVED_K=key;
     /* Sin aviso de "Guardado": solo se avisa si se combinaron cambios de otro equipo o se reunieron archivos duplicados */
     if(combined||twins.length>1) notify((combined?"Se sumaron cambios hechos desde otro equipo":"")+(combined&&twins.length>1?" · ":"")+(twins.length>1?`Había ${twins.length} archivos con este expediente: todo quedó reunido en ${name}`:""),"info",{ms:7000});
     if(res&&res.id&&res.modified) upsertDriveFile(res); else loadPatients();
@@ -6041,19 +6048,19 @@ async function driveSaveNow(opt={}){
   }catch(e){
     if(String(e&&e.message)==="cancelado"){ $("popHost").replaceChildren(); return false; }
     if(isTransient(e)){
-      const kept=outboxAdd(name,payload||collect(),meta,baseSnap);
+      const kept=outboxAdd(name,payload||((window.__bgSnap&&window.__bgSnap.k===key)?window.__bgSnap.data:collect()),meta,baseSnap);
       notify(kept?"Sin conexión estable con Google Drive. El paciente quedó guardado en este navegador como «pendiente» y se subirá solo en cuanto vuelva la conexión."
                  :"Sin conexión con Google Drive. El paciente quedó pendiente solo mientras esta pestaña siga abierta: no la cierres hasta que se suba.","warn",{ms:10000});
       return false;
     }
     notify("No se pudo guardar en Drive: "+friendly(e),"err"); return false;
-  }finally{ SAVING=false; renderSync(); }
+  }finally{ SAVING=false; if(window.__bgSnap&&window.__bgSnap.k===key) window.__bgSnap=null; renderSync(); }
 }
 
 /* Abrir */
 /* v56 · En la carpeta de Drive solo cuentan los archivos .json de pacientes; cualquier otro archivo (PDF, Word, imágenes, notas, etc.) no aparece en la lista ni se usa al guardar */
 function patientExpFromFileName(name){return String(name||"").trim().replace(/\.json$/i,"").replace(/^JCF/i,"");}
-function onlyJsonFiles(list){return (Array.isArray(list)?list:[]).filter(f=>f&&/\.json$/i.test(String(f.name||"").trim()));}
+function onlyJsonFiles(list){return (Array.isArray(list)?list:[]).filter(f=>f&&/\.json$/i.test(String(f.name||"").trim())&&!/^_/.test(String(f.name||"").trim()));}
 let DRIVE_FILES=[];
 /* v2.83 · Un solo archivo por paciente: la lista muestra una ficha por expediente (la del archivo principal JCF<exp>.json o, si no existe, la más reciente);
    si en Drive hay varios archivos del mismo expediente se combinan en el principal y los demás se mandan a la papelera (hjmBorrarDuplicado). */
@@ -7387,5 +7394,283 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
   head.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } });
 })();
 </script>
+<style id="hjm-stats-css">
+body.hjm-admin .top > .seal.crab{cursor:pointer}
+#dlgStats{width:min(96vw,1000px);max-height:92vh;padding:0;border:0;border-radius:18px;background:#F5F8FC;color:#16314d;box-shadow:0 26px 75px rgba(8,35,61,.34);overflow:hidden}
+#dlgStats::backdrop{background:rgba(8,28,48,.6);backdrop-filter:blur(6px)}
+#dlgStats .st-wrap{display:flex;flex-direction:column;max-height:92vh}
+#dlgStats .st-head{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#173B5E;color:#fff}
+#dlgStats .st-head h2{margin:0;font-size:17px;font-weight:800;flex:1}
+#dlgStats .st-head small{display:block;font-weight:500;font-size:11px;opacity:.8}
+#dlgStats .st-x{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:10px;width:34px;height:34px;font-size:18px;cursor:pointer}
+#dlgStats .st-body{overflow:auto;padding:14px 18px 20px;display:grid;gap:14px}
+#dlgStats .st-per{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#dlgStats .st-per button,#dlgStats .st-btn{font:inherit;font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;border:1px solid #C9D8E8;background:#fff;color:#173B5E;cursor:pointer}
+#dlgStats .st-per button[aria-pressed=true]{background:#173B5E;color:#fff;border-color:#173B5E}
+#dlgStats .st-note{font-size:11px;color:#6A7D93;margin-left:auto}
+#dlgStats .st-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+#dlgStats .st-kpi{background:#fff;border:1px solid #E1E9F2;border-radius:14px;padding:11px 13px}
+#dlgStats .st-kpi b{display:block;font-size:24px;color:#173B5E;line-height:1.1}
+#dlgStats .st-kpi span{font-size:11px;color:#6A7D93;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+#dlgStats .st-card{background:#fff;border:1px solid #E1E9F2;border-radius:14px;padding:12px 14px}
+#dlgStats .st-card h3{margin:0 0 9px;font-size:13px;color:#173B5E;font-weight:800}
+#dlgStats .st-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+#dlgStats table{width:100%;border-collapse:collapse;font-size:12px}
+#dlgStats th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#6A7D93;text-align:right;padding:4px 6px;border-bottom:1px solid #E1E9F2}
+#dlgStats th:first-child,#dlgStats td:first-child{text-align:left}
+#dlgStats td{padding:6px;text-align:right;border-bottom:1px solid #EEF3F8}
+#dlgStats td.nm{font-weight:700;color:#173B5E}
+#dlgStats .stars{color:#E0A526;letter-spacing:1px;white-space:nowrap}
+#dlgStats .bar{height:8px;border-radius:99px;background:#DCE9F5;overflow:hidden;min-width:60px}
+#dlgStats .bar i{display:block;height:100%;background:#4F86B8;border-radius:99px}
+#dlgStats .frow{display:grid;grid-template-columns:minmax(90px,1.2fr) 3fr 34px;gap:8px;align-items:center;font-size:12px;margin:5px 0}
+#dlgStats .hrs{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:80px}
+#dlgStats .hrs i{display:block;background:#7FAAD3;border-radius:3px 3px 0 0;min-height:2px}
+#dlgStats .hrl{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;font-size:8.5px;color:#6A7D93;text-align:center;margin-top:2px}
+#dlgStats .cam-list{max-height:230px;overflow:auto;border:1px solid #EEF3F8;border-radius:10px}
+#dlgStats .cam-row{display:grid;grid-template-columns:24px 52px 1fr auto;gap:8px;align-items:center;padding:6px 9px;border-bottom:1px solid #EEF3F8;font-size:12px}
+#dlgStats .cam-row .bd{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:26px;padding:0 6px;border-radius:99px;background:#DCE9F5;color:#1D4E7E;font-weight:800;font-size:11.5px}
+#dlgStats .st-danger{background:#B3261E;border-color:#B3261E;color:#fff}
+#dlgStats .st-btn[disabled]{opacity:.5;cursor:default}
+#dlgStats .st-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #DCE6F0;padding-bottom:10px}
+#dlgStats .st-tabs button{font:inherit;font-size:12.5px;font-weight:800;padding:7px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:#41556d;cursor:pointer}
+#dlgStats .st-tabs button[aria-selected=true]{background:#173B5E;color:#fff}
+#dlgStats .st-in{font:inherit;font-size:13px;padding:8px 12px;border:1px solid #C9D8E8;border-radius:10px;width:100%;box-sizing:border-box}
+#dlgStats .st-tw{overflow:auto;max-height:52vh}
+#dlgStats .st-sm{font-size:11px;padding:3px 9px}
+#dlgStats .lv{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:800;background:#FDE7E5;color:#B3261E}
+#dlgStats .lv.warn{background:#FFF1D6;color:#8A5A00}
+#dlgStats .st-msg{font-size:12px;margin-top:8px;color:#41556d;white-space:pre-line}
+</style>
+<dialog id="dlgStats" aria-labelledby="stTitle"><div class="st-wrap"><div class="st-head"><div style="flex:1"><h2 id="stTitle">Estadísticas de uso</h2><small id="stSub"></small></div><button type="button" class="st-x" id="stClose" aria-label="Cerrar">✕</button></div><div class="st-body" id="stBody"></div></div></dialog>
+<script id="hjm-stats-js">
+(function(){
+"use strict";
+const STATS_NAME="_ESTADISTICAS_USO.json", KEY="hjm-stats-local-v1", DEV_KEY="hjm-stats-dev", INACT_H=96;
+let dev=LS.get(DEV_KEY); if(!dev){ dev="D"+Math.random().toString(36).slice(2,8); LS.set(DEV_KEY,dev); }
+let local={}; try{ local=JSON.parse(LS.get(KEY)||"{}")||{}; }catch(_){ local={}; }
+let errLocal=[]; try{ errLocal=JSON.parse(LS.get("hjm-err-log")||"[]")||[]; }catch(_){ errLocal=[]; }
+let tab="stats", pacQ="", DET={}, pendData=null;
+let dirty=false, remoteCache=null, period=7, lastSync=0, syncMsg="";
+const pad=n=>String(n).padStart(2,"0");
+const dayKey=t=>{ const d=new Date(t); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const userName=()=>String(sessionUserName()||"").toLocaleUpperCase("es-MX").trim();
+const isAdmin=()=>{ const n=normalizeStaffName(sessionUserName()); return n.includes("JAIME")&&n.includes("CALDERA"); };
+function persist(){ try{ const keep=dayKey(Date.now()-400*864e5); Object.keys(local).forEach(k=>{ if(k<keep) delete local[k]; }); LS.set(KEY,JSON.stringify(local)); }catch(_){} }
+function bump(metric,sub,n){ try{ const u=userName(); if(!u) return; const d=(local[dayKey(Date.now())]=local[dayKey(Date.now())]||{}), r=(d[u]=d[u]||{}); n=n||1;
+  if(sub!=null){ const o=(r[metric]=r[metric]||{}); o[sub]=(o[sub]||0)+n; } else r[metric]=(r[metric]||0)+n; dirty=true; persist(); }catch(_){} }
+function logErr(lvl,msg){ try{ msg=String(msg||"").slice(0,300); if(!msg||/ResizeObserver/.test(msg)) return; const last=errLocal[errLocal.length-1]; if(last&&last.msg===msg&&Date.now()-last.ts<5000) return;
+  errLocal.push({ts:Date.now(),u:userName(),lvl,msg}); errLocal=errLocal.slice(-100); LS.set("hjm-err-log",JSON.stringify(errLocal)); dirty=true; }catch(_){} }
+addEventListener("error",e=>logErr("err",(e.message||"Error")+" ("+String(e.filename||"").split("/").pop()+":"+(e.lineno||0)+")"));
+addEventListener("unhandledrejection",e=>logErr("err","Promesa rechazada: "+((e.reason&&e.reason.message)||e.reason||"")));
+const wrap=(name,after)=>{ const o=window[name]; if(typeof o!=="function") return; window[name]=function(...a){ const r=o.apply(this,a); try{ after(a,r); }catch(_){} return r; }; };
+wrap("applyGateUser",()=>{ bump("acc"); syncAdminClass(); });
+wrap("openFormat",a=>bump("fmt",a[0]));
+wrap("openClinical",a=>bump("fmt",a[0]));
+wrap("openDriveFile",()=>bump("opn"));
+wrap("notify",a=>{ if(a[1]==="err"||a[1]==="warn") logErr(a[1],a[0]); });
+(function(){ const o=window.driveSaveNow; if(typeof o!=="function") return; window.driveSaveNow=async function(...a){ const r=await o.apply(this,a); if(r===true) bump("sav"); return r; }; })();
+function syncAdminClass(){ document.body.classList.toggle("hjm-admin",isAdmin()); }
+setInterval(()=>{ try{ syncAdminClass(); if(document.visibilityState==="visible"&&Date.now()-LAST_ACTIVITY<60000&&userName()){ bump("min"); bump("hr",new Date().getHours()); }
+  if(dirty&&Date.now()-lastSync>5*60000) syncRemote(); }catch(_){} },60000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"&&dirty) syncRemote(); });
+
+/* ---------- Drive ---------- */
+const driveOK=()=>CAN_DRIVE&&STORE==="drive"&&apiUrl()&&apiKey();
+async function findStats(){ await ensureFolder(); const l=await gcall("hjmList",FOLDER.id); return (Array.isArray(l)?l:[]).find(f=>f&&String(f.name||"").trim()===STATS_NAME)||null; }
+async function readStats(){ const f=await findStats(); if(!f) return {obj:null,modified:"",id:null};
+  let txt="",mod=""; try{ const r=await gcall("hjmReadFull",f.id); txt=r&&r.content; mod=(r&&r.modified)||""; }catch(_){ txt=await gcall("hjmRead",f.id); }
+  let o=null; try{ o=JSON.parse(txt); }catch(_){} return {obj:o&&o.app==="hjm-stats"?o:null,modified:mod,id:f.id}; }
+async function writeStats(obj,base){ return await gcall("hjmSave",FOLDER.id,STATS_NAME,JSON.stringify(obj),JSON.stringify({app:"hjm-stats",nombre:"Estadísticas de uso",exp:"_estadisticas",cama:"",dx:""}),JSON.stringify({forzar:true,base:base||""})); }
+async function syncRemote(extra){
+  if(!driveOK()) { syncMsg="Sin conexión con Drive: se muestran solo los datos de este equipo."; return false; }
+  try{
+    for(let i=0;i<3;i++){
+      const r=await readStats(); const o=r.obj||{app:"hjm-stats",v:1,dev:{},camas:[]};
+      o.dev=o.dev||{}; o.dev[dev]=local; o.camas=Array.isArray(o.camas)?o.camas:[];
+      if(extra&&extra.camas) extra.camas.forEach(c=>{ if(!o.camas.some(x=>x.ts===c.ts&&x.exp===c.exp)) o.camas.push(c); });
+      o.camas=o.camas.slice(-3000);
+      o.borrados=Array.isArray(o.borrados)?o.borrados:[];
+      if(extra&&extra.borrados) extra.borrados.forEach(c=>{ if(!o.borrados.some(x=>x.ts===c.ts&&x.exp===c.exp)) o.borrados.push(c); });
+      o.borrados=o.borrados.slice(-1000);
+      o.errs=(extra&&extra.clearErrs)?{}:(o.errs||{}); o.errs[dev]=errLocal; o.upd=Date.now();
+      const res=await writeStats(o,r.modified);
+      if(res&&res.conflicto){ continue; }
+      remoteCache=o; dirty=false; lastSync=Date.now(); syncMsg=""; return true;
+    }
+    syncMsg="Otro equipo estaba guardando las estadísticas; se reintentará."; return false;
+  }catch(e){ syncMsg="No se pudieron sincronizar las estadísticas: "+friendly(e); return false; }
+}
+async function loadRemote(){ if(!driveOK()) return null; try{ const r=await readStats(); remoteCache=r.obj; return r.obj; }catch(e){ syncMsg="No se pudieron leer las estadísticas: "+friendly(e); return remoteCache; } }
+
+/* ---------- Agregación ---------- */
+function agg(remote,days){
+  const cutoff=days?dayKey(Date.now()-(days-1)*864e5):"0000-00-00", users={}, fmt={}, hr=Array(24).fill(0), perDay={};
+  const devs=Object.assign({},(remote&&remote.dev)||{}); devs[dev]=local;
+  Object.values(devs).forEach(dd=>Object.entries(dd||{}).forEach(([dk,us])=>{ if(dk<cutoff) return;
+    Object.entries(us||{}).forEach(([u,r])=>{ const o=users[u]=users[u]||{acc:0,sav:0,opn:0,min:0,lib:0};
+      ["acc","sav","opn","min","lib"].forEach(k=>o[k]+=r[k]||0);
+      Object.entries(r.fmt||{}).forEach(([f,n])=>fmt[f]=(fmt[f]||0)+n);
+      Object.entries(r.hr||{}).forEach(([h,n])=>hr[+h]+=n);
+      perDay[dk]=(perDay[dk]||0)+(r.sav||0)+(r.acc||0); }); }));
+  return {users,fmt,hr,perDay};
+}
+const pts=o=>o.sav*3+o.acc*2+o.opn+Math.floor(o.min/10);
+function fmtLabel(k){ try{ const L={notas:"Notas Médicas",indicaciones:"Indicaciones"}; if(L[k]) return L[k]; if(typeof CAT!=="undefined"&&CAT[k]&&CAT[k].tt) return CAT[k].tt; if(typeof FORMATS!=="undefined"&&FORMATS[k]&&FORMATS[k].title) return FORMATS[k].title; }catch(_){} return k; }
+const hm=m=>m>=60?Math.floor(m/60)+" h "+pad(m%60)+" min":m+" min";
+
+/* ---------- Camas inactivas ---------- */
+function candidates(){ const now=Date.now(); return uniqueFiles(DRIVE_FILES).filter(f=>f.meta&&String(f.meta.cama||"").trim()&&now-fileTime(f)>=INACT_H*3600e3).sort((a,b)=>fileTime(a)-fileTime(b)); }
+async function liberar(sel,msgEl){
+  const done=[],skip=[],log=[]; let i=0;
+  for(const f of sel){ i++; msgEl.textContent=`Liberando ${i} de ${sel.length}…`;
+    try{
+      const exp=String((f.meta&&f.meta.exp)||patientExpFromFileName(f.name)||"");
+      if(hasSelectedPatient()&&exp&&String($("expediente").value||"").trim()===exp){ skip.push(exp+" (abierto ahora)"); continue; }
+      const r=await gcall("hjmReadFull",f.id); const mod=(r&&r.modified)||""; let o=null; try{ o=JSON.parse(r&&r.content); }catch(_){}
+      if(!o||o.app!=="solicitudes-hjm"||!o.datos){ skip.push(exp+" (archivo no reconocido)"); continue; }
+      if(mod&&Date.now()-Date.parse(mod)<INACT_H*3600e3){ skip.push(exp+" (se editó hace poco)"); continue; }
+      const cama=String(o.datos.cama||"").trim(); if(!cama){ skip.push(exp+" (ya sin cama)"); continue; }
+      o.datos.cama="";
+      const meta=Object.assign({},f.meta,{cama:""});
+      const res=await gcall("hjmSave",FOLDER.id,f.name,JSON.stringify(o),JSON.stringify(meta),JSON.stringify({forzar:true,base:mod}));
+      if(res&&res.conflicto){ skip.push(exp+" (lo editaron mientras tanto)"); continue; }
+      if(res&&res.id&&res.modified) upsertDriveFile(res);
+      done.push(exp); log.push({ts:Date.now(),by:userName(),exp,cama});
+    }catch(e){ skip.push(String((f.meta&&f.meta.exp)||f.name)+" ("+friendly(e)+")"); }
+  }
+  if(done.length){ bump("lib",null,done.length); await syncRemote({camas:log}); try{ PP_LAST=0; loadPatients({fresco:true}); }catch(_){} }
+  return {done,skip};
+}
+
+/* ---------- Panel ---------- */
+const $s=id=>document.getElementById(id);
+async function renderStats(body){
+  const remote=remoteCache; const A=agg(remote,period), T=agg(remote,1);
+  const tu=Object.values(T.users), tot=k=>tu.reduce((s,u)=>s+u[k],0);
+  const rows=Object.entries(A.users).map(([u,o])=>({u,o,p:pts(o)})).sort((a,b)=>b.p-a.p), top=rows.length?rows[0].p||1:1;
+  const stars=p=>{ const n=Math.max(1,Math.round(p/top*5)); return "★".repeat(n)+"☆".repeat(5-n); };
+  const fm=Object.entries(A.fmt).sort((a,b)=>b[1]-a[1]).slice(0,8), fmax=fm.length?fm[0][1]:1;
+  const hmax=Math.max(1,...A.hr);
+  const days=[...Array(14)].map((_,i)=>dayKey(Date.now()-(13-i)*864e5)), dmax=Math.max(1,...days.map(d=>A.perDay[d]||0));
+  const cands=candidates(), conCama=uniqueFiles(DRIVE_FILES).filter(f=>f.meta&&String(f.meta.cama||"").trim()).length;
+  const camasLog=((remote&&remote.camas)||[]).slice(-6).reverse();
+  body.innerHTML=`
+  <div class="st-per">${[[1,"Hoy"],[7,"7 días"],[30,"30 días"],[0,"Todo"]].map(([d,l])=>`<button type="button" data-per="${d}" aria-pressed="${period===d}">${l}</button>`).join("")}<span class="st-note">${esc(syncMsg||(remote?"Datos de todos los equipos sincronizados":""))}</span></div>
+  <div class="st-kpis">
+    <div class="st-kpi"><b>${tot("acc")}</b><span>Accesos hoy</span></div>
+    <div class="st-kpi"><b>${tot("sav")}</b><span>Guardados hoy</span></div>
+    <div class="st-kpi"><b>${tu.filter(u=>u.acc||u.sav||u.min).length}</b><span>Usuarios activos hoy</span></div>
+    <div class="st-kpi"><b>${hm(tot("min"))}</b><span>Tiempo de uso hoy</span></div>
+    <div class="st-kpi"><b>${conCama}</b><span>Pacientes con cama</span></div>
+  </div>
+  <div class="st-card"><h3>Ranking de usuarios <small style="font-weight:500;color:#6A7D93">· puntos = guardados×3 + accesos×2 + pacientes abiertos + minutos÷10</small></h3>
+   ${rows.length?`<table><thead><tr><th>Usuario</th><th>Calif.</th><th>Puntos</th><th>Guardados</th><th>Accesos</th><th>Abiertos</th><th>Tiempo</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td class="nm">${i+1}. ${esc(r.u)}</td><td class="stars">${stars(r.p)}</td><td><b>${r.p}</b></td><td>${r.o.sav}</td><td>${r.o.acc}</td><td>${r.o.opn}</td><td>${hm(r.o.min)}</td></tr>`).join("")}</tbody></table>`:'<div class="st-msg">Aún no hay actividad registrada en este periodo.</div>'}</div>
+  <div class="st-grid2">
+   <div class="st-card"><h3>Formatos más usados</h3>${fm.length?fm.map(([k,n])=>`<div class="frow"><span>${esc(fmtLabel(k))}</span><div class="bar"><i style="width:${Math.round(n/fmax*100)}%"></i></div><b>${n}</b></div>`).join(""):'<div class="st-msg">Sin datos.</div>'}</div>
+   <div class="st-card"><h3>Horas de mayor actividad</h3><div class="hrs">${A.hr.map((n,h)=>`<i title="${h}:00 · ${n} min" style="height:${Math.max(2,Math.round(n/hmax*100))}%"></i>`).join("")}</div><div class="hrl">${A.hr.map((_,h)=>`<span>${h%3===0?h:""}</span>`).join("")}</div></div>
+  </div>
+  <div class="st-card"><h3>Actividad de los últimos 14 días <small style="font-weight:500;color:#6A7D93">· accesos + guardados</small></h3><div class="hrs">${days.map(d=>`<i title="${d} · ${A.perDay[d]||0}" style="height:${Math.max(2,Math.round((A.perDay[d]||0)/dmax*100))}%"></i>`).join("").replace(/grid-template-columns:repeat\(24/,"")}</div></div>
+  <div class="st-card"><h3>Limpiar camas inactivas</h3>
+   <div class="st-msg" style="margin:0 0 8px">Pacientes con cama asignada que no se han editado en las últimas ${INACT_H} horas: <b>${cands.length}</b>. Al liberar, se borra solo el número de cama; el resto del expediente no se toca (el paciente abierto en pantalla se omite).</div>
+   ${cands.length?`<div class="cam-list">${cands.map((f,i)=>`<label class="cam-row"><input type="checkbox" data-cand="${i}" checked><span class="bd">${esc(String(f.meta.cama).trim())}</span><span>${esc((f.meta.nombre||"").slice(0,48))} · Exp. ${esc(String(f.meta.exp||""))}</span><small>${Math.floor((Date.now()-fileTime(f))/3600e3)} h</small></label>`).join("")}</div>
+   <div style="margin-top:9px;display:flex;gap:8px;align-items:center"><button type="button" class="st-btn st-danger" id="stLib">Liberar camas seleccionadas</button><span class="st-msg" id="stLibMsg" style="margin:0"></span></div>`:'<div class="st-msg">No hay camas por liberar.</div>'}
+   ${camasLog.length?`<div class="st-msg" style="margin-top:10px"><b>Últimas liberaciones</b>\n${camasLog.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · cama ${esc(c.cama)} · Exp. ${esc(c.exp)} · ${esc(c.by)}`).join("\n")}</div>`:""}</div>`;
+  body.querySelectorAll("[data-per]").forEach(b=>b.onclick=()=>{ period=+b.dataset.per; render(); });
+  const lib=$s("stLib"); if(lib) lib.onclick=async()=>{
+    const sel=[...body.querySelectorAll("[data-cand]")].filter(c=>c.checked).map(c=>cands[+c.dataset.cand]); const msg=$s("stLibMsg");
+    if(!sel.length){ msg.textContent="Selecciona al menos un paciente."; return; }
+    if(!lib.dataset.ok){ lib.dataset.ok="1"; lib.textContent=`Confirmar: liberar ${sel.length} cama(s)`; msg.textContent="Esta acción no se puede deshacer."; return; }
+    lib.disabled=true; const r=await liberar(sel,msg);
+    await loadRemote(); await render();
+    const m=$s("stLibMsg"); if(m) m.textContent=`Se liberaron ${r.done.length} cama(s).`+(r.skip.length?"\nOmitidos: "+r.skip.join("; "):"");
+  };
+}
+
+/* ---------- Pestañas ---------- */
+const kb=n=>n>=1048576?(n/1048576).toFixed(2)+" MB":n>=1024?Math.round(n/1024)+" KB":n+" B";
+const ago=t=>{ const h=(Date.now()-t)/3600e3; return h<1?"hace "+Math.max(1,Math.round(h*60))+" min":h<48?"hace "+Math.round(h)+" h":"hace "+Math.round(h/24)+" d"; };
+const fexp=f=>String((f.meta&&f.meta.exp)||expOf(f)||"");
+async function loadDet(f){ if(DET[f.id]) return DET[f.id]; const r=await gcall("hjmReadFull",f.id); const c=(r&&r.content)||""; let o=null; try{ o=JSON.parse(c); }catch(_){}
+  return DET[f.id]={size:new Blob([c]).size,ed:(o&&o.ultimoEditor&&o.ultimoEditor.u)||(f.meta&&f.meta.ed)||"",edTs:(o&&o.ultimoEditor&&o.ultimoEditor.ts)||0}; }
+function pacRows(){
+  const q=pacQ.trim().toUpperCase();
+  const files=uniqueFiles(DRIVE_FILES).filter(f=>{ const p=f.meta||{}; return !q||fexp(f).toUpperCase().includes(q)||String(p.nombre||"").toUpperCase().includes(q); }).sort((a,b)=>fileTime(b)-fileTime(a));
+  const shown=files.slice(0,60);
+  $s("stPacCount").textContent=`${files.length} archivo(s)`+(files.length>60?" · se muestran los 60 más recientes":"");
+  $s("stPacTbl").innerHTML=shown.length?`<table><thead><tr><th>Expediente</th><th>Paciente</th><th>Cama</th><th>Última modificación</th><th>Peso</th><th>Modificó</th><th></th></tr></thead><tbody>${shown.map(f=>{ const d=DET[f.id], sz=d?d.size:(f.size?+f.size:0), ed=(d&&d.ed)||(f.meta&&f.meta.ed)||"";
+    return `<tr><td class="nm">${esc(fexp(f))}</td><td>${esc(String((f.meta&&f.meta.nombre)||"").slice(0,40))}</td><td>${esc(String((f.meta&&f.meta.cama)||""))}</td><td>${new Date(fileTime(f)).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}<br><small style="color:#6A7D93">${ago(fileTime(f))}</small></td><td>${sz?kb(sz):"—"}</td><td>${esc(ed||"—")}</td><td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-det="${esc(f.id)}">Detalle</button> <button type="button" class="st-btn st-sm" data-del="${esc(f.id)}">Eliminar</button></td></tr>`; }).join("")}</tbody></table>`:'<div class="st-msg">Sin resultados.</div>';
+  const by={}; shown.forEach(f=>by[f.id]=f);
+  $s("stPacTbl").querySelectorAll("[data-det]").forEach(b=>b.onclick=async()=>{ b.disabled=true; b.textContent="…"; try{ await loadDet(by[b.dataset.det]); }catch(e){ $s("stPacMsg").textContent="No se pudo leer: "+friendly(e); } pacRows(); });
+  $s("stPacTbl").querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{
+    const f=by[b.dataset.del]; if(!isAdmin()) return;
+    if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar"; b.classList.remove("st-danger"); } },4000); return; }
+    const exp=fexp(f); if(hasSelectedPatient()&&String($("expediente").value||"").trim()===exp){ $s("stPacMsg").textContent="No se puede eliminar al paciente abierto en pantalla."; return; }
+    b.disabled=true; b.textContent="…";
+    try{ await gcall("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); try{ renderPP(); }catch(_){}
+      await syncRemote({borrados:[{ts:Date.now(),by:userName(),exp,nombre:String((f.meta&&f.meta.nombre)||"")}]}); $s("stPacMsg").textContent=`Expediente ${exp} enviado a la papelera de Drive.`; }
+    catch(e){ $s("stPacMsg").textContent="No se pudo eliminar: "+friendly(e)+(e&&e.code==="accion"?" (el servidor no permite esta acción)":""); }
+    pacRows(); });
+}
+function renderPac(body){
+  const bor=((remoteCache&&remoteCache.borrados)||[]).slice(-5).reverse();
+  body.innerHTML=`<div class="st-card"><h3>Archivos de pacientes en Drive</h3><input class="st-in" id="stPacQ" placeholder="Buscar por expediente o nombre…" value="${esc(pacQ)}"><div style="display:flex;gap:8px;align-items:center;margin:8px 0"><small id="stPacCount" style="color:#6A7D93"></small><button type="button" class="st-btn st-sm" id="stPacAll">Cargar peso y editor de los visibles</button><span class="st-msg" id="stPacMsg" style="margin:0"></span></div><div class="st-tw" id="stPacTbl"></div>
+  <div class="st-msg" style="margin-top:8px">Eliminar manda el archivo a la papelera de Drive (se puede restaurar desde ahí). «Modificó» se registra desde esta versión en cada guardado; los archivos antiguos lo mostrarán vacío hasta que se vuelvan a guardar.</div>
+  ${bor.length?`<div class="st-msg" style="margin-top:8px"><b>Últimas eliminaciones</b>\n${bor.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · Exp. ${esc(c.exp)} · ${esc(c.nombre||"")} · ${esc(c.by)}`).join("\n")}</div>`:""}</div>`;
+  $s("stPacQ").oninput=e=>{ pacQ=e.target.value; pacRows(); };
+  $s("stPacAll").onclick=async()=>{ const q=pacQ.trim().toUpperCase(); const fs=uniqueFiles(DRIVE_FILES).filter(f=>!q||fexp(f).toUpperCase().includes(q)||String((f.meta&&f.meta.nombre)||"").toUpperCase().includes(q)).sort((a,b)=>fileTime(b)-fileTime(a)).slice(0,60); let i=0;
+    const w=async()=>{ while(i<fs.length){ const f=fs[i++]; try{ await loadDet(f); }catch(_){} $s("stPacMsg")&&($s("stPacMsg").textContent=`Leyendo ${Math.min(i,fs.length)} de ${fs.length}…`); } };
+    await Promise.all([w(),w(),w()]); if($s("stPacMsg")) $s("stPacMsg").textContent=""; if($s("stPacTbl")) pacRows(); };
+  pacRows();
+}
+async function scanPend(msg){
+  const exps=[...new Set(uniqueFiles(DRIVE_FILES).map(fexp).filter(Boolean))], nm={}; uniqueFiles(DRIVE_FILES).forEach(f=>nm[fexp(f)]=(f.meta&&f.meta.nombre)||"");
+  let i=0,fail=0,unsupported=false; const out=[];
+  const w=async()=>{ while(i<exps.length&&!unsupported){ const e=exps[i++]; try{ const r=await gcall("hjmPendientes",e); if(Array.isArray(r)&&r.length) out.push({exp:e,nombre:nm[e],items:r}); }catch(err){ fail++; if(isOldServer(err)||err.code==="accion") unsupported=true; }
+      msg.textContent=`Revisando ${Math.min(i,exps.length)} de ${exps.length}…`; } };
+  await Promise.all([w(),w(),w()]);
+  return {out,fail,unsupported,total:exps.length};
+}
+const pendKind=c=>{ let o=null; try{ o=JSON.parse(c||""); }catch(_){ return "ilegible"; } if(!o) return "ilegible"; const k=[]; ["notas","indicaciones","altas"].forEach(x=>{ if(Array.isArray(o[x])&&o[x].length) k.push(x+" "+o[x].length); }); if(o.datos&&typeof o.datos==="object") k.push("datos"); return k.join(", ")||"sin contenido reconocido"; };
+function pendHtml(){ if(!pendData) return ""; const d=pendData;
+  return (d.unsupported?'<div class="st-msg">El servidor no reconoce la consulta de pendientes (Codigo.gs antiguo).</div>':"")+(d.fail&&!d.unsupported?`<div class="st-msg">${d.fail} expediente(s) no se pudieron consultar.</div>`:"")+
+  (d.out.length?d.out.map(p=>`<div class="st-card" style="margin-top:8px"><h3>Exp. ${esc(p.exp)} · ${esc(p.nombre||"")} <small style="font-weight:500;color:#6A7D93">${p.items.length} pendiente(s)</small></h3>${p.items.map(it=>`<div class="cam-row" style="grid-template-columns:1fr auto auto"><span>${esc(it.name||"")}<br><small style="color:#6A7D93">${esc(pendKind(it.content))}</small></span><small>${kb(String(it.content||"").length)}</small><button type="button" class="st-btn st-sm" data-pdel="${esc(it.id)}">Borrar</button></div>`).join("")}</div>`).join(""):(d.unsupported?"":`<div class="st-msg">Ningún expediente con pendientes (${d.total} revisados).</div>`)); }
+function renderPend(body){
+  body.innerHTML=`<div class="st-card"><h3>Pendientes (carpeta PendientesJCF)</h3><div class="st-msg" style="margin:0 0 8px">Revisa por expediente qué notas o indicaciones siguen esperando integrarse (se integran solas al abrir al paciente). Solo se consultan los expedientes que ya tienen archivo en la lista.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stPendGo">Revisar todos los expedientes</button><input class="st-in" id="stPendQ" style="max-width:220px" placeholder="o un expediente…"><button type="button" class="st-btn" id="stPendOne">Revisar</button><span class="st-msg" id="stPendMsg" style="margin:0"></span></div><div id="stPendOut">${pendHtml()}</div></div>`;
+  const bind=()=>{ $s("stPendOut").innerHTML=pendHtml(); $s("stPendOut").querySelectorAll("[data-pdel]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return;
+    if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); return; }
+    try{ await gcall("hjmBorrarPendiente",b.dataset.pdel); pendData.out.forEach(p=>p.items=p.items.filter(it=>it.id!==b.dataset.pdel)); pendData.out=pendData.out.filter(p=>p.items.length); bind(); }catch(e){ $s("stPendMsg").textContent="No se pudo borrar: "+friendly(e); } }); };
+  bind();
+  $s("stPendGo").onclick=async()=>{ $s("stPendGo").disabled=true; pendData=await scanPend($s("stPendMsg")); $s("stPendMsg").textContent=""; $s("stPendGo").disabled=false; bind(); };
+  $s("stPendOne").onclick=async()=>{ const e=$s("stPendQ").value.trim(); if(!e) return; try{ const r=await gcall("hjmPendientes",e); pendData={out:(Array.isArray(r)&&r.length)?[{exp:e,nombre:"",items:r}]:[],fail:0,unsupported:false,total:1}; }catch(err){ pendData={out:[],fail:1,unsupported:isOldServer(err)||err.code==="accion",total:1}; } bind(); };
+}
+function renderErr(body){
+  const all=[]; Object.entries((remoteCache&&remoteCache.errs)||{}).forEach(([d,l])=>{ if(d!==dev&&Array.isArray(l)) l.forEach(x=>all.push(Object.assign({d},x))); }); errLocal.forEach(x=>all.push(Object.assign({d:dev},x)));
+  all.sort((a,b)=>b.ts-a.ts); const sh=all.slice(0,100);
+  body.innerHTML=`<div class="st-card"><h3>Errores y avisos registrados <small style="font-weight:500;color:#6A7D93">· ${all.length} en total (se guardan los últimos 100 por equipo)</small></h3>${sh.length?`<div class="st-tw"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Mensaje</th><th>Equipo</th></tr></thead><tbody>${sh.map(x=>`<tr><td>${new Date(x.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}</td><td>${esc(x.u||"")}</td><td><span class="lv ${x.lvl==="warn"?"warn":""}">${x.lvl==="warn"?"aviso":"error"}</span></td><td style="text-align:left">${esc(x.msg||"")}</td><td>${esc(x.d)}</td></tr>`).join("")}</tbody></table></div><div style="margin-top:9px"><button type="button" class="st-btn" id="stErrClr">Borrar registro de errores</button></div>`:'<div class="st-msg">Sin errores registrados.</div>'}</div>`;
+  const c=$s("stErrClr"); if(c) c.onclick=async()=>{ errLocal=[]; LS.set("hjm-err-log","[]"); dirty=true; await syncRemote({clearErrs:true}); render(); };
+}
+async function render(){
+  const body=$s("stBody");
+  const tabs=[["stats","Estadísticas"],["pac","Pacientes (archivos)"],["pend","Pendientes"],["err","Errores"]];
+  let bar=body.querySelector(".st-tabs"); 
+  body.innerHTML='<div class="st-tabs">'+tabs.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${tab===k}">${l}</button>`).join("")+'</div><div id="stTab"></div>';
+  body.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; render(); });
+  const host=$s("stTab"); host.style.display="grid"; host.style.gap="14px";
+  if(tab==="stats") await renderStats(host); else if(tab==="pac") renderPac(host); else if(tab==="pend") renderPend(host); else renderErr(host);
+}
+async function openStats(){
+  if(!isAdmin()) return;
+  const dlg=$s("dlgStats"); $s("stSub").textContent="Solo visible para "+userName();
+  $s("stBody").innerHTML='<div class="st-msg">Cargando…</div>'; if(!dlg.open) dlg.showModal();
+  if(dirty) await syncRemote(); else await loadRemote();
+  render();
+}
+$s("stClose").onclick=()=>$s("dlgStats").close();
+document.addEventListener("click",e=>{ const c=e.target.closest&&e.target.closest(".top > .seal.crab"); if(!c) return; if(!isAdmin()||hasSelectedPatient()) return; openStats(); });
+syncAdminClass(); window.__hjmStatsBump=bump;
+})();
+</script>
+
 </body>
 </html>
