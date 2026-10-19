@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.98">
+<meta name="application-version" content="2.102">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2614,9 +2614,9 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
 <style id="fold-v296">
 /* v2.96 · Z Fold desplegado / media pantalla de laptop (701–900 px): Guardar y Nuevo Paciente arriba,
    los 4 botones del Archivo Clínico en una sola fila debajo, y el índice de formatos a todo el ancho.
-   No afecta el móvil normal (≤700 px) ni la vista de PC (>900 px). */
-@media screen and (min-width:701px) and (max-width:900px){
-  body:not(.pp-browse) #view-data .wrap{grid-template-columns:minmax(0,1fr);row-gap:14px}
+   v2.100: la misma distribución aplica también al móvil normal (≤700 px, botones en 2×2). No afecta la vista de PC (>900 px). */
+@media screen and (max-width:900px){
+  body:not(.pp-browse) #view-data .wrap{grid-template-columns:minmax(0,1fr);row-gap:12px}
   body:not(.pp-browse) #view-data #rcol{display:contents}
   body:not(.pp-browse) #view-data #formatos{display:contents}
   body:not(.pp-browse) #view-data .idx-actions{grid-column:1;grid-row:1;margin:0}
@@ -2653,6 +2653,60 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
   body:not(.q1):not(.q2):not(.q3) .band #bandBack .bb-pac{gap:0;font-size:0}
 }
 </style>
+<style id="browse-nofmt-v299">
+/* v2.99 · En la página de Pacientes (tabla) el botón «Formatos» no hace nada: se oculta. */
+body.pp-browse .band #bandIdx{display:none!important}
+</style>
+<style id="mobile-v2100">
+/* v2.100 · Móvil y Z Fold: Guardar / Nuevo Paciente y los 4 botones del Archivo Clínico más bajos;
+   en el Archivo Clínico (notas, indicaciones…) la tabla de recientes va arriba del llenado, en botón desplegable. */
+@media screen and (max-width:900px){
+  body:not(.pp-browse) #view-data .idx-actions{height:38px}
+  body:not(.pp-browse) #view-data .idx-actions .acts .btn{font-size:13px;border-radius:10px}
+  body:not(.pp-browse) #view-data #archiveOpen{padding:6px 14px;font-size:11.5px}
+  body:not(.pp-browse) #view-data #formatos .clinical-index{gap:6px;padding:6px 8px 8px}
+  body:not(.pp-browse) #view-data #formatos .clinical-index button{min-height:38px!important;padding:3px 7px!important}
+  body:not(.pp-browse) #view-data #formatos .clinical-index button .clinical-index-icon{width:24px;height:24px;border-radius:7px}
+  body:not(.pp-browse) #view-data #formatos .clinical-index button .clinical-index-icon .ic{width:16px;height:16px}
+
+  /* Recientes arriba del llenado y colapsable */
+  body #view-clinical .clinical-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"recent" "form";gap:10px}
+  body #view-clinical .clinical-recents-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+  body #view-clinical .clinical-recents-head h2{margin:0;font-size:14px}
+  body #view-clinical .clinical-recents-head p{display:none}
+  body #view-clinical .clinical-recents-head:after{content:"";display:block;flex:none;grid-column:auto;grid-row:auto;width:8px;height:8px;margin:0 4px 3px 0;padding:0;border:solid var(--band,#1F3864);border-width:0 2px 2px 0;border-radius:0;background:none;color:inherit;transform:rotate(45deg);transition:transform .15s}
+  body #view-clinical .clinical-recents.open .clinical-recents-head:after{transform:rotate(-135deg);margin:3px 4px 0 0}
+  body #view-clinical .clinical-recents:not(.open) .clinical-recents-head{border-bottom:0}
+  body #view-clinical .clinical-recents:not(.open) .clinical-table-wrap{display:none}
+}
+@media screen and (max-width:700px){
+  body:not(.pp-browse) #view-data #formatos .clinical-index{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+<style id="sync-left-v2101">
+/* v2.101 · Móvil: el indicador de conexión a Drive (círculo verde) va a la izquierda del nombre y un poco más pequeño */
+@media screen and (max-width:700px){
+  body:not(.q1):not(.q2):not(.q3) .band{grid-template-columns:auto minmax(0,1fr)}
+  body:not(.q1):not(.q2):not(.q3) .band>.sync-st:not(.band-id){grid-column:1;grid-row:1 / span 2;align-self:center;margin:0 8px 0 0;width:26px;min-height:26px;height:26px;padding:0}
+  body:not(.q1):not(.q2):not(.q3) .band>.sync-st::before{width:9px;height:9px}
+  body:not(.q1):not(.q2):not(.q3) .band-name{grid-column:2}
+  body:not(.q1):not(.q2):not(.q3) .band-meta{grid-column:2 / span 8}
+}
+</style>
+<style id="noarchive-v2102">
+/* v2.102 · Móvil y Z Fold: sin el título «Archivo Clínico» ni «Ver todo»; solo quedan los 4 botones */
+@media screen and (max-width:900px){
+  body:not(.pp-browse) #view-data #archiveOpen{display:none!important}
+  body:not(.pp-browse) #view-data #formatos .clinical-index{grid-row:2;border-top:1px solid var(--line);border-radius:14px}
+  body:not(.pp-browse) #view-data #lcol{grid-row:3}
+  body:not(.pp-browse) #view-data #formatos .index-formats-heading{grid-row:4}
+  body:not(.pp-browse) #view-data #formatos #index{grid-row:5}
+}
+</style>
+
+
+
+
 
 
 </head>
@@ -2828,7 +2882,7 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.98 · Fecha de publicación: 18.10.26</div>
+  <div class="app-footer-version">Versión 2.102 · Fecha de publicación: 18.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -2849,7 +2903,7 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
     </div>
     <div class="clinical-layout">
       <section class="clinical-card clinical-recents" aria-label="Registros recientes">
-        <div class="clinical-recents-head"><h2 id="clinicalRecentTitle">Últimas notas</h2><p>Guardadas dentro del archivo JSON de este paciente.</p></div>
+        <div class="clinical-recents-head" id="clinicalRecentToggle" role="button" tabindex="0" aria-expanded="false"><h2 id="clinicalRecentTitle">Últimas notas</h2><p>Guardadas dentro del archivo JSON de este paciente.</p></div>
         <div class="clinical-table-wrap" id="clinicalRecentList"></div>
       </section>
       <form class="clinical-card clinical-form-card" id="clinicalForm" autocomplete="off" onsubmit="return false;"></form>
@@ -7191,6 +7245,16 @@ labelMobileRecordTables();
 if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
   addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
 }
+</script>
+<script>
+/* v2.100 · Recientes del Archivo Clínico: en móvil / Z Fold la tabla es un botón desplegable (cerrada por defecto) */
+(function(){
+  const head=document.getElementById("clinicalRecentToggle"); if(!head) return;
+  const box=head.closest(".clinical-recents");
+  const toggle=()=>{ const o=box.classList.toggle("open"); head.setAttribute("aria-expanded",String(o)); };
+  head.addEventListener("click",toggle);
+  head.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } });
+})();
 </script>
 </body>
 </html>
