@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.132">
+<meta name="application-version" content="2.134">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2789,6 +2789,14 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .tag.cama{background:#E3EEF9;col
 body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size:10.5px;line-height:1.25;padding-top:3px;border-top:1px solid #EDF2F7;margin-top:1px}
 }
 </style>
+<style id="pp-bed-mobile-v2133">
+/* v2.133 · Móvil y Z Fold (≤ 900 px): la cama también va en círculo azul suave en la vista Hospitalizado */
+@media screen and (max-width:900px){
+body.pp-browse #pPanel.pp-xl .pp-list .cama-badge{flex:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:40px;height:40px;padding:0;border-radius:50%;background:linear-gradient(145deg,#EEF5FC 0%,#CFE2F4 100%);color:#1D4E7E;border:0;box-shadow:inset 0 0 0 1.5px #B4D0EA,0 1px 3px rgba(23,59,94,.12);font-size:13px;font-weight:800;line-height:1.05;text-align:center;overflow:hidden}
+body.pp-browse #pPanel.pp-xl .pp-list .cama-badge.long{font-size:9.5px;letter-spacing:-.2px;word-break:break-word;padding:0 3px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:10px}
+}
+</style>
 <style id="pp-five-rows-v2109">
 /* v2.109 · Tabla de pacientes de la página principal: fichas un poco más bajas para ver cinco filas */
 #pPanel.pp-xl{--pp-row:88px}
@@ -2981,7 +2989,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.132 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.134 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -7480,7 +7488,7 @@ function mini(text,state){ try{ if(!_mini){ _mini=document.createElement("div");
 let JOBS=0; const G=(...a)=>{ const w=!/^hjm(Read|ReadFull|List|Pendientes)$/.test(a[0]); if(w) JOBS++; return gcall(...a).finally(()=>{ if(w) JOBS--; }); };
 async function bg(fn){ JOBS++; try{ return await fn(); } finally{ JOBS--; } }
 addEventListener("beforeunload",e=>{ if(JOBS>0){ e.preventDefault(); e.returnValue=""; } });
-let dirty=false, remoteCache=null, period=7, lastSync=0, syncMsg="";
+let dirty=Object.keys(local).length>0, remoteCache=null, period=7, lastSync=0, syncMsg="";
 const pad=n=>String(n).padStart(2,"0");
 const dayKey=t=>{ const d=new Date(t); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
 const userName=()=>String(sessionUserName()||"").toLocaleUpperCase("es-MX").trim();
@@ -7509,8 +7517,9 @@ const driveOK=()=>CAN_DRIVE&&STORE==="drive"&&apiUrl()&&apiKey()&&!(window.__hjm
 async function findStats(){ await ensureFolder(); const l=await G("hjmList",FOLDER.id); return (Array.isArray(l)?l:[]).find(f=>f&&String(f.name||"").trim()===STATS_NAME)||null; }
 async function readStats(){ const f=await findStats(); if(!f) return {obj:null,modified:"",id:null};
   let txt="",mod=""; try{ const r=await G("hjmReadFull",f.id); txt=r&&r.content; mod=(r&&r.modified)||""; }catch(_){ txt=await G("hjmRead",f.id); }
-  let o=null; try{ o=JSON.parse(txt); }catch(_){} return {obj:o&&o.app==="hjm-stats"?o:null,modified:mod,id:f.id}; }
-async function writeStats(obj,base){ return await G("hjmSave",FOLDER.id,STATS_NAME,JSON.stringify(obj),JSON.stringify({app:"hjm-stats",nombre:"Estadísticas de uso",exp:"_estadisticas",cama:"",dx:""}),JSON.stringify({forzar:true,base:base||""})); }
+  let o=null; try{ o=JSON.parse(txt); }catch(_){} return {obj:o&&(o.app==="hjm-stats"||o.tipo==="hjm-stats")?o:null,modified:mod,id:f.id}; }
+/* v2.134 · Codigo.gs solo acepta archivos con app «solicitudes-hjm» (rechazaba el de estadísticas, por eso cada equipo solo veía lo suyo): se guarda con esa marca y tipo «hjm-stats» */
+async function writeStats(obj,base){ const wire=Object.assign({},obj,{app:"solicitudes-hjm",tipo:"hjm-stats",datos:{expediente:"_ESTADISTICAS",nombres:"Estadísticas de uso"}}); return await G("hjmSave",FOLDER.id,STATS_NAME,JSON.stringify(wire),JSON.stringify({app:"hjm-stats",nombre:"Estadísticas de uso",exp:"_estadisticas",cama:"",dx:""}),JSON.stringify({forzar:true,base:base||""})); }
 async function syncRemote(extra){
   if(!driveOK()) { syncMsg="Sin conexión con Drive: se muestran solo los datos de este equipo."; return false; }
   try{
@@ -8088,6 +8097,7 @@ async function flushQueue(){
 
 /* ---------- Mantener la copia local al día (en cada conexión con Drive) ---------- */
 async function sync(){
+  if(!matchMedia("(min-width:901px)").matches) return;   // la copia local solo se descarga en PC (>900 px)
   if(OFF.on||SYNCING||FLQ||!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()||!USER||USER.offline||!FOLDER||navigator.onLine===false) return;
   SYNCING=true; await loaded;
   try{
