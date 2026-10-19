@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.104">
+<meta name="application-version" content="2.112">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2740,6 +2740,66 @@ body.pp-browse .band #bandIdx{display:none!important}
   body #view-clinical #clinicalSaveTop .clinical-save-label{white-space:nowrap}
 }
 </style>
+<style id="pp-views-v2106">
+/* v2.106 · Tabla de pacientes de la página principal: botones «Cama» y «Recientes» (la tabla pequeña de la hoja de datos no los lleva) */
+.pp-view-btns{display:none}
+body.pp-browse .pp-view-btns{display:inline-flex;align-items:center;gap:4px;margin:0 6px 0 4px}
+.pp-actions .pp-view-btns button{width:auto;height:28px;padding:0 11px;border:1px solid rgba(128,148,170,.55);border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:700;line-height:1;display:inline-flex;align-items:center;white-space:nowrap}
+.pp-actions .pp-view-btns button[aria-pressed="true"]{background:var(--navy,#173B5E);border-color:var(--navy,#173B5E);color:#fff}
+.pp-actions .pp-view-btns button[aria-pressed="false"]:hover{background:rgba(128,148,170,.18)}
+</style>
+<style id="pp-grid-v2111">
+/* v2.111 · Buscar paciente (inicio): tarjetas dentro de la página, 6×5, círculo de cama (solo vista Cama) */
+.pp-more-wrap{display:none}
+@media screen and (min-width:901px){
+body.pp-browse #view-data .wrap{max-width:none}
+body.pp-browse #pPanel.pp-xl .pp-list{max-height:none!important;overflow:visible!important;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));grid-auto-rows:84px;gap:8px;padding:8px 10px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item{padding:6px 9px;gap:8px;align-items:center}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .pinfo{gap:2px;min-width:0;flex:1 1 auto}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item b{font-size:12.5px;-webkit-line-clamp:1;line-height:1.2}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{font-size:10.5px;line-height:1.2;-webkit-line-clamp:2}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .tag{font-size:10.5px}
+body.pp-browse #pPanel.pp-xl .pp-list .cama-badge{flex:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:38px;height:38px;border-radius:50%;background:#DCE9F5;color:#1F4E79;border:1px solid #B9D2E8;font-weight:800;font-size:13px;line-height:1.05;text-align:center;overflow:hidden}
+body.pp-browse #pPanel.pp-xl .pp-list .cama-badge.long{font-size:9.5px;letter-spacing:-.2px;word-break:break-word;padding:0 3px}
+body.pp-browse #pPanel.pp-xl .pp-more-wrap{display:flex;justify-content:center;padding:2px 10px 10px}
+body.pp-browse #pPanel.pp-xl .pp-more[hidden]{display:none}
+body.pp-browse #pPanel.pp-xl .pp-more{font:inherit;font-size:12px;font-weight:700;padding:5px 18px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--navy,#173B5E);cursor:pointer}
+body.pp-browse #pPanel.pp-xl .pp-more:hover{background:var(--accent-soft)}
+}
+</style>
+<style id="pp-card-v2111b">
+/* v2.111 · pie de página al fondo y tarjetas rediseñadas (solo inicio / tabla ampliada) */
+body.pp-browse{min-height:100vh;display:flex;flex-direction:column}
+body.pp-browse #view-data{flex:1 0 auto;display:flex;flex-direction:column}
+body.pp-browse #view-data .wrap{flex:0 0 auto;width:100%;box-sizing:border-box}
+body.pp-browse #view-data .app-footer{margin-top:auto}
+body.pp-browse #view-data .wrap{margin-bottom:24px}
+@media screen and (min-width:901px){
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item{position:relative;background:#fff;border:1px solid #E1E9F2;border-radius:14px;box-shadow:0 1px 2px rgba(23,59,94,.05);padding:8px 12px 8px 10px;gap:11px;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background .15s ease}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item:hover{background:#fff;transform:translateY(-2px);border-color:#9EC1E0;box-shadow:0 8px 18px rgba(23,59,94,.12)}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item:active{transform:translateY(0)}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.cur{background:#F1F7FC!important;border-color:#6FA3CF!important;box-shadow:0 0 0 2px rgba(111,163,207,.25)}
+body.pp-browse #pPanel.pp-xl .pp-list .cama-badge{width:42px;height:42px;background:linear-gradient(145deg,#EEF5FC 0%,#CFE2F4 100%);color:#1D4E7E;border:0;box-shadow:inset 0 0 0 1.5px #B4D0EA,0 1px 3px rgba(23,59,94,.12);font-size:14px;font-weight:800}
+body.pp-browse #pPanel.pp-xl .pp-list .cama-badge.long{font-size:10px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .pinfo{gap:3px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item b{font-size:12.5px;font-weight:800;letter-spacing:.1px;color:#173B5E}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .tags{gap:6px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .tag{background:transparent;border:0;padding:0;color:#6A7D93;font-size:10.5px;font-weight:700;letter-spacing:.2px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item .tag.cama{background:#E3EEF9;color:#1D4E7E;padding:1px 7px;border-radius:999px}
+body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size:10.5px;line-height:1.25;padding-top:3px;border-top:1px solid #EDF2F7;margin-top:1px}
+}
+</style>
+<style id="pp-five-rows-v2109">
+/* v2.109 · Tabla de pacientes de la página principal: fichas un poco más bajas para ver cinco filas */
+#pPanel.pp-xl{--pp-row:88px}
+#pPanel.pp-xl .pp-list{max-height:calc(var(--pp-row,88px)*5 + 4*8px + 20px)}
+#pPanel.pp-xl .pp-list .dlg-item{padding-top:6px;padding-bottom:6px}
+#pPanel.pp-xl .pp-list .dlg-item .pinfo{gap:3px}
+#pPanel.pp-xl .pp-list .dlg-item b{line-height:1.2}
+#pPanel.pp-xl .pp-list .dlg-item small.dx{-webkit-line-clamp:1;line-height:1.25}
+</style>
+
+
 
 
 
@@ -2797,10 +2857,11 @@ body.pp-browse .band #bandIdx{display:none!important}
           <button type="button" id="ppPrev" title="Anteriores" aria-label="Anteriores"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
           <button type="button" id="ppNext" title="Siguientes" aria-label="Siguientes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button type="button" id="ppRefresh" title="Actualizar lista" aria-label="Actualizar lista"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg></button>
+          <span class="pp-view-btns" role="group" aria-label="Vista de la tabla de pacientes"><button type="button" id="ppViewCama" data-pp-view="cama" aria-pressed="true" title="Pacientes hospitalizados con cama modificados en las últimas 36 horas">Hospitalizado</button><button type="button" id="ppViewRec" data-pp-view="recientes" aria-pressed="false" title="Pacientes recientes">Recientes</button></span>
           <button type="button" id="ppToggle" title="Mostrar u ocultar la lista" aria-label="Mostrar u ocultar la lista" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
         </span>
       </div>
-      <div class="pp-body" id="ppBody"><div class="pp-list" id="ppList"><div class="dlg-empty">Cargando…</div></div></div>
+      <div class="pp-body" id="ppBody"><div class="pp-list" id="ppList"><div class="dlg-empty">Cargando…</div></div><div class="pp-more-wrap"><button type="button" id="ppMore" class="pp-more" hidden>Ver más</button></div></div>
     </section>
     <nav class="secnav" id="secNav" aria-label="Ir a una sección de la hoja de datos"></nav>
     <form id="datos" autocomplete="off" onsubmit="return false">
@@ -2920,7 +2981,7 @@ body.pp-browse .band #bandIdx{display:none!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.104 · Fecha de publicación: 18.10.26</div>
+  <div class="app-footer-version">Versión 2.112 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -3540,8 +3601,8 @@ function refresh(){
     const c=el.closest(".f").querySelector(".cnt"); if(!c) return;
     const n=el.value.length,m=+el.dataset.max; c.textContent=n?`${n}/${m}`:`máx. ${m}`; c.classList.toggle("over",n>m);
   });
-  inputs.forEach(el=>{ const empty=!String(el.value||"").trim(); el.classList.toggle("pending-empty",empty); const f=el.closest(".f"); if(f) f.classList.toggle("has-empty",empty); });
-  form.querySelectorAll("fieldset").forEach(fs=>{ const a=[...fs.querySelectorAll("input,select,textarea")].filter(el=>!el.closest(".is-off")), empty=a.filter(el=>!String(el.value||"").trim()).length, lg=fs.querySelector("legend"); fs.classList.toggle("complete",empty===0); fs.classList.toggle("incomplete",fs.id==="fsTransfusion"&&empty>0); if(lg) lg.dataset.progress=fs.id==="fsTransfusion"?(empty?"Incompleto":"Completo"):(empty?`${empty} ${empty===1?"vacío":"vacíos"}`:"Completo"); });
+  inputs.forEach(el=>{ const empty=fieldEmpty(el); el.classList.toggle("pending-empty",empty); const f=el.closest(".f"); if(f) f.classList.toggle("has-empty",empty); });
+  form.querySelectorAll("fieldset").forEach(fs=>{ const a=[...fs.querySelectorAll("input,select,textarea")].filter(el=>!el.closest(".is-off")), empty=a.filter(fieldEmpty).length, lg=fs.querySelector("legend"); fs.classList.toggle("complete",empty===0); fs.classList.toggle("incomplete",fs.id==="fsTransfusion"&&empty>0); if(lg) lg.dataset.progress=fs.id==="fsTransfusion"?(empty?"Incompleto":"Completo"):(empty?`${empty} ${empty===1?"vacío":"vacíos"}`:"Completo"); });
   form.querySelectorAll('fieldset').forEach(fs=>{const over=[...fs.querySelectorAll('[data-max]')].filter(el=>el.value.length>+el.dataset.max),legend=fs.querySelector('legend');if(!legend)return;let alert=legend.querySelector('.length-alert');if(!alert){alert=document.createElement('span');alert.className='length-alert';alert.setAttribute('role','status');legend.appendChild(alert);}alert.hidden=!over.length;alert.textContent=over.length?'⚠ Texto excedido':'';alert.title=over.map(el=>form.querySelector('label[for="'+el.id+'"]')?.childNodes[0]?.textContent.trim()||el.id).join(', ');});
   updateIndexAvailability();
   if(current){ renderFormat(current); updateFormatNotice(current); }
@@ -5697,7 +5758,7 @@ function updateSecNav(){
   nav.querySelectorAll("[data-sec]").forEach(b=>{
     const fs=fss[+b.dataset.sec]; if(!fs) return;
     const els=[...fs.querySelectorAll("input,select,textarea")].filter(el=>!el.closest(".is-off")&&el.type!=="button"&&el.type!=="hidden");
-    const empty=els.filter(el=>!String(el.value||"").trim()).length, total=els.length;
+    const empty=els.filter(fieldEmpty).length, total=els.length;
     /* Los valores predeterminados (fecha de hoy, servicio, riesgos, NEGADAS, usuario actual…) no cuentan como "llenado" para el rojo */
     const userFilled=els.filter(el=>{ const v=String(el.value||"").trim(); if(!v) return false; const d=String((DEF&&DEF[el.id])??"").trim(); if(v===d) return false; if(el.id==="residente"&&v===String(currentResidentName()||"").trim()) return false; return true; }).length;
     const st=!total||empty===0?"done":userFilled===0?"none":"part";
@@ -6155,6 +6216,31 @@ $("dlgList").onclick=e=>{ const b=e.target.closest("[data-id]"); if(b) openDrive
 
 /* ---------- Panel fijo de pacientes (visible en cuanto se conecta con Drive) ---------- */
 let PP_LAST=0, PP_LOADING=false;
+/* v2.106 · Vistas de la tabla en la página principal: «cama» (predeterminada) y «recientes».
+   Cama = pacientes con cama asignada y modificados en las últimas 36 horas; primero las camas 150–197 en orden ascendente,
+   luego las camas que empiezan con UCI y después el resto en orden ascendente (…101–149, 198 en adelante). Si hay texto en el buscador, la búsqueda es general. */
+let PP_VIEW="cama";
+/* v2.108 · La cama solo se considera llena si es un número de 3 cifras (p. ej. 150). */
+function camaValida(c){ return /^(?:\d{3}|UCI(?![A-Za-zÁÉÍÓÚÑ]).*)$/i.test(String(c==null?"":c).trim()); }   // 3 cifras, o cama que empieza con la palabra UCI
+function fieldEmpty(el){ return el&&el.id==="cama"?!camaValida(el.value):!String((el&&el.value)||"").trim(); }
+const PP_RECENT_MS=36*60*60*1000;
+function camaNum(c){ const m=String(c==null?"":c).trim().match(/^\d+/); return m?parseInt(m[0],10):null; }
+function camaOrder(a,b){
+  const ca=String((a.meta&&a.meta.cama)||"").trim(), cb=String((b.meta&&b.meta.cama)||"").trim(), na=camaNum(ca), nb=camaNum(cb);
+  const uci=c=>/^UCI(?![A-Za-zÁÉÍÓÚÑ])/i.test(c);   // UCI va justo después de 150–197
+  const ga=na!=null&&na>=150&&na<=197?0:uci(ca)?1:na!=null?2:3, gb=nb!=null&&nb>=150&&nb<=197?0:uci(cb)?1:nb!=null?2:3;
+  if(ga!==gb) return ga-gb;
+  if(na!=null&&nb!=null&&na!==nb) return na-nb;
+  return ca.localeCompare(cb,"es",{numeric:true})||String((a.meta&&a.meta.nombre)||"").localeCompare(String((b.meta&&b.meta.nombre)||""),"es");
+}
+document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("#ppMore"); if(b){ window.PP_PAGES=(window.PP_PAGES||0)+1; renderPP(); } });
+function ppPer(){ try{ const gt=getComputedStyle($("ppList")).gridTemplateColumns; if(!gt||gt==="none"||!$("ppList").offsetWidth) return 30; const c=gt.split(" ").length, r=Math.max(4,Math.min(5,Math.floor(((window.innerHeight||900)-250)/92))); return c*r; }catch(_){ return 30; } }
+window.addEventListener("resize",()=>{ clearTimeout(window._ppRz); window._ppRz=setTimeout(()=>{ try{ if(document.body.classList.contains("pp-browse")) renderPP(); }catch(_){} },200); });
+function ppSyncViewBtns(){ document.querySelectorAll("[data-pp-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ppView===PP_VIEW))); }
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-pp-view]"); if(!b) return;
+  PP_VIEW=b.dataset.ppView; ppSyncViewBtns(); renderPP(); $("ppList").scrollTop=0;
+});
 const ppOn=()=>STORE==="drive"&&CAN_DRIVE&&!!USER&&!!apiKey();
 const ppBrowseWanted=()=>PP_BROWSE&&STORE==="drive"&&CAN_DRIVE&&!!apiKey()&&!CONNECT_FAIL;
 function ppVisibility(){ const el=$("pPanel"); if(el) el.hidden=!(ppOn()||(ppBrowseWanted()&&CONNECTING)); }
@@ -6167,7 +6253,7 @@ function ppLayout(){
   document.body.classList.toggle("pp-browse",want);
   try{ const bn=$("bandName"); if(bn&&bn.classList.contains("empty")) bn.textContent=bandPlaceholder(); }catch(_){}
   const mode=want?"xl":"form";
-  if(mode!==PP_MODE){ PP_MODE=mode; box.classList.toggle("pp-xl",want); window.ppSetCollapsed(!want); }
+  if(mode!==PP_MODE){ PP_MODE=mode; box.classList.toggle("pp-xl",want); window.ppSetCollapsed(!want); if(want){ PP_VIEW="cama"; ppSyncViewBtns(); try{ renderPP(); }catch(_){} } }
 }
 /* Expediente: si ya existe en Drive, aparece en la lista para abrirlo y no sobrescribirlo */
 const expOf=f=>String((f.meta&&f.meta.exp)||patientExpFromFileName(f.name)).trim();
@@ -6193,10 +6279,17 @@ function ppMarkCurrent(){
 }
 function renderPP(){
   const s=($("ppSearch").value||"").trim().toUpperCase();
-  const items=uniqueFiles(DRIVE_FILES).filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
-  $("ppList").innerHTML=items.length?items.slice(0,s?200:60).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
-    return `<button type="button" class="dlg-item" data-id="${f.id}" data-exp="${esc(exp)}"><span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
-    :`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
+  let items=uniqueFiles(DRIVE_FILES).filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
+  const camaMode=document.body.classList.contains("pp-browse")&&!s&&PP_VIEW==="cama";
+  if(camaMode){ const now=Date.now(); items=uniqueFiles(DRIVE_FILES).filter(f=>camaValida(f.meta&&f.meta.cama)&&now-fileTime(f)<=PP_RECENT_MS).sort(camaOrder); }
+  const ppHome=document.body.classList.contains("pp-browse"), ppKey=s+"|"+PP_VIEW+"|"+ppHome;
+  if(window.PP_KEY!==ppKey){ window.PP_KEY=ppKey; window.PP_PAGES=0; }
+  const ppCap=(s||camaMode)?200:60, ppShown=ppHome?Math.min(ppCap,ppPer()*(1+(window.PP_PAGES||0))):ppCap;
+  try{ $("ppList").classList.toggle("by-cama",!!camaMode); const mb=$("ppMore"); if(mb) mb.hidden=!(ppHome&&Math.min(items.length,ppCap)>ppShown); }catch(_){}
+  $("ppList").innerHTML=items.length?items.slice(0,ppShown).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
+    const bed=camaMode&&p.cama?`<span class="cama-badge${String(p.cama).trim().length>3?" long":""}" title="Cama ${esc(p.cama)}">${esc(String(p.cama).trim().replace(/^UCI\s*/i,"UCI "))}</span>`:"";
+    return `<button type="button" class="dlg-item${bed?" has-bed":""}" data-id="${f.id}" data-exp="${esc(exp)}">${bed}<span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama&&!bed?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
+    :camaMode?'<div class="dlg-empty">Sin pacientes hospitalizados modificados en las últimas 36 horas. Usa «Recientes» o el buscador.</div>':`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
   ppMarkCurrent();
 }
 async function loadPatients(opt){
@@ -6453,7 +6546,7 @@ function resetClinicalCare(id){
   editor.dispatchEvent(new Event("input",{bubbles:true}));editor.focus();
 }
 function normalizedNoteType(value){
-  return ({"Evolución":"Nota de Evolución","Agregada":"Nota Agregada","Gravedad":"Nota de Gravedad","Prequirúrgica":"Nota Preoperatoria","Postquirúrgica":"Nota Postoperatoria"})[value]||value||"Nota de Evolución";
+  return ({"Evolución":"Nota de Evolución","Agregada":"Nota Agregada","Gravedad":"Nota de Gravedad","Prequirúrgica":"Nota Preoperatoria","Nota Prequirúrgica":"Nota Preoperatoria","Postquirúrgica":"Nota Postoperatoria"})[value]||value||"Nota de Evolución";
 }
 /* v2.87 · Plantillas editables en el mismo cuadro; el espacio tras cada subtítulo no lleva negritas. */
 const CLINICAL_NOTE_TEMPLATES={"Nota Preoperatoria": "<div><strong>Diagnostico Preoperatorio:</strong> </div><div><strong>Procedimiento Planeado:</strong> </div><div><strong>Cirujano:</strong> </div><div><strong>Ayudantes:</strong> </div><div><strong>Anestesiologo:</strong> </div><div><strong>Antibiotico Profilactico:</strong> </div><div><strong>Tiempo Quirurgico Estimado:</strong> </div><div><strong>Tipo de Anestesia Planeada:</strong> </div><div><strong>Tipo de Procedimiento:</strong> Urgencia</div><div><strong>Sangrado Estimado:</strong> </div><div><br></div><div><strong>Riesgo Quirúrgico</strong> </div><div>Paciente no exento de complicaciones generales como: hemorragia, infección de sitio quirúrgico, sepsis, trombosis venosa profunda, tromboembolia pulmonar, complicaciones anestésicas, paro cardiorrespiratorio y muerte.</div><div><br></div><div><strong>Plan Preoperatorio</strong> </div><div>Consentimiento informado firmado y agregado al expediente clínico, ayuno, profilaxis antibiótica intravenosa, marcaje de sitio quirúrgico , tromboprofilaxis mecánica y farmacológica según escala de Caprini, valoración preanestésica, colocación de sonda nasogástrica a derivación para descompresión gastrointestinal y sonda vesical para monitorización estricta de uresis.</div>", "Nota Postoperatoria": "<div><strong>Diagnóstico de Ingreso:</strong> </div><div><strong>Diagnóstico de Egreso:</strong> </div><div><strong>Cirugía programada:</strong> </div><div><strong>Cirugía realizada:</strong> </div><div><strong>Cirujano:</strong> </div><div><strong>Ayudantes:</strong> </div><div><strong>Anestesiología:</strong> </div><div><strong>Anestesia:</strong> </div><div><strong>Instrumentista:</strong> </div><div><strong>Circulante:</strong> </div><div><strong>Tiempo Quirúrgico:</strong> </div><div><strong>Tiempo Anestésico:</strong> </div><div><strong>Antibiótico profiláctico:</strong> </div><div><strong>Sangrado estimado:</strong> </div><div><strong>Tipo de cirugía:</strong> Limpia-contaminada</div><div><strong>Cuenta textil:</strong> </div><div><strong>Envío de muestras a patología:</strong> </div><div><strong>HALLAZGOS TRANSOPERATORIOS:</strong> </div><div><strong>TÉCNICA QUIRÚRGICA:</strong> </div><div><strong>INCIDENTES Y ACCIDENTES:</strong> </div><div>Ninguno</div><div><strong>PLAN DE MANEJO, TRATAMIENTO POSTOPERATORIO Y PRONÓSTICO:</strong> </div><div>Ayuno hasta nueva orden, con inicio de vía oral progresiva según tolerancia y presencia de peristalsis.</div><div>Líquidos parenterales a requerimiento basal.</div><div>Antibioticoterapia: Continuar esquema.</div><div>Analgesia Multimodal.</div><div>Profilaxis Antitrombótica (según Score de Caprini).</div><div>Vigilancia estrecha: Monitorización de signos vitales, diuresis horaria</div><div>Protocolo ERAS: Movilización temprana asistida y fisioterapia pulmonar incentiva.</div><div>Pronóstico reservado a evolución postquirúrgica inmediata.</div>"};
@@ -6530,7 +6623,7 @@ function clinicalFields(tp,v,opt={}){
   const slot=opt.slot===2?2:1,prefix=slot===2?"cl2":"cl",noteType=normalizedNoteType(v.tipo);
   if(tp==="notas") return `<div class="clinical-grid" data-kind="notas">
     ${clinicalDateTimeFields("cl",v)}
-    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${noteType==="Nota Preoperatoria"?'<option selected hidden>Nota Preoperatoria</option>':""}${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Prequirúrgica","Nota Postoperatoria","Nota de Ingreso","Reingreso a piso","Nota de Diferimiento","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
+    <label class="note-type"><span class="clinical-type-label">Tipo de nota</span><select id="cl-tipo">${["Consulta Externa","Nota de Evolución","Nota Agregada","Nota de Gravedad","Nota Preoperatoria","Nota Postoperatoria","Nota de Ingreso","Reingreso a piso","Nota de Diferimiento","Nota de Defunción"].map(x=>`<option${x===noteType?" selected":""}>${x}</option>`).join("")}</select></label>
     ${clinicalNoteVitals(v)}
     ${clinicalRichField("cl-contenido","Contenido",v.contenido||clinicalNoteTemplate(v.tipo),{content:true})}
     ${clinicalResponsibleFields("cl",v)}
