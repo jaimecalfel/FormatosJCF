@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.144">
+<meta name="application-version" content="2.145">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2751,6 +2751,13 @@ body.pp-browse .pp-view-btns{display:inline-flex;align-items:center;gap:4px;marg
 <style id="pp-grid-v2111">
 /* v2.111 · Buscar paciente (inicio): tarjetas dentro de la página, 6×5, círculo de cama (solo vista Cama) */
 .pp-more-wrap{display:none}
+/* v2.145 · Móvil y Z Fold (≤ 900 px): la lista crece completa en la página y tiene botón «Ver más» (antes quedaba en una caja con scroll sin botón) */
+@media screen and (max-width:900px){
+body.pp-browse #pPanel.pp-xl .pp-list{max-height:none!important;overflow:visible!important}
+body.pp-browse #pPanel.pp-xl .pp-more-wrap{display:flex;justify-content:center;padding:8px 10px 12px}
+body.pp-browse #pPanel.pp-xl .pp-more[hidden]{display:none}
+body.pp-browse #pPanel.pp-xl .pp-more{font:inherit;font-size:13px;font-weight:700;padding:8px 24px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--navy,#173B5E);cursor:pointer}
+}
 @media screen and (min-width:901px){
 body.pp-browse #view-data .wrap{max-width:none}
 body.pp-browse #pPanel.pp-xl .pp-list{max-height:none!important;overflow:visible!important;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));grid-auto-rows:84px;gap:8px;padding:8px 10px}
@@ -2987,7 +2994,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.144 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.145 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
