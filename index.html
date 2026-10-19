@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.102">
+<meta name="application-version" content="2.103">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2882,7 +2882,7 @@ body.pp-browse .band #bandIdx{display:none!important}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.102 · Fecha de publicación: 18.10.26</div>
+  <div class="app-footer-version">Versión 2.103 · Fecha de publicación: 18.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -6368,7 +6368,7 @@ function clinicalDefaults(tp,dayOffset=0){
   const last=arCollect([tp])[0],lp=last&&last.r&&last.r.p;
   if(tp==="notas")return {fecha:todayStr(),hora:roundedNoteTime(),tipo:"Nota de Evolución",contenido:(lp&&lp.contenido)||"",...linked};
   const txt={};for(const k of ["dieta","soluciones","medicamentos","cuidados"])txt[k]=(lp&&typeof lp[k]==="string")?lp[k]:INDICATION_DEFAULTS[k];
-  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,pendientes:(lp&&typeof lp.pendientes==="string")?lp.pendientes:"",...linked,adscrito:(lp&&typeof lp.adscrito==="string"&&lp.adscrito.trim())?lp.adscrito:linked.adscrito};
+  return {fecha:addClinicalDays(todayStr(),dayOffset),hora:"07:00",...txt,pendientes:(lp&&typeof lp.pendientes==="string"&&clinicalRichHasText(lp.pendientes))?lp.pendientes:"<b>Laboratorios</b>",...linked,adscrito:(lp&&typeof lp.adscrito==="string"&&lp.adscrito.trim())?lp.adscrito:linked.adscrito};
 }
 function clinicalRichHTML(value){
   const raw=String(value||""), hasMarkup=/<\/?(?:b|strong|u|ul|ol|li|br|div|p)\b/i.test(raw), t=document.createElement("template");
@@ -6400,7 +6400,7 @@ function changeClinicalCase(button){
 document.addEventListener('mousedown',e=>{if(e.target.closest('[data-rich-case]'))e.preventDefault();});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-rich-case]');if(button)changeClinicalCase(button);});
 function clinicalRichField(id,label,value,{content=false,large=false}={}){
-  return `<div class="clinical-field main-text clinical-${id}">${/^cl(?:2)?-dieta$/.test(id)?`<div class="clinical-shortcut-head"><span class="clinical-label">${label}</span><span class="clinical-shortcuts" role="group" aria-label="Elegir dieta">${["Normal","Líquida","Ayuno"].map(option=>`<button type="button" data-diet-preset-editor="${id}" data-diet-preset="${option.toLocaleUpperCase('es-MX')}" title="Reemplazar toda la dieta por ${option.toLocaleUpperCase('es-MX')}">${option}</button>`).join("")}</span></div>`:`<span class="clinical-label">${label}</span>`}<div class="rich-box"><div class="rich-tools"><button type="button" data-rich-command="bold" data-rich-editor="${id}" title="Negrita"><strong>B</strong></button><button type="button" data-rich-command="underline" data-rich-editor="${id}" title="Subrayado"><u>S</u></button><button type="button" data-rich-command="insertUnorderedList" data-rich-editor="${id}" title="Agregar viñetas">• Lista</button><button type="button" data-rich-case="toggle" data-rich-editor="${id}" title="Alternar mayúsculas/minúsculas en la selección o todo el cuadro" aria-label="Alternar mayúsculas y minúsculas">A/a</button>${/^cl(?:2)?-cuidados$/.test(id)?`<button type="button" data-default-care-editor="${id}" title="Reemplazar cuidados generales por el texto predeterminado">Predeterminado</button>`:""}${id==="cl-contenido"?'<button type="button" class="rich-clear-content" data-clear-note-content aria-live="polite" title="Borrar solo el contenido de la nota">Borrar todo</button>':""}</div><div id="${id}" class="rich-editor${content?" content":""}${large?" indication-large":""}" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí...">${clinicalRichHTML(value)}</div></div></div>`;
+  return `<div class="clinical-field main-text clinical-${id}">${/^cl(?:2)?-dieta$/.test(id)?`<div class="clinical-shortcut-head"><span class="clinical-label">${label}</span><span class="clinical-shortcuts" role="group" aria-label="Elegir dieta">${["Normal","Líquida","Ayuno"].map(option=>`<button type="button" data-diet-preset-editor="${id}" data-diet-preset="${option.toLocaleUpperCase('es-MX')}" title="Reemplazar toda la dieta por ${option.toLocaleUpperCase('es-MX')}">${option}</button>`).join("")}</span></div>`:/^cl(?:2)?-cuidados$/.test(id)?`<div class="clinical-shortcut-head"><span class="clinical-label">${label}</span><span class="clinical-shortcuts" role="group" aria-label="Texto predeterminado"><button type="button" data-default-care-editor="${id}" title="Reemplazar cuidados generales por el texto predeterminado">Predeterminado</button></span></div>`:`<span class="clinical-label">${label}</span>`}<div class="rich-box"><div class="rich-tools"><button type="button" data-rich-command="bold" data-rich-editor="${id}" title="Negrita"><strong>B</strong></button><button type="button" data-rich-command="underline" data-rich-editor="${id}" title="Subrayado"><u>S</u></button><button type="button" data-rich-command="insertUnorderedList" data-rich-editor="${id}" title="Agregar viñetas">• Lista</button><button type="button" data-rich-case="toggle" data-rich-editor="${id}" title="Alternar mayúsculas/minúsculas en la selección o todo el cuadro" aria-label="Alternar mayúsculas y minúsculas">A/a</button>${id==="cl-contenido"?'<button type="button" class="rich-clear-content" data-clear-note-content aria-live="polite" title="Borrar solo el contenido de la nota">Borrar todo</button>':""}</div><div id="${id}" class="rich-editor${content?" content":""}${large?" indication-large":""}" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí...">${clinicalRichHTML(value)}</div></div></div>`;
 }
 function setClinicalDiet(id,value){
   if(!/^cl(?:2)?-dieta$/.test(id)||!["NORMAL","LÍQUIDA","AYUNO"].includes(value))return;
