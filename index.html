@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.94">
+<meta name="application-version" content="2.95">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2780,7 +2780,7 @@ body.pp-browse #view-data .wrap{grid-template-columns:minmax(0,1fr)}
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.94 · Fecha de publicación: 17.10.26</div>
+  <div class="app-footer-version">Versión 2.95 · Fecha de publicación: 18.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -5298,6 +5298,11 @@ $("residentGateForm").addEventListener("submit",e=>{
   applyGateUser(name);
   $("dlgResidentGate").close();
   if(needsKey)initDrive();
+  /* Tras el bloqueo por inactividad: al volver a ingresar se actualiza sola la lista de pacientes (directo de Drive) */
+  if(IDLE_LOCKED){
+    IDLE_LOCKED=false;
+    if(!needsKey){ try{ driveReconnect(); }catch(_){} if(ppOn()){ PP_LAST=0; LIST_STAMP=null; loadPatients({fresco:true}); } }
+  }
 });
 /* Aplica el usuario elegido en la ventana inicial (residente, adscrito o nombre libre = residente) */
 function applyGateUser(name){
@@ -5313,6 +5318,7 @@ $("residentGateOffline").onclick=()=>{
   if(!name)return;
   applyGateUser(name);
   setStore("local");
+  IDLE_LOCKED=false;
   $("dlgResidentGate").close();
   toast("Trabajando sin conexión · los pacientes se guardan en este equipo");
 };
@@ -5320,13 +5326,13 @@ $("residentGateOffline").onclick=()=>{
 let EXITING=false;
 /* Inactividad: si la página no se usa en 10 minutos, al volver a usarla se pide de nuevo el usuario actual.
    Los datos del paciente se conservan; solo se cierra la sesión del usuario. */
-const IDLE_MS=10*60*1000;let LAST_ACTIVITY=Date.now();
+const IDLE_MS=10*60*1000;let LAST_ACTIVITY=Date.now();let IDLE_LOCKED=false;
 function idleLock(){
   if($("dlgResidentGate").open||EXITING)return false;
   if(Date.now()-LAST_ACTIVITY<IDLE_MS)return false;
   LAST_ACTIVITY=Date.now();
   if(current){try{captureCurrentRecent();}catch(_){}}
-  SESSION_ADSCRITO="";SESSION_RESIDENT="";
+  SESSION_ADSCRITO="";SESSION_RESIDENT="";IDLE_LOCKED=true;
   openResidentGate();
   gateStatus("La sesión se cerró por 10 minutos sin uso. Escribe el usuario actual para continuar.","info");
   return true;
