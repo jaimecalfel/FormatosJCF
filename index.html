@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.129">
+<meta name="application-version" content="2.131">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2981,7 +2981,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.129 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.131 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -6145,6 +6145,7 @@ async function integrarPendientes(id,obj){
   for(const f of pend){
     let o=null; try{ o=JSON.parse(f.content||""); }catch(_){}
     if(!o||o.app!=="solicitudes-hjm-pendiente"||expKey(o.expediente)!==expKey(exp)) continue;   // no se toca
+    if(o.origen==="sin-conexion"&&window.__hjmAplicarOffline){ const ar=window.__hjmAplicarOffline(base,o,full.modified); nd+=ar.campos; n+=ar.hist; listos.push(f.id); continue; }   // v2.130 · cambios hechos sin conexión
     if(Array.isArray(o.altas)&&o.altas.length){ altasPend.push({id:f.id,altas:o.altas}); continue; }   // v2.55 · el alta se arma después de abrir al paciente
     if(!Array.isArray(o.notas)&&!Array.isArray(o.indicaciones)&&!(o.datos&&typeof o.datos==="object")) continue;   // v2.56 · contenido que esta versión no entiende: no se borra
     /* v2.54 · datos de la hoja de datos que cambiaron (Ingreso/Solicitud con archivo grande): se aplican campo por campo */
@@ -7504,7 +7505,7 @@ setInterval(()=>{ try{ syncAdminClass(); if(document.visibilityState==="visible"
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"&&dirty) syncRemote(); });
 
 /* ---------- Drive ---------- */
-const driveOK=()=>CAN_DRIVE&&STORE==="drive"&&apiUrl()&&apiKey();
+const driveOK=()=>CAN_DRIVE&&STORE==="drive"&&apiUrl()&&apiKey()&&!(window.__hjmOff&&window.__hjmOff.on);
 async function findStats(){ await ensureFolder(); const l=await G("hjmList",FOLDER.id); return (Array.isArray(l)?l:[]).find(f=>f&&String(f.name||"").trim()===STATS_NAME)||null; }
 async function readStats(){ const f=await findStats(); if(!f) return {obj:null,modified:"",id:null};
   let txt="",mod=""; try{ const r=await G("hjmReadFull",f.id); txt=r&&r.content; mod=(r&&r.modified)||""; }catch(_){ txt=await G("hjmRead",f.id); }
@@ -7706,7 +7707,7 @@ function renderPac(body){
 }
 const pendInfo=it=>{ let o=null; try{ o=JSON.parse(it.content||""); }catch(_){}
   if(!o) return {kind:"ilegible",by:"",bad:"JSON ilegible"};
-  const kinds=[]; ["notas","indicaciones","altas"].forEach(x=>{ if(Array.isArray(o[x])&&o[x].length) kinds.push(x+" "+o[x].length); }); if(o.datos&&typeof o.datos==="object") kinds.push("datos");
+  const kinds=[]; ["notas","indicaciones","altas"].forEach(x=>{ if(Array.isArray(o[x])&&o[x].length) kinds.push(x+" "+o[x].length); }); if(o.datos&&typeof o.datos==="object") kinds.push("datos"); if(o.origen==="sin-conexion"&&Array.isArray(o.cambios)) kinds.push("sin conexión ("+o.cambios.length+" campos, "+Object.values(o.historial||{}).reduce((a,l)=>a+(l||[]).length,0)+" registros)");
   let by=o.usuario||o.autor||o.creadoPor||o.por||o.residente||"";
   if(!by){ for(const x of ["notas","indicaciones","altas"]){ for(const r of (Array.isArray(o[x])?o[x]:[])){ by=(r&&(r.by||r.residente||r.autor||(r.p&&(r.p.residente||r.p.autor||r.p.medico||r.p.por))))||""; if(by) break; } if(by) break; } }
   let bad=""; if(o.app!=="solicitudes-hjm-pendiente") bad="no es un pendiente de la app"; else if(!kinds.length) bad="sin contenido reconocido";
@@ -7780,7 +7781,7 @@ function renderErr(body){
   const c=$s("stErrClr"); if(c) c.onclick=async()=>{ errLocal=[]; LS.set("hjm-err-log","[]"); dirty=true; await syncRemote({clearErrs:true}); render(); };
   const card=document.createElement("div"); card.className="st-card"; body.appendChild(card);
   const rm=async x=>{ await G(x.where==="Pendientes"?"hjmBorrarPendiente":"hjmBorrarDuplicado",x.id); DRIVE_FILES=DRIVE_FILES.filter(f=>f.id!==x.id); };
-  const drawBad=(busy)=>{ card.innerHTML=`<h3>Archivos no viables ${badFiles?`<small style="font-weight:500;color:#6A7D93">· ${badFiles.length} encontrado(s)</small>`:""}</h3><div class="st-msg" style="margin:0 0 8px">Se revisan solos al abrir esta pestaña: archivos dañados, de otro formato (.bak, .doc, .error…) o que no corresponden a la app, en pacientes y pendientes.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBadGo" ${busy?"disabled":""}>Volver a revisar</button>${badFiles&&badFiles.length?'<button type="button" class="st-btn" id="stBadAll">Eliminar todos</button>':""}<span class="st-msg" id="stBadMsg" style="margin:0">${busy?"Revisando…":esc(BADERR)}</span></div>${badFiles?(badFiles.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Carpeta</th><th>Nombre del archivo</th><th>Problema</th><th></th></tr></thead><tbody>${badFiles.map((x,i)=>`<tr><td>${x.where}</td><td style="text-align:left;word-break:break-all">${esc(x.name||"")}</td><td style="text-align:left">${esc(x.why)}</td><td><button type="button" class="st-btn st-sm" data-bdel="${i}">Eliminar</button></td></tr>`).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Todos los archivos revisados son viables.</div>'):""}`;
+  const drawBad=(busy)=>{ card.innerHTML=`<h3>Archivos no viables ${badFiles?`<small style="font-weight:500;color:#6A7D93">· ${badFiles.length} encontrado(s)</small>`:""}</h3><div class="st-msg" style="margin:0 0 8px">Se revisan solos al abrir esta pestaña: archivos dañados, de otro formato (.bak, .doc, .error…) o que no corresponden a la app, en pacientes y pendientes. Los respaldos de la carpeta de respaldo se revisan abajo.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBadGo" ${busy?"disabled":""}>Volver a revisar</button>${badFiles&&badFiles.length?'<button type="button" class="st-btn" id="stBadAll">Eliminar todos</button>':""}<span class="st-msg" id="stBadMsg" style="margin:0">${busy?"Revisando…":esc(BADERR)}</span></div>${badFiles?(badFiles.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Carpeta</th><th>Nombre del archivo</th><th>Problema</th><th></th></tr></thead><tbody>${badFiles.map((x,i)=>`<tr><td>${x.where}</td><td style="text-align:left;word-break:break-all">${esc(x.name||"")}</td><td style="text-align:left">${esc(x.why)}</td><td><button type="button" class="st-btn st-sm" data-bdel="${i}">Eliminar</button></td></tr>`).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Todos los archivos revisados son viables.</div>'):""}`;
     const go=$s("stBadGo"); go.onclick=run;
     const all=$s("stBadAll"); if(all) all.onclick=async()=>{ if(!isAdmin()) return;
       if(!all.dataset.ok){ all.dataset.ok="1"; all.textContent=`¿Eliminar los ${badFiles.length}?`; all.classList.add("st-danger"); setTimeout(()=>{ if(all.isConnected){ delete all.dataset.ok; all.textContent="Eliminar todos"; all.classList.remove("st-danger"); } },5000); return; }
@@ -7791,6 +7792,43 @@ function renderErr(body){
       try{ await rm(x); badFiles.splice(+b.dataset.bdel,1); try{ renderPP(); }catch(_){} drawBad(); }catch(e){ drawBad(); $s("stBadMsg").textContent="No se pudo eliminar: "+friendly(e); } }); };
   const run=()=>{ badFiles=null; startBad(true,true); drawBad(true); };
   if(badFiles===null&&!BAD_RUN) startBad(); drawBad(BAD_RUN||badFiles===null);
+  drawBakCard(body);
+}
+/* ---------- v2.131 · Respaldos (.bak) de la carpeta de respaldo: JSON original vs. respaldo, con Restaurar / Borrar ---------- */
+let bakData=null, bakBusy=false, bakMsg="", bakQ="", bakRows=[];
+const noAccion=e=>!!e&&(e.code==="accion"||/Acci[oó]n no permitida/.test(String(e.message||"")));
+async function loadBak(){
+  if(bakBusy) return; bakBusy=true; bakMsg="";
+  try{ const r=await G("hjmRespaldos"); bakData=(r&&r.respaldos)||[]; }
+  catch(e){ bakData=null; bakMsg=noAccion(e)?"Falta actualizar Codigo.gs a la versión 7 (acción hjmRespaldos).":"No se pudo leer la carpeta de respaldo: "+friendly(e); }
+  finally{ bakBusy=false; }
+}
+function drawBakCard(body){
+  const card=document.createElement("div"); card.className="st-card"; body.appendChild(card);
+  const when=t=>new Date(Date.parse(t)||0).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"});
+  const draw=()=>{ if(!card.isConnected) return;
+    const q=bakQ.trim().toUpperCase();
+    bakRows=(bakData||[]).filter(x=>!q||(x.name+" "+(x.exp||"")+" "+((x.original&&x.original.nombre)||"")).toUpperCase().includes(q));
+    const busy=bakBusy, sinJson=(bakData||[]).filter(x=>!x.original).length;
+    card.innerHTML=`<h3>Respaldos (.bak) ${bakData?`<small style="font-weight:500;color:#6A7D93">· ${bakData.length} respaldo(s)${sinJson?` · ${sinJson} sin JSON original`:""}</small>`:""}</h3>
+    <div class="st-msg" style="margin:0 0 8px">Copias de seguridad de la carpeta de respaldo junto con el JSON actual del mismo expediente. «Restaurar» reemplaza el JSON del paciente por el contenido del respaldo (el .bak se conserva; el JSON anterior queda en el historial de versiones de Drive). «Borrar» manda el .bak a la papelera de Drive.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBakGo" ${busy?"disabled":""}>${bakData?"Actualizar":"Cargar respaldos"}</button><input class="st-in" id="stBakQ" placeholder="Buscar por expediente, nombre o archivo…" value="${esc(bakQ)}" style="max-width:300px"><span class="st-msg" id="stBakMsg" style="margin:0">${busy?"Cargando…":esc(bakMsg)}</span></div>
+    ${bakData?(bakRows.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Exp. / Paciente</th><th>JSON original</th><th>Peso</th><th>Respaldo (.bak)</th><th>Peso</th><th></th></tr></thead><tbody>${bakRows.map((x,i)=>{ const o=x.original, mas=o&&x.size>o.size, menos=o&&x.size<o.size;
+      return `<tr><td style="text-align:left"><b>${esc(x.exp||"—")}</b><br><small style="color:#6A7D93">${esc(String((o&&o.nombre)||"").slice(0,34))}</small></td>
+      <td style="text-align:left;word-break:break-all">${o?`${esc(o.name)}<br><small style="color:#6A7D93">${when(o.modified)}</small>`:'<span class="lv warn">sin JSON original</span>'}</td><td>${o?kb(o.size):"—"}</td>
+      <td style="text-align:left;word-break:break-all">${esc(x.name)}<br><small style="color:#6A7D93">${when(x.modified)}</small></td><td>${kb(x.size)}${mas?' <span class="lv warn" title="El respaldo pesa más que el JSON actual">mayor</span>':menos?' <small style="color:#6A7D93">menor</small>':""}</td>
+      <td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-brest="${i}">Restaurar respaldo</button> <button type="button" class="st-btn st-sm" data-bbak="${i}">Borrar respaldo</button></td></tr>`; }).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Sin respaldos'+(q?" que coincidan.":".")+'</div>'):""}`;
+    $s("stBakGo").onclick=async()=>{ draw(); await loadBak(); draw(); };
+    const qi=$s("stBakQ"); qi.oninput=()=>{ bakQ=qi.value; const pos=qi.selectionStart; draw(); const n=$s("stBakQ"); n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} };
+    const two=(b,label,fn)=>{ if(!isAdmin()) return; if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent=label; b.classList.remove("st-danger"); } },4000); return; } fn(); };
+    card.querySelectorAll("[data-brest]").forEach(b=>b.onclick=()=>two(b,"Restaurar respaldo",async()=>{ const x=bakRows[+b.dataset.brest]; if(!x) return; b.disabled=true; bakMsg="Restaurando "+x.name+"…"; draw();
+      try{ await bg(async()=>{ await G("hjmRestaurarRespaldo",x.id); try{ PP_LAST=0; await loadPatients({fresco:true}); }catch(_){} await loadBak(); }); bakMsg="Respaldo restaurado: "+x.name; }
+      catch(e){ bakMsg=noAccion(e)?"Falta actualizar Codigo.gs a la versión 7.":"No se pudo restaurar: "+friendly(e); } draw(); }));
+    card.querySelectorAll("[data-bbak]").forEach(b=>b.onclick=()=>two(b,"Borrar respaldo",async()=>{ const x=bakRows[+b.dataset.bbak]; if(!x) return; b.disabled=true;
+      try{ await bg(async()=>{ await G("hjmBorrarRespaldo",x.id); }); bakData=bakData.filter(y=>y.id!==x.id); bakMsg="Respaldo enviado a la papelera: "+x.name; }
+      catch(e){ bakMsg=noAccion(e)?"Falta actualizar Codigo.gs a la versión 7.":"No se pudo borrar: "+friendly(e); } draw(); }));
+  };
+  draw(); if(bakData===null&&!bakBusy&&!bakMsg) loadBak().then(draw);
 }
 async function render(){
   const body=$s("stBody");
@@ -7826,6 +7864,265 @@ async function openStats(){
 $s("stClose").onclick=()=>$s("dlgStats").close();
 document.addEventListener("click",e=>{ const c=e.target.closest&&e.target.closest(".top > .seal.crab"); if(!c) return; if(!isAdmin()||hasSelectedPatient()) return; openStats(); });
 syncAdminClass(); window.__hjmStatsBump=bump;
+})();
+</script>
+
+<style id="hjm-offline-css">
+#hjmOffMini{position:fixed;inset:auto auto 62px 14px;margin:0;border:0;padding:9px 14px;border-radius:12px;background:#173B5E;color:#fff;font:600 12.5px/1.3 "Public Sans",system-ui,sans-serif;box-shadow:0 8px 24px rgba(8,35,61,.35);max-width:min(84vw,360px);display:none}
+#hjmOffMini.on{display:flex;align-items:center;gap:8px}
+#hjmOffMini.ok{background:#2E8B57}
+#hjmOffMini.warn{background:#B26A00}
+#hjmOffMini .sp{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:cmSpin .8s linear infinite;flex:none}
+@media print{#hjmOffMini{display:none!important}}
+</style>
+<script id="hjm-offline-js">
+/* v2.130 · Modo sin conexión: copia local de TODOS los expedientes (IndexedDB del navegador, sin permisos) que se actualiza en cada conexión
+   con Drive y SOLO se usa cuando no hay internet. Lo que se capture sin conexión queda en una cola local (un pendiente por expediente) y,
+   al volver el internet, se sube solo a PendientesJCF y se integra como cualquier otro pendiente. No toca Codigo.gs ni el enlace /exec. */
+(function(){
+"use strict";
+const _call=window.call, _renderSync=window.renderSync, _unificar=window.unificarPaciente, _initDrive=window.initDrive;
+const OFF={on:false}; window.__hjmOff=OFF;
+const $o=id=>document.getElementById(id);
+const IDB=(()=>{ let p=null;
+  const open=()=>p||(p=new Promise((res,rej)=>{ try{ const r=indexedDB.open("hjm-offline",1); r.onupgradeneeded=()=>{ const d=r.result; ["meta","docs","queue"].forEach(s=>{ if(!d.objectStoreNames.contains(s)) d.createObjectStore(s); }); }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }));
+  const tx=async(s,m,f)=>{ const d=await open(); return new Promise((res,rej)=>{ const t=d.transaction(s,m), st=t.objectStore(s); let out; const rq=f(st); if(rq) rq.onsuccess=()=>{ out=rq.result; }; t.oncomplete=()=>res(out); t.onerror=t.onabort=()=>rej(t.error||new Error("idb")); }); };
+  return { get:(s,k)=>tx(s,"readonly",st=>st.get(k)), put:(s,k,v)=>tx(s,"readwrite",st=>st.put(v,k)), del:(s,k)=>tx(s,"readwrite",st=>st.delete(k)), keys:s=>tx(s,"readonly",st=>st.getAllKeys()), all:s=>tx(s,"readonly",st=>st.getAll()) }; })();
+let LIST=null, IDX={}, QN=0, SYNCING=false, FLQ=false, PROBE_T=0, VARIOS=true, MINI=null, MINI_T=0;
+const loaded=(async()=>{ try{ LIST=(await IDB.get("meta","list"))||null; IDX=(await IDB.get("meta","idx"))||{}; QN=(await IDB.keys("queue")).length; }catch(_){ LIST=null; } try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch(_){} })();
+const ready=()=>!!LIST&&Object.keys(IDX).length>0;
+const FILES=()=>((LIST&&LIST.files)||[]).filter(f=>IDX[f.id]||f.local);
+const fdate=t=>{ try{ return new Date(t).toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } };
+
+/* ---------- Mensaje inferior izquierdo ---------- */
+function mini(text,state,ms){ try{
+  if(!MINI){ MINI=document.createElement("div"); MINI.id="hjmOffMini"; MINI.setAttribute("role","status"); try{ MINI.setAttribute("popover","manual"); }catch(_){} document.body.appendChild(MINI); }
+  clearTimeout(MINI_T);
+  if(!text){ MINI.classList.remove("on","ok","warn"); try{ MINI.hidePopover&&MINI.hidePopover(); }catch(_){} return; }
+  MINI.innerHTML=(state==="ok"?"✓ ":state==="warn"?"⚠ ":'<span class="sp"></span>')+"<span></span>"; MINI.lastChild.textContent=text;
+  MINI.classList.add("on"); MINI.classList.toggle("ok",state==="ok"); MINI.classList.toggle("warn",state==="warn");
+  try{ if(MINI.showPopover&&!MINI.matches(":popover-open")) MINI.showPopover(); }catch(_){}
+  if(ms) MINI_T=setTimeout(()=>{ if(OFF.on) showOffMini(); else mini(""); },ms);
+}catch(_){} }
+function showOffMini(){ mini("Sin conexión · copia del "+fdate((LIST&&LIST.at)||Date.now())+(QN?" · "+QN+(QN===1?" cambio":" cambios")+" por subir":""),"warn"); }
+
+/* ---------- ¿hay internet de verdad? (el navegador puede decir «en línea» con Wi-Fi sin salida) ---------- */
+async function probe(){
+  if(navigator.onLine===false) return false;
+  try{ const c=new AbortController(), t=setTimeout(()=>c.abort(),6000); try{ await fetch(apiUrl()+(apiUrl().includes("?")?"&":"?")+"p="+Date.now(),{mode:"no-cors",cache:"no-store",signal:c.signal}); } finally{ clearTimeout(t); } return true; }
+  catch(_){ return false; }
+}
+
+/* ---------- Comparar paciente base vs. actual → pendiente ---------- */
+const same=(a,b)=>JSON.stringify(a===undefined?null:a)===JSON.stringify(b===undefined?null:b);
+const blank=v=>v==null||(typeof v==="string"&&!v.trim());
+function diffObj(b,o,prev){
+  b=b||{}; o=o||{}; const now=Date.now(), pc=new Map(((prev&&prev.cambios)||[]).map(x=>[x.s+"\u0001"+(x.f||"")+"\u0001"+x.c,x])), cambios=[];
+  const cmp=(s,f,A,B)=>{ A=A&&typeof A==="object"?A:{}; B=B&&typeof B==="object"?B:{};
+    for(const c of new Set([...Object.keys(A),...Object.keys(B)])){ const a=A[c], d=B[c]; if(d===undefined||same(a,d)||(blank(a)&&blank(d))) continue;   // un campo ausente en el formulario no es un borrado
+      const p=pc.get(s+"\u0001"+f+"\u0001"+c), dd=d===undefined?null:d; cambios.push({s,f,c,a:a===undefined?null:a,d:dd,ts:p&&same(p.d,dd)?p.ts:now}); } };
+  cmp("datos","",b.datos,o.datos);
+  for(const f of new Set([...Object.keys(b.fmt||{}),...Object.keys(o.fmt||{})])) cmp("fmt",f,(b.fmt||{})[f],(o.fmt||{})[f]);
+  const historial={};
+  for(const t of new Set([...Object.keys(b.historial||{}),...Object.keys(o.historial||{})])){
+    const bm=new Map(((b.historial||{})[t]||[]).filter(r=>r&&r.id).map(r=>[r.id,r])), out=[];
+    for(const r of ((o.historial||{})[t]||[])){ if(!r||!r.id) continue; const x=bm.get(r.id); if(!x||!same(x,r)) out.push(r); }
+    if(out.length) historial[t]=out; }
+  const borrados=Object.fromEntries(Object.entries(o.borrados||{}).filter(([k])=>!(b.borrados||{})[k]));
+  return {cambios,historial,borrados,vacio:!cambios.length&&!Object.keys(historial).length&&!Object.keys(borrados).length};
+}
+function mkPend(rec,x){
+  return {app:"solicitudes-hjm-pendiente",version:2,origen:"sin-conexion",expediente:rec.exp,usuario:rec.user||"",creado:new Date(rec.created).toISOString(),ultimo:rec.last,base:rec.rmod||"",
+    cambios:x.cambios,historial:x.historial,borrados:x.borrados};
+}
+/* Aplica un pendiente «sin conexión» sobre el JSON de Drive (lo llama integrarPendientes).
+   · Notas, indicaciones, solicitudes y demás historiales se SUMAN (gana el registro más reciente si hay el mismo).
+   · Campos de datos/formatos: se aplica el cambio solo si en Drive el campo sigue como estaba al quedarse sin conexión
+     o si Drive no se ha modificado después de tu edición; si Drive ya tiene un cambio más nuevo, no se pisa. */
+function aplicar(base,o,remoteIso){
+  const rm=Date.parse(remoteIso)||0; let campos=0,hist=0;
+  base.datos=base.datos||{}; base.fmt=base.fmt||{};
+  for(const c of o.cambios||[]){
+    const tgt=c.s==="fmt"?(base.fmt[c.f]=base.fmt[c.f]&&typeof base.fmt[c.f]==="object"?base.fmt[c.f]:{}):base.datos, cur=tgt[c.c], dd=c.d===null?undefined:c.d;
+    if(same(cur,dd)) continue;
+    const igual=same(cur,c.a)||(blank(cur)&&blank(c.a));
+    if(igual||(rm&&rm<=Number(c.ts))){ if(dd===undefined) delete tgt[c.c]; else tgt[c.c]=dd; campos++; }
+  }
+  const del=Object.assign({},base.borrados||{},o.borrados||{});
+  const h=base.historial=base.historial||{}, pre=new Map();
+  Object.values(h).forEach(l=>Array.isArray(l)&&l.forEach(r=>r&&r.id&&pre.set(r.id,r)));
+  for(const l of Object.values(o.historial||{})) for(const r of l||[]){ if(!r||!r.id) continue; const x=pre.get(r.id); if(!x||(!same(x,r)&&(Number(r.ts)||0)>=(Number(x.ts)||0))) hist++; }
+  const merged=mergeHist(o.historial,h,del);
+  Object.keys(h).forEach(k=>delete h[k]); Object.assign(h,merged);
+  base.borrados=Object.fromEntries(Object.entries(del).sort((a,b)=>b[1]-a[1]).slice(0,3000));
+  if(campos||hist||Object.keys(o.borrados||{}).length){ base.ultimoEditor={u:String(o.usuario||"").toLocaleUpperCase("es-MX"),ts:Number(o.ultimo)||Date.now()}; }
+  return {campos,hist};
+}
+window.__hjmAplicarOffline=aplicar;
+
+/* ---------- Respuestas locales cuando no hay internet ---------- */
+const folder=()=>(LIST&&LIST.folder)||FOLDER||{id:"",name:"Pacientes"};
+async function docOf(id){ const d=await IDB.get("docs",id); if(!d){ const e=new Error("Este paciente todavía no está en la copia sin conexión de este equipo."); e.code="offline"; throw e; } return d; }
+async function persistList(){ try{ await IDB.put("meta","list",LIST); await IDB.put("meta","idx",IDX); }catch(_){} }
+async function qCount(){ try{ QN=(await IDB.keys("queue")).length; }catch(_){} try{ renderSync(); }catch(_){} if(OFF.on) showOffMini(); }
+async function offSave(a){
+  const name=String(a[1]||""), content=String(a[2]||""), meta=(()=>{ try{ return JSON.parse(a[3]||"{}")||{}; }catch(_){ return {}; } })();
+  const obj=JSON.parse(content), k=expKey((obj.datos||{}).expediente||meta.exp); if(!k) throw new Error("Falta el expediente");
+  const ent=FILES().find(f=>f.name===name&&expKey(expOf(f))===k)||FILES().find(f=>expKey(expOf(f))===k)||null;
+  const old=await IDB.get("queue",k), now=Date.now(), nowIso=new Date(now).toISOString();
+  const doc=ent?await IDB.get("docs",ent.id):null;
+  const rec=old||{k,exp:String((obj.datos||{}).expediente||meta.exp||"").trim(),name:ent?ent.name:name,fileId:ent?ent.id:"local-"+now.toString(36),rmod:ent?(IDX[ent.id]||ent.modified):"",
+    nuevo:!doc,base:doc?(doc.rcontent||doc.content):null,created:now,user:String(sessionUserName()||"").toLocaleUpperCase("es-MX")};
+  rec.cur=obj; rec.last=now; rec.meta=Object.assign({},meta,{ed:rec.user||meta.ed}); if(!rec.user) rec.user=String(sessionUserName()||"").toLocaleUpperCase("es-MX");
+  if(!rec.nuevo){ const x=diffObj(JSON.parse(rec.base),obj,rec.pend); rec.pend=mkPend(rec,x); rec.vacio=x.vacio; }
+  if(!rec.nuevo&&rec.vacio) await IDB.del("queue",k); else await IDB.put("queue",k,rec);
+  const id=ent?ent.id:rec.fileId;
+  /* la copia local refleja lo capturado (sin tocar «rcontent»: lo que había en Drive al quedarse sin conexión) */
+  await IDB.put("docs",id,{id,name:rec.name,content,modified:nowIso,rmod:IDX[id]||"",rcontent:(doc&&(doc.rcontent||doc.content))||null});
+  const nm=Object.assign({},ent&&ent.meta||{},meta); const row={id,name:rec.name,modified:nowIso,meta:nm,local:!ent||!!(ent&&ent.local)};
+  LIST.files=[row,...LIST.files.filter(f=>f.id!==id)]; IDX[id]=IDX[id]||"local"; await persistList(); await qCount();
+  return {id,name:rec.name,modified:nowIso,meta:nm,stamp:null};
+}
+async function offCall(fn,a){
+  await loaded; if(!LIST) throw new Error("red");
+  switch(fn){
+    case "hjmPing": return {ok:true,version:0,offline:true};
+    case "hjmUser": return {shared:true,email:"",effective:""};
+    case "hjmGetFolder": return folder();
+    case "hjmInit": return {user:{shared:true,email:"",effective:"",offline:true},folder:folder(),files:FILES().slice().sort((x,y)=>String(y.modified).localeCompare(String(x.modified))),stamp:null,version:0};
+    case "hjmList": return FILES().slice().sort((x,y)=>String(y.modified).localeCompare(String(x.modified)));
+    case "hjmStamp": return {stamp:-1};
+    case "hjmRead": return (await docOf(a[0])).content;
+    case "hjmReadFull": { const d=await docOf(a[0]); return {id:d.id,name:d.name,modified:d.modified,content:d.content}; }
+    case "hjmPendientes": return [];
+    case "hjmSave": return await offSave(a);
+    default: throw new Error("red");
+  }
+}
+
+/* ---------- Entrar / salir del modo sin conexión ---------- */
+function enter(){
+  if(OFF.on) return; OFF.on=true; NET_FAIL=false; CONNECT_FAIL=false;
+  FOLDER=FOLDER||folder(); USER=USER||{shared:true,offline:true};
+  try{ DRIVE_FILES=onlyJsonFiles(FILES().slice().sort((x,y)=>String(y.modified).localeCompare(String(x.modified)))); PP_LAST=Date.now(); LIST_FULL=Date.now(); }catch(_){}
+  showOffMini(); try{ renderAcct(); }catch(_){} try{ renderPP(); }catch(_){} renderSync();
+  clearInterval(PROBE_T); PROBE_T=setInterval(tryExit,15000);
+  /* un intento de conexión que seguía en curso al arrancar puede marcar «falló» después: se corrige para que la tabla siga visible */
+  let n=0; const fx=setInterval(()=>{ if(!OFF.on||++n>14){ clearInterval(fx); return; } if(CONNECT_FAIL){ CONNECT_FAIL=false; try{ renderAcct(); renderPP(); renderSync(); }catch(_){} } },1000);
+}
+let EXITING=false;
+async function tryExit(){
+  if(!OFF.on||EXITING) return; if(!(await probe())) return;
+  EXITING=true;
+  try{
+    OFF.on=false; clearInterval(PROBE_T); mini("Conexión restablecida…");
+    USER=null; PP_LAST=0; CONNECT_FAIL=false; NET_FAIL=false;
+    await flushQueue(); await _initDrive(); mini("✓ Conexión restablecida","ok",4000); renderSync(); setTimeout(sync,3000);
+  }catch(_){ OFF.on=true; PROBE_T=setInterval(tryExit,15000); } finally{ EXITING=false; }
+}
+window.call=async function(fn,...args){
+  if(OFF.on) return offCall(fn,args);
+  try{ return await _call(fn,...args); }
+  catch(e){
+    if(String(e&&e.message)==="red"){ await loaded; if(ready()&&!(await probe())){ enter(); return offCall(fn,args); } }
+    throw e;
+  }
+};
+window.unificarPaciente=function(id){ return OFF.on?Promise.resolve(id):_unificar(id); };
+window.renderSync=function(){
+  _renderSync.apply(this,arguments);
+  try{ const el=$o("syncSt"); if(!el||!OFF.on) return;
+    el.className="sync-st warn"; el.removeAttribute("tabindex"); el.setAttribute("role","status");
+    el.textContent=QN?"Sin conexión · "+QN+" por subir":"Sin conexión";
+    el.title="Trabajando con la copia de este equipo; lo que captures se sube solo a Drive cuando vuelva el internet"; el.hidden=false; }catch(_){}
+};
+addEventListener("offline",async()=>{ await loaded; if(!OFF.on&&ready()&&!(await probe())) enter(); });
+addEventListener("online",()=>{ if(OFF.on) tryExit(); });
+
+/* ---------- Subir la cola al volver el internet ---------- */
+const p2=n=>String(n).padStart(2,"0");
+function pendName(exp,ts,used){ const c=String(exp||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9_-]/g,"")||"PACIENTE"; let t=new Date(ts);
+  for(let i=0;i<600;i++){ const n=`JCF${c}.nota-${t.getFullYear()}${p2(t.getMonth()+1)}${p2(t.getDate())}-${p2(t.getHours())}${p2(t.getMinutes())}.json`; if(!used.has(n)) return n; t=new Date(t.getTime()+60000); } return null; }
+const sinAccion=e=>!!e&&(e.code==="accion"||/Acci[oó]n no permitida/.test(String(e.message||"")));
+async function aplicarDirecto(rec,twins,pend){            // Codigo.gs sin hjmSubirPendiente: se integra directo en el expediente
+  const main=pickMain(twins); let r=await _call("hjmReadFull",main.id), obj=JSON.parse(r.content);
+  for(let i=0;;i++){
+    aplicar(obj,pend,r.modified); obj.guardado=new Date().toISOString();
+    const res=await _call("hjmSave",FOLDER.id,main.name,JSON.stringify(obj),"{}",JSON.stringify({forzar:true,base:r.modified}));
+    if(!(res&&res.conflicto)){ if(res&&res.id&&res.modified) try{ upsertDriveFile(res); }catch(_){} return; }
+    if(i>=3) throw new Error("ocupado"); r=await _call("hjmReadFull",res.id); obj=JSON.parse(r.content);
+  }
+}
+async function cleanLocal(rec){ if(rec&&/^local-/.test(rec.fileId||"")){ try{ await IDB.del("docs",rec.fileId); }catch(_){} delete IDX[rec.fileId]; if(LIST) LIST.files=LIST.files.filter(f=>f.id!==rec.fileId); await persistList(); } }
+async function flushQueue(){
+  if(FLQ||OFF.on) return 0; let recs=[]; try{ recs=await IDB.all("queue"); }catch(_){ return 0; }
+  if(!recs.length) return 0; FLQ=true; let sent=0, directo=0, fail=null;
+  try{
+    mini("Subiendo cambios hechos sin conexión… ("+recs.length+")");
+    if(!FOLDER||!FOLDER.id) FOLDER=await _call("hjmGetFolder");
+    let list=onlyJsonFiles(await _call("hjmList",null,{fresco:true}));
+    recs.sort((a,b)=>a.last-b.last);
+    for(const rec of recs){
+      let twins=list.filter(f=>expKey(expOf(f))===rec.k);
+      if((rec.nuevo&&!twins.length)||(!rec.nuevo&&!twins.length)){      // el paciente no existe en Drive: se crea
+        const res=await _call("hjmSave",FOLDER.id,rec.name,JSON.stringify(rec.cur),JSON.stringify(rec.meta||{}),JSON.stringify({}));
+        if(res&&res.conflicto){ list=onlyJsonFiles(await _call("hjmList",null,{fresco:true})); twins=list.filter(f=>expKey(expOf(f))===rec.k); }
+        else { if(res&&res.id&&res.modified) try{ upsertDriveFile(res); }catch(_){} await IDB.del("queue",rec.k); await cleanLocal(rec); sent++; continue; }
+      }
+      const pend=rec.nuevo?mkPend(rec,diffObj({},rec.cur,null)):rec.pend; if(!pend){ await IDB.del("queue",rec.k); continue; }
+      const used=new Set(); try{ ((await _call("hjmPendientes",rec.exp))||[]).forEach(x=>used.add(x.name)); }catch(_){}
+      const name=pendName(rec.exp,rec.last,used);
+      try{ await _call("hjmSubirPendiente",name,JSON.stringify(pend)); }
+      catch(e){ if(sinAccion(e)){ await aplicarDirecto(rec,twins,pend); directo++; } else throw e; }
+      await IDB.del("queue",rec.k); await cleanLocal(rec); sent++;
+    }
+  }catch(e){ fail=e; }
+  finally{ FLQ=false; await qCount(); }
+  if(sent){ mini("✓ "+sent+(sent===1?" paciente con cambios sin conexión subido":" pacientes con cambios sin conexión subidos"),"ok",7000);
+    try{ notify(directo?`Se subieron los cambios hechos sin conexión (${sent}). Se integraron directo en cada expediente porque Codigo.gs aún no tiene la acción hjmSubirPendiente (v7).`:`Se subieron a PendientesJCF los cambios hechos sin conexión (${sent}). Se integran al abrir cada paciente.`,directo?"warn":"ok",{ms:9000}); }catch(_){} }
+  else if(!fail) mini("");
+  if(fail){ mini("No se pudieron subir todos los cambios sin conexión; se reintentará solo.","warn",8000); setTimeout(()=>{ if(!OFF.on) flushQueue(); },60000); }
+  return sent;
+}
+
+/* ---------- Mantener la copia local al día (en cada conexión con Drive) ---------- */
+async function sync(){
+  if(OFF.on||SYNCING||FLQ||!CAN_DRIVE||STORE!=="drive"||!apiUrl()||!apiKey()||!USER||USER.offline||!FOLDER||navigator.onLine===false) return;
+  SYNCING=true; await loaded;
+  try{
+    await flushQueue();
+    let list; try{ list=onlyJsonFiles(await _call("hjmList",null,{})); }catch(_){ return; }
+    if(!list.length) return;
+    const ids=new Set(list.map(f=>f.id)), protect=new Set((await IDB.all("queue")).map(r=>r.fileId));
+    for(const id of Object.keys(IDX)){ if(!ids.has(id)&&!protect.has(id)){ delete IDX[id]; try{ await IDB.del("docs",id); }catch(_){} } }
+    const stale=list.filter(f=>IDX[f.id]!==f.modified&&!protect.has(f.id));
+    const prevAt=(LIST&&LIST.at)||0, keepLocal=((LIST&&LIST.files)||[]).filter(f=>f.local&&protect.has(f.id));
+    LIST={files:list.concat(keepLocal),folder:FOLDER,at:prevAt||Date.now()}; await persistList();
+    if(!stale.length){ LIST.at=Date.now(); await persistList(); return; }
+    let done=0; const total=stale.length, first=!prevAt||Object.keys(IDX).length<total/2;
+    const put=async(r,f)=>{ if(!r||r.error||!r.content) return; let o=null; try{ o=JSON.parse(r.content); }catch(_){} if(!o||o.app!=="solicitudes-hjm") return;
+      await IDB.put("docs",f.id,{id:f.id,name:r.name||f.name,content:r.content,modified:r.modified||f.modified,rmod:f.modified,rcontent:null}); IDX[f.id]=f.modified; };
+    for(let i=0;i<stale.length;){
+      if(OFF.on||navigator.onLine===false) return;
+      if(first) mini("Preparando copia sin conexión… "+Math.round(done/total*100)+"% ("+done+" de "+total+")");
+      let chunk=VARIOS?stale.slice(i,i+8):stale.slice(i,i+2); i+=chunk.length;
+      try{
+        if(VARIOS){ let rs; try{ rs=await _call("hjmLeerVarios",chunk.map(f=>f.id)); }catch(e){ if(sinAccion(e)){ VARIOS=false; i-=chunk.length; continue; } throw e; }
+          const m=new Map((rs||[]).map(r=>[r.id,r])); for(const f of chunk) await put(m.get(f.id),f); }
+        else await Promise.all(chunk.map(async f=>{ try{ await put(await _call("hjmReadFull",f.id),f); }catch(e){ if(String(e&&e.message)==="red") throw e; } }));
+      }catch(e){ if(isTransient(e)) break; }
+      done+=chunk.length; if(done%16===0||i>=stale.length) await persistList(); await sleep(250);
+    }
+    LIST.at=Date.now(); await persistList();
+    if(first&&done>=total) mini("✓ Copia sin conexión lista · "+Object.keys(IDX).length+" expedientes","ok",7000); else if(first) mini("");
+  }catch(_){ }
+  finally{ SYNCING=false; }
+}
+window.initDrive=async function(){ const r=await _initDrive.apply(this,arguments); if(USER&&!USER.offline) setTimeout(sync,6000); return r; };
+setInterval(()=>{ if(!document.hidden) sync(); },300000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!OFF.on&&LIST&&Date.now()-((LIST&&LIST.at)||0)>600000) sync(); });
+loaded.then(async()=>{ if(!USER&&ready()&&(navigator.onLine===false||!(await probe()))) enter(); setTimeout(()=>{ if(USER&&!USER.offline) sync(); },10000); });
+window.__hjmOffSync=sync; window.__hjmOffFlush=flushQueue;
 })();
 </script>
 
