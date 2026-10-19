@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.141">
+<meta name="application-version" content="2.142">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2987,7 +2987,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.141 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.142 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -7999,7 +7999,8 @@ async function docOf(id){ const d=await IDB.get("docs",id); if(!d){ const e=new 
 async function persistList(){ try{ await IDB.put("meta","list",LIST); await IDB.put("meta","idx",IDX); }catch(_){} updInfo(); }
 async function qCount(){ try{ QN=(await IDB.keys("queue")).length; }catch(_){} try{ renderSync(); }catch(_){} updInfo(); if(OFF.on) showOffMini(); }
 async function offSave(a){
-  const name=String(a[1]||""), content=String(a[2]||""), meta=(()=>{ try{ return JSON.parse(a[3]||"{}")||{}; }catch(_){ return {}; } })();
+  const name=String(a[1]||""); if(/^_/.test(name)) throw new Error("red");   /* archivos internos (_estadisticas…) no son pacientes: no se encolan */
+  const content=String(a[2]||""), meta=(()=>{ try{ return JSON.parse(a[3]||"{}")||{}; }catch(_){ return {}; } })();
   const obj=JSON.parse(content), k=expKey((obj.datos||{}).expediente||meta.exp); if(!k) throw new Error("Falta el expediente");
   const ent=FILES().find(f=>f.name===name&&expKey(expOf(f))===k)||FILES().find(f=>expKey(expOf(f))===k)||null;
   const old=await IDB.get("queue",k), now=Date.now(), nowIso=new Date(now).toISOString();
@@ -8091,6 +8092,8 @@ async function aplicarDirecto(rec,twins,pend){            // Codigo.gs sin hjmSu
 async function cleanLocal(rec){ if(rec&&/^local-/.test(rec.fileId||"")){ try{ await IDB.del("docs",rec.fileId); }catch(_){} delete IDX[rec.fileId]; if(LIST) LIST.files=LIST.files.filter(f=>f.id!==rec.fileId); await persistList(); } }
 async function flushQueue(){
   if(FLQ||OFF.on) return 0; let recs=[]; try{ recs=await IDB.all("queue"); }catch(_){ return 0; }
+  for(const x of recs.filter(x=>/^_/.test(x.name||"")||x.k==="ESTADISTICAS")){ try{ await IDB.del("queue",x.k); await cleanLocal(x); }catch(_){} }   /* limpia pendientes erróneos de archivos internos */
+  recs=recs.filter(x=>!(/^_/.test(x.name||"")||x.k==="ESTADISTICAS")); await qCount();
   if(!recs.length) return 0; FLQ=true; let sent=0, directo=0, fail=null, cur=null;
   try{
     mini("Subiendo cambios hechos sin conexión… ("+recs.length+")");
