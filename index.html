@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.114">
+<meta name="application-version" content="2.121">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2981,7 +2981,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item small.dx{color:#566A82;font-size
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.114 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.121 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -7435,6 +7435,8 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats .st-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #DCE6F0;padding-bottom:10px}
 #dlgStats .st-tabs button{font:inherit;font-size:12.5px;font-weight:800;padding:7px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:#41556d;cursor:pointer}
 #dlgStats .st-tabs button[aria-selected=true]{background:#173B5E;color:#fff}
+#dlgStats .st-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;box-sizing:border-box;margin-left:5px;border-radius:99px;background:#4F86B8;color:#fff;font-size:11px;font-weight:800;vertical-align:middle}
+#dlgStats .st-tabs button[aria-selected=true] .st-cnt{background:#fff;color:#173B5E}
 #dlgStats .st-in{font:inherit;font-size:13px;padding:8px 12px;border:1px solid #C9D8E8;border-radius:10px;width:100%;box-sizing:border-box}
 #dlgStats .st-tw{overflow:auto;max-height:52vh}
 #dlgStats .st-sm{font-size:11px;padding:3px 9px}
@@ -7451,11 +7453,14 @@ let dev=LS.get(DEV_KEY); if(!dev){ dev="D"+Math.random().toString(36).slice(2,8)
 let local={}; try{ local=JSON.parse(LS.get(KEY)||"{}")||{}; }catch(_){ local={}; }
 let errLocal=[]; try{ errLocal=JSON.parse(LS.get("hjm-err-log")||"[]")||[]; }catch(_){ errLocal=[]; }
 let tab="stats", pacQ="", DET={}, pendData=null;
+let JOBS=0; const G=(...a)=>{ JOBS++; return gcall(...a).finally(()=>{ JOBS--; }); };
+async function bg(fn){ JOBS++; try{ return await fn(); } finally{ JOBS--; } }
+addEventListener("beforeunload",e=>{ if(JOBS>0){ e.preventDefault(); e.returnValue=""; } });
 let dirty=false, remoteCache=null, period=7, lastSync=0, syncMsg="";
 const pad=n=>String(n).padStart(2,"0");
 const dayKey=t=>{ const d=new Date(t); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
 const userName=()=>String(sessionUserName()||"").toLocaleUpperCase("es-MX").trim();
-const isAdmin=()=>{ const n=normalizeStaffName(sessionUserName()); return n.includes("JAIME")&&n.includes("CALDERA"); };
+const isAdmin=()=>{ const n=normalizeStaffName(sessionUserName()); return (n.includes("JAIME")&&n.includes("CALDERA"))||(n.includes("ROVELO")&&n.includes("LIMA"))||(n.includes("SOSA")&&n.includes("DURAN")); };
 function persist(){ try{ const keep=dayKey(Date.now()-400*864e5); Object.keys(local).forEach(k=>{ if(k<keep) delete local[k]; }); LS.set(KEY,JSON.stringify(local)); }catch(_){} }
 function bump(metric,sub,n){ try{ const u=userName(); if(!u) return; const d=(local[dayKey(Date.now())]=local[dayKey(Date.now())]||{}), r=(d[u]=d[u]||{}); n=n||1;
   if(sub!=null){ const o=(r[metric]=r[metric]||{}); o[sub]=(o[sub]||0)+n; } else r[metric]=(r[metric]||0)+n; dirty=true; persist(); }catch(_){} }
@@ -7477,11 +7482,11 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 
 /* ---------- Drive ---------- */
 const driveOK=()=>CAN_DRIVE&&STORE==="drive"&&apiUrl()&&apiKey();
-async function findStats(){ await ensureFolder(); const l=await gcall("hjmList",FOLDER.id); return (Array.isArray(l)?l:[]).find(f=>f&&String(f.name||"").trim()===STATS_NAME)||null; }
+async function findStats(){ await ensureFolder(); const l=await G("hjmList",FOLDER.id); return (Array.isArray(l)?l:[]).find(f=>f&&String(f.name||"").trim()===STATS_NAME)||null; }
 async function readStats(){ const f=await findStats(); if(!f) return {obj:null,modified:"",id:null};
-  let txt="",mod=""; try{ const r=await gcall("hjmReadFull",f.id); txt=r&&r.content; mod=(r&&r.modified)||""; }catch(_){ txt=await gcall("hjmRead",f.id); }
+  let txt="",mod=""; try{ const r=await G("hjmReadFull",f.id); txt=r&&r.content; mod=(r&&r.modified)||""; }catch(_){ txt=await G("hjmRead",f.id); }
   let o=null; try{ o=JSON.parse(txt); }catch(_){} return {obj:o&&o.app==="hjm-stats"?o:null,modified:mod,id:f.id}; }
-async function writeStats(obj,base){ return await gcall("hjmSave",FOLDER.id,STATS_NAME,JSON.stringify(obj),JSON.stringify({app:"hjm-stats",nombre:"Estadísticas de uso",exp:"_estadisticas",cama:"",dx:""}),JSON.stringify({forzar:true,base:base||""})); }
+async function writeStats(obj,base){ return await G("hjmSave",FOLDER.id,STATS_NAME,JSON.stringify(obj),JSON.stringify({app:"hjm-stats",nombre:"Estadísticas de uso",exp:"_estadisticas",cama:"",dx:""}),JSON.stringify({forzar:true,base:base||""})); }
 async function syncRemote(extra){
   if(!driveOK()) { syncMsg="Sin conexión con Drive: se muestran solo los datos de este equipo."; return false; }
   try{
@@ -7520,20 +7525,21 @@ function fmtLabel(k){ try{ const L={notas:"Notas Médicas",indicaciones:"Indicac
 const hm=m=>m>=60?Math.floor(m/60)+" h "+pad(m%60)+" min":m+" min";
 
 /* ---------- Camas inactivas ---------- */
+function medios(){ const now=Date.now(); return uniqueFiles(DRIVE_FILES).filter(f=>{ const h=(now-fileTime(f))/3600e3; return f.meta&&String(f.meta.cama||"").trim()&&h>=24&&h<INACT_H; }).sort((a,b)=>fileTime(a)-fileTime(b)); }
 function candidates(){ const now=Date.now(); return uniqueFiles(DRIVE_FILES).filter(f=>f.meta&&String(f.meta.cama||"").trim()&&now-fileTime(f)>=INACT_H*3600e3).sort((a,b)=>fileTime(a)-fileTime(b)); }
-async function liberar(sel,msgEl){
-  const done=[],skip=[],log=[]; let i=0;
+async function liberar(sel,msgEl,minH){ minH=minH||INACT_H;
+  const done=[],skip=[],log=[]; let i=0; try{ await ensureFolder(); }catch(e){ return {done,skip:["carpeta no disponible: "+friendly(e)]}; }
   for(const f of sel){ i++; msgEl.textContent=`Liberando ${i} de ${sel.length}…`;
     try{
       const exp=String((f.meta&&f.meta.exp)||patientExpFromFileName(f.name)||"");
       if(hasSelectedPatient()&&exp&&String($("expediente").value||"").trim()===exp){ skip.push(exp+" (abierto ahora)"); continue; }
-      const r=await gcall("hjmReadFull",f.id); const mod=(r&&r.modified)||""; let o=null; try{ o=JSON.parse(r&&r.content); }catch(_){}
+      const r=await G("hjmReadFull",f.id); const mod=(r&&r.modified)||""; let o=null; try{ o=JSON.parse(r&&r.content); }catch(_){}
       if(!o||o.app!=="solicitudes-hjm"||!o.datos){ skip.push(exp+" (archivo no reconocido)"); continue; }
-      if(mod&&Date.now()-Date.parse(mod)<INACT_H*3600e3){ skip.push(exp+" (se editó hace poco)"); continue; }
+      if(mod&&Date.now()-Date.parse(mod)<minH*3600e3){ skip.push(exp+" (se editó hace poco)"); continue; }
       const cama=String(o.datos.cama||"").trim(); if(!cama){ skip.push(exp+" (ya sin cama)"); continue; }
       o.datos.cama="";
       const meta=Object.assign({},f.meta,{cama:""});
-      const res=await gcall("hjmSave",FOLDER.id,f.name,JSON.stringify(o),JSON.stringify(meta),JSON.stringify({forzar:true,base:mod}));
+      const res=await G("hjmSave",FOLDER.id,f.name,JSON.stringify(o),JSON.stringify(meta),JSON.stringify({forzar:true,base:mod}));
       if(res&&res.conflicto){ skip.push(exp+" (lo editaron mientras tanto)"); continue; }
       if(res&&res.id&&res.modified) upsertDriveFile(res);
       done.push(exp); log.push({ts:Date.now(),by:userName(),exp,cama});
@@ -7544,7 +7550,7 @@ async function liberar(sel,msgEl){
 }
 
 /* ---------- Panel ---------- */
-const $s=id=>document.getElementById(id);
+const $s=id=>document.getElementById(id)||(/(Msg|Go|All|Lib|One)$/.test(id)?{textContent:"",disabled:false,dataset:{},classList:{add(){},remove(){}}}:null);
 async function renderStats(body){
   const remote=remoteCache; const A=agg(remote,period), T=agg(remote,1);
   const tu=Object.values(T.users), tot=k=>tu.reduce((s,u)=>s+u[k],0);
@@ -7554,7 +7560,7 @@ async function renderStats(body){
   const hmax=Math.max(1,...A.hr);
   const days=[...Array(14)].map((_,i)=>dayKey(Date.now()-(13-i)*864e5)), dmax=Math.max(1,...days.map(d=>A.perDay[d]||0));
   const cands=candidates(), conCama=uniqueFiles(DRIVE_FILES).filter(f=>f.meta&&String(f.meta.cama||"").trim()).length;
-  const camasLog=((remote&&remote.camas)||[]).slice(-6).reverse();
+  const camasLog=((remote&&remote.camas)||[]).slice(-6).reverse(), med=medios();
   body.innerHTML=`
   <div class="st-per">${[[1,"Hoy"],[7,"7 días"],[30,"30 días"],[0,"Todo"]].map(([d,l])=>`<button type="button" data-per="${d}" aria-pressed="${period===d}">${l}</button>`).join("")}<span class="st-note">${esc(syncMsg||(remote?"Datos de todos los equipos sincronizados":""))}</span></div>
   <div class="st-kpis">
@@ -7571,97 +7577,205 @@ async function renderStats(body){
    <div class="st-card"><h3>Horas de mayor actividad</h3><div class="hrs">${A.hr.map((n,h)=>`<i title="${h}:00 · ${n} min" style="height:${Math.max(2,Math.round(n/hmax*100))}%"></i>`).join("")}</div><div class="hrl">${A.hr.map((_,h)=>`<span>${h%3===0?h:""}</span>`).join("")}</div></div>
   </div>
   <div class="st-card"><h3>Actividad de los últimos 14 días <small style="font-weight:500;color:#6A7D93">· accesos + guardados</small></h3><div class="hrs">${days.map(d=>`<i title="${d} · ${A.perDay[d]||0}" style="height:${Math.max(2,Math.round((A.perDay[d]||0)/dmax*100))}%"></i>`).join("").replace(/grid-template-columns:repeat\(24/,"")}</div></div>
-  <div class="st-card"><h3>Limpiar camas inactivas</h3>
-   <div class="st-msg" style="margin:0 0 8px">Pacientes con cama asignada que no se han editado en las últimas ${INACT_H} horas: <b>${cands.length}</b>. Al liberar, se borra solo el número de cama; el resto del expediente no se toca (el paciente abierto en pantalla se omite).</div>
-   ${cands.length?`<div class="cam-list">${cands.map((f,i)=>`<label class="cam-row"><input type="checkbox" data-cand="${i}" checked><span class="bd">${esc(String(f.meta.cama).trim())}</span><span>${esc((f.meta.nombre||"").slice(0,48))} · Exp. ${esc(String(f.meta.exp||""))}</span><small>${Math.floor((Date.now()-fileTime(f))/3600e3)} h</small></label>`).join("")}</div>
-   <div style="margin-top:9px;display:flex;gap:8px;align-items:center"><button type="button" class="st-btn st-danger" id="stLib">Liberar camas seleccionadas</button><span class="st-msg" id="stLibMsg" style="margin:0"></span></div>`:'<div class="st-msg">No hay camas por liberar.</div>'}
-   ${camasLog.length?`<div class="st-msg" style="margin-top:10px"><b>Últimas liberaciones</b>\n${camasLog.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · cama ${esc(c.cama)} · Exp. ${esc(c.exp)} · ${esc(c.by)}`).join("\n")}</div>`:""}</div>`;
+  <div class="st-card"><h3>Liberación automática de camas</h3>
+   <div class="st-msg" style="margin:0">Al abrir la app (y cada 30 min mientras esté abierta) se borra el número de cama de los pacientes que no se han editado en ${INACT_H} horas o más. Candidatos ahora: <b>${cands.length}</b>. No se toca el expediente abierto ni los editados recientemente.</div>
+   <div class="st-msg" style="margin:12px 0 6px"><b>Con cama y sin editar entre 24 y ${INACT_H} h</b> (${med.length}) · aún no se liberan solas</div>
+   ${med.length?`<div class="cam-list">${med.map((f,i)=>`<div class="cam-row" style="grid-template-columns:52px 1fr auto auto"><span class="bd">${esc(String(f.meta.cama).trim())}</span><span>${esc((f.meta.nombre||"").slice(0,48))} · Exp. ${esc(String(f.meta.exp||""))}</span><small>${Math.floor((Date.now()-fileTime(f))/3600e3)} h</small><button type="button" class="st-btn st-sm" data-bcam="${i}">Borrar cama</button></div>`).join("")}</div><div class="st-msg" id="stMedMsg" style="margin-top:6px"></div>`:'<div class="st-msg">Ninguno.</div>'}
+   ${camasLog.length?`<div class="st-msg" style="margin-top:10px"><b>Últimas liberaciones</b>\n${camasLog.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · cama ${esc(c.cama)} · Exp. ${esc(c.exp)}`).join("\n")}</div>`:""}</div></div>`;
+  body.querySelectorAll("[data-bcam]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return; const f=med[+b.dataset.bcam]; b.disabled=true; b.textContent="…"; const m=$s("stMedMsg");
+    const r=await liberar([f],{textContent:""},24); await render(); const m2=$s("stMedMsg"); if(m2) m2.textContent=r.done.length?`Cama liberada (Exp. ${r.done[0]}).`:"No se pudo liberar: "+(r.skip[0]||"error"); });
   body.querySelectorAll("[data-per]").forEach(b=>b.onclick=()=>{ period=+b.dataset.per; render(); });
-  const lib=$s("stLib"); if(lib) lib.onclick=async()=>{
-    const sel=[...body.querySelectorAll("[data-cand]")].filter(c=>c.checked).map(c=>cands[+c.dataset.cand]); const msg=$s("stLibMsg");
-    if(!sel.length){ msg.textContent="Selecciona al menos un paciente."; return; }
-    if(!lib.dataset.ok){ lib.dataset.ok="1"; lib.textContent=`Confirmar: liberar ${sel.length} cama(s)`; msg.textContent="Esta acción no se puede deshacer."; return; }
-    lib.disabled=true; const r=await liberar(sel,msg);
-    await loadRemote(); await render();
-    const m=$s("stLibMsg"); if(m) m.textContent=`Se liberaron ${r.done.length} cama(s).`+(r.skip.length?"\nOmitidos: "+r.skip.join("; "):"");
-  };
 }
 
 /* ---------- Pestañas ---------- */
 const kb=n=>n>=1048576?(n/1048576).toFixed(2)+" MB":n>=1024?Math.round(n/1024)+" KB":n+" B";
 const ago=t=>{ const h=(Date.now()-t)/3600e3; return h<1?"hace "+Math.max(1,Math.round(h*60))+" min":h<48?"hace "+Math.round(h)+" h":"hace "+Math.round(h/24)+" d"; };
 const fexp=f=>String((f.meta&&f.meta.exp)||expOf(f)||"");
-async function loadDet(f){ if(DET[f.id]) return DET[f.id]; const r=await gcall("hjmReadFull",f.id); const c=(r&&r.content)||""; let o=null; try{ o=JSON.parse(c); }catch(_){}
+async function loadDet(f){ if(DET[f.id]) return DET[f.id]; const r=await G("hjmReadFull",f.id); const c=(r&&r.content)||""; let o=null; try{ o=JSON.parse(c); }catch(_){}
   return DET[f.id]={size:new Blob([c]).size,ed:(o&&o.ultimoEditor&&o.ultimoEditor.u)||(f.meta&&f.meta.ed)||"",edTs:(o&&o.ultimoEditor&&o.ultimoEditor.ts)||0}; }
+
+/* ---------- Análisis de pacientes (se guarda en caché: solo se vuelven a leer los archivos que cambiaron) ---------- */
+let PCACHE={}; try{ PCACHE=JSON.parse(LS.get("hjm-pac-cache-v1")||"{}")||{}; }catch(_){ PCACHE={}; }
+const pcSave=()=>{ try{ LS.set("hjm-pac-cache-v1",JSON.stringify(PCACHE)); }catch(_){} };
+function adsOf(v){ const out=[]; String(v||"").split("/").map(x=>x.trim()).filter(Boolean).forEach(x=>{ let a=null; try{ a=staffAdscritoLoose(x.toLocaleUpperCase("es-MX")); }catch(_){} if(a) out.push({n:a.nombre,c:a.clinica}); }); return out; }
+async function analyzeFile(f){ const r=await G("hjmReadFull",f.id); const c=(r&&r.content)||""; let o=null; try{ o=JSON.parse(c); }catch(_){}
+  const d=(o&&o.datos)||{}, h=(o&&o.historial)||{};
+  const e={m:String(f.modified||""),sz:new Blob([c]).size,ed:(o&&o.ultimoEditor&&o.ultimoEditor.u)||(f.meta&&f.meta.ed)||"",med:String(d.medico||""),srv:String(d.servicio||"").trim(),gen:String(d.genero||"").trim(),ing:String(d.fIngreso||"").trim(),res:String(d.residente||"").trim(),nn:Array.isArray(h.notas)?h.notas.length:0,ni:Array.isArray(h.indicaciones)?h.indicaciones.length:0,ok:!!o};
+  PCACHE[f.id]=e; DET[f.id]={size:e.sz,ed:e.ed,edTs:0}; return e; }
+let ANA_RUN=false;
+async function analyzeAll(onTick){
+  if(ANA_RUN) return; ANA_RUN=true;
+  try{ const fs=uniqueFiles(DRIVE_FILES); fs.forEach(f=>{ const c=PCACHE[f.id]; if(c&&c.m===String(f.modified||"")) DET[f.id]={size:c.sz,ed:c.ed,edTs:0}; });
+    const todo=fs.filter(f=>!(PCACHE[f.id]&&PCACHE[f.id].m===String(f.modified||""))); let i=0,done=0;
+    const w=async()=>{ while(i<todo.length){ const f=todo[i++]; try{ await analyzeFile(f); }catch(_){} done++; if(onTick&&(done%8===0||done===todo.length)) onTick(done,todo.length); } };
+    await Promise.all([w(),w(),w()]); const ids=new Set(DRIVE_FILES.map(f=>f.id)); Object.keys(PCACHE).forEach(k=>{ if(!ids.has(k)) delete PCACHE[k]; }); pcSave();
+  } finally{ ANA_RUN=false; } }
+const topN=(o,n)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n);
+function bars(list,empty){ if(!list.length) return `<div class="st-msg">${empty||"Sin datos."}</div>`; const mx=list[0][1]||1; return list.map(([k,n])=>`<div class="frow"><span title="${esc(k)}">${esc(k.length>34?k.slice(0,33)+"…":k)}</span><div class="bar"><i style="width:${Math.round(n/mx*100)}%"></i></div><b>${n}</b></div>`).join(""); }
+function drawPacStats(prog){
+  const host=$s("stPacStats"); if(!host) return; const fs=uniqueFiles(DRIVE_FILES), now=Date.now();
+  const ad={},cl={},sv={},gn={},rs={},mo={}; let conMed=0,cama=0,h24=0,d7=0,d30=0,old=0,tot=0,n=0,notas=0,ind=0;
+  fs.forEach(f=>{ const c=PCACHE[f.id]; const t=now-fileTime(f); if(t<=864e5) h24++; if(t<=7*864e5) d7++; if(t<=30*864e5) d30++; else old++; if(f.meta&&String(f.meta.cama||"").trim()) cama++;
+    if(!c) return; n++; tot+=c.sz; notas+=c.nn; ind+=c.ni; const a=adsOf(c.med); if(a.length) conMed++; a.forEach(x=>{ ad[x.n.replace(/^DRA?\.\s*/,"")]=(ad[x.n.replace(/^DRA?\.\s*/,"")]||0)+1; cl[x.c]=(cl[x.c]||0)+1; });
+    if(c.srv) sv[c.srv]=(sv[c.srv]||0)+1; if(c.gen) gn[c.gen]=(gn[c.gen]||0)+1; if(c.res) rs[c.res]=(rs[c.res]||0)+1;
+    const m=/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/.exec(c.ing); if(m){ const y=m[3].length===2?"20"+m[3]:m[3]; const k=y+"-"+pad(+m[2]); mo[k]=(mo[k]||0)+1; } });
+  const months=Object.entries(mo).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6).map(([k,v])=>[k,v]), mm=Math.max(1,...months.map(x=>x[1]));
+  host.innerHTML=`<h3>Pacientes en Drive <small style="font-weight:500;color:#6A7D93">${prog||(n<fs.length?"· analizando…":"")}</small></h3>
+  <div class="st-kpis"><div class="st-kpi"><b>${fs.length}</b><span>Pacientes (archivos)</span></div><div class="st-kpi"><b>${cama}</b><span>Con cama asignada</span></div><div class="st-kpi"><b>${h24}</b><span>Editados en 24 h</span></div><div class="st-kpi"><b>${d7}</b><span>Editados en 7 días</span></div><div class="st-kpi"><b>${old}</b><span>Sin editar +30 días</span></div><div class="st-kpi"><b>${n?kb(Math.round(tot/n)):"—"}</b><span>Peso promedio · total ${kb(tot)}</span></div></div>
+  <div class="st-grid2" style="margin-top:12px"><div><h3>Adscritos con más pacientes (top 6)</h3>${bars(topN(ad,6),"Aún sin datos de médico tratante.")}</div><div><h3>Pacientes por clínica</h3>${bars(topN(cl,8),"Aún sin datos de clínica.")}</div><div><h3>Por servicio</h3>${bars(topN(sv,6))}</div><div><h3>Residentes con más pacientes (top 6)</h3>${bars(topN(rs,6))}</div><div><h3>Por género</h3>${bars(topN(gn,4))}</div><div><h3>Ingresos por mes (últimos 6)</h3>${months.length?months.map(([k,v])=>`<div class="frow"><span>${k}</span><div class="bar"><i style="width:${Math.round(v/mm*100)}%"></i></div><b>${v}</b></div>`).join(""):'<div class="st-msg">Sin datos.</div>'}</div></div>
+  <div class="st-msg" style="margin-top:10px">Sin médico asignado: ${n-conMed} · notas guardadas: ${notas} · indicaciones guardadas: ${ind} · actividad: ${h24} hoy, ${d7} en 7 días, ${d30} en 30 días.</div>`; }
 function pacRows(){
   const q=pacQ.trim().toUpperCase();
   const files=uniqueFiles(DRIVE_FILES).filter(f=>{ const p=f.meta||{}; return !q||fexp(f).toUpperCase().includes(q)||String(p.nombre||"").toUpperCase().includes(q); }).sort((a,b)=>fileTime(b)-fileTime(a));
   const shown=files.slice(0,60);
   $s("stPacCount").textContent=`${files.length} archivo(s)`+(files.length>60?" · se muestran los 60 más recientes":"");
-  $s("stPacTbl").innerHTML=shown.length?`<table><thead><tr><th>Expediente</th><th>Paciente</th><th>Cama</th><th>Última modificación</th><th>Peso</th><th>Modificó</th><th></th></tr></thead><tbody>${shown.map(f=>{ const d=DET[f.id], sz=d?d.size:(f.size?+f.size:0), ed=(d&&d.ed)||(f.meta&&f.meta.ed)||"";
-    return `<tr><td class="nm">${esc(fexp(f))}</td><td>${esc(String((f.meta&&f.meta.nombre)||"").slice(0,40))}</td><td>${esc(String((f.meta&&f.meta.cama)||""))}</td><td>${new Date(fileTime(f)).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}<br><small style="color:#6A7D93">${ago(fileTime(f))}</small></td><td>${sz?kb(sz):"—"}</td><td>${esc(ed||"—")}</td><td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-det="${esc(f.id)}">Detalle</button> <button type="button" class="st-btn st-sm" data-del="${esc(f.id)}">Eliminar</button></td></tr>`; }).join("")}</tbody></table>`:'<div class="st-msg">Sin resultados.</div>';
+  $s("stPacTbl").innerHTML=shown.length?`<table><thead><tr><th>Expediente</th><th>Paciente</th><th>Cama</th><th>Última modificación</th><th>Modificó</th><th></th></tr></thead><tbody>${shown.map(f=>{ const d=DET[f.id], sz=d?d.size:(f.size?+f.size:0), ed=(d&&d.ed)||(f.meta&&f.meta.ed)||"";
+    return `<tr><td class="nm">${esc(fexp(f))}</td><td>${esc(String((f.meta&&f.meta.nombre)||"").slice(0,40))}</td><td>${esc(String((f.meta&&f.meta.cama)||""))}</td><td>${new Date(fileTime(f)).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}<br><small style="color:#6A7D93">${ago(fileTime(f))}</small></td><td>${esc(ed||(DET[f.id]?"—":"…"))}</td><td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-del="${esc(f.id)}">Eliminar</button></td></tr>`; }).join("")}</tbody></table>`:'<div class="st-msg">Sin resultados.</div>';
   const by={}; shown.forEach(f=>by[f.id]=f);
-  $s("stPacTbl").querySelectorAll("[data-det]").forEach(b=>b.onclick=async()=>{ b.disabled=true; b.textContent="…"; try{ await loadDet(by[b.dataset.det]); }catch(e){ $s("stPacMsg").textContent="No se pudo leer: "+friendly(e); } pacRows(); });
   $s("stPacTbl").querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{
     const f=by[b.dataset.del]; if(!isAdmin()) return;
     if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar"; b.classList.remove("st-danger"); } },4000); return; }
     const exp=fexp(f); if(hasSelectedPatient()&&String($("expediente").value||"").trim()===exp){ $s("stPacMsg").textContent="No se puede eliminar al paciente abierto en pantalla."; return; }
     b.disabled=true; b.textContent="…";
-    try{ await gcall("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); try{ renderPP(); }catch(_){}
+    try{ await G("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); try{ renderPP(); }catch(_){}
       await syncRemote({borrados:[{ts:Date.now(),by:userName(),exp,nombre:String((f.meta&&f.meta.nombre)||"")}]}); $s("stPacMsg").textContent=`Expediente ${exp} enviado a la papelera de Drive.`; }
     catch(e){ $s("stPacMsg").textContent="No se pudo eliminar: "+friendly(e)+(e&&e.code==="accion"?" (el servidor no permite esta acción)":""); }
     pacRows(); });
 }
+function dupGroups(){ const g={}; DRIVE_FILES.forEach(f=>{ const k=expKey(fexp(f)); if(!k) return; (g[k]=g[k]||[]).push(f); }); return Object.values(g).filter(a=>a.length>1); }
+async function drawDup(){
+  if(!$s("stDup")) return; const gs=dupGroups();
+  const draw=()=>{ const h=$s("stDup"); if(!h) return; const gs2=dupGroups();
+    h.innerHTML=`<h3>Pacientes duplicados <small style="font-weight:500;color:#6A7D93">· ${gs2.length} expediente(s) con más de un archivo</small></h3>${gs2.length?gs2.map(g=>`<div class="st-card" style="margin-top:8px;padding:8px 10px"><b style="color:#173B5E;font-size:12.5px">Exp. ${esc(fexp(g[0]))} · ${esc(String((g[0].meta&&g[0].meta.nombre)||""))}</b><table style="margin-top:4px"><thead><tr><th>Archivo</th><th>Última modificación</th><th>Peso</th><th>Modificó</th><th></th></tr></thead><tbody>${g.slice().sort((a,b)=>fileTime(b)-fileTime(a)).map(f=>{ const d=DET[f.id]; return `<tr><td style="text-align:left;word-break:break-all">${esc(f.name||"")}</td><td>${new Date(fileTime(f)).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}</td><td>${d?(d.size?kb(d.size):"—"):"…"}</td><td>${esc((d&&d.ed)||(f.meta&&f.meta.ed)||"—")}</td><td><button type="button" class="st-btn st-sm" data-ddel="${esc(f.id)}">Eliminar este</button></td></tr>`; }).join("")}</tbody></table></div>`).join(""):'<div class="st-msg">No hay pacientes duplicados.</div>'}${gs2.length?'<div class="st-msg" style="margin-top:8px">La app combina los duplicados sola al guardar a ese paciente. Si eliminas uno a mano, conserva el más reciente o el de mayor peso: lo que solo estaba en el otro se pierde (queda en la papelera de Drive).</div>':""}<div class="st-msg" id="stDupMsg"></div>`;
+    h.querySelectorAll("[data-ddel]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return;
+      if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar este"; b.classList.remove("st-danger"); } },4000); return; }
+      const f=DRIVE_FILES.find(x=>x.id===b.dataset.ddel); b.disabled=true; b.textContent="…";
+      try{ await G("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); try{ renderPP(); }catch(_){} await syncRemote({borrados:[{ts:Date.now(),by:userName(),exp:fexp(f),nombre:"(duplicado) "+String((f.meta&&f.meta.nombre)||"")}]}); }
+      catch(e){ const m=$s("stDupMsg"); if(m) m.textContent="No se pudo eliminar: "+friendly(e); }
+      draw(); if($s("stPacTbl")) pacRows(); }); };
+  draw();
+  const fs=gs.flat().filter(f=>!DET[f.id]); let i=0; const w=async()=>{ while(i<fs.length){ const f=fs[i++]; try{ await loadDet(f); }catch(_){ DET[f.id]={size:0,ed:"",edTs:0}; } draw(); } }; await Promise.all([w(),w(),w()]);
+}
 function renderPac(body){
   const bor=((remoteCache&&remoteCache.borrados)||[]).slice(-5).reverse();
-  body.innerHTML=`<div class="st-card"><h3>Archivos de pacientes en Drive</h3><input class="st-in" id="stPacQ" placeholder="Buscar por expediente o nombre…" value="${esc(pacQ)}"><div style="display:flex;gap:8px;align-items:center;margin:8px 0"><small id="stPacCount" style="color:#6A7D93"></small><button type="button" class="st-btn st-sm" id="stPacAll">Cargar peso y editor de los visibles</button><span class="st-msg" id="stPacMsg" style="margin:0"></span></div><div class="st-tw" id="stPacTbl"></div>
-  <div class="st-msg" style="margin-top:8px">Eliminar manda el archivo a la papelera de Drive (se puede restaurar desde ahí). «Modificó» se registra desde esta versión en cada guardado; los archivos antiguos lo mostrarán vacío hasta que se vuelvan a guardar.</div>
-  ${bor.length?`<div class="st-msg" style="margin-top:8px"><b>Últimas eliminaciones</b>\n${bor.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · Exp. ${esc(c.exp)} · ${esc(c.nombre||"")} · ${esc(c.by)}`).join("\n")}</div>`:""}</div>`;
+  body.innerHTML=`<div class="st-card" id="stPacStats"></div><div class="st-card"><h3>Archivos de pacientes en Drive</h3><input class="st-in" id="stPacQ" placeholder="Buscar por expediente o nombre…" value="${esc(pacQ)}"><div style="display:flex;gap:8px;align-items:center;margin:8px 0"><small id="stPacCount" style="color:#6A7D93"></small><span class="st-msg" id="stPacMsg" style="margin:0"></span></div><div class="st-tw" id="stPacTbl"></div>
+  <div class="st-msg" style="margin-top:8px">Eliminar manda el archivo a la papelera de Drive (se puede restaurar desde ahí). «Modificó» se registra desde esta versión en cada guardado; los archivos antiguos lo mostrarán vacío («—») hasta que se vuelvan a guardar.</div>
+  ${bor.length?`<div class="st-msg" style="margin-top:8px"><b>Últimas eliminaciones</b>\n${bor.map(c=>`${new Date(c.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})} · Exp. ${esc(c.exp)} · ${esc(c.nombre||"")} · ${esc(c.by)}`).join("\n")}</div>`:""}</div><div class="st-card" id="stDup"></div>`;
   $s("stPacQ").oninput=e=>{ pacQ=e.target.value; pacRows(); };
-  $s("stPacAll").onclick=async()=>{ const q=pacQ.trim().toUpperCase(); const fs=uniqueFiles(DRIVE_FILES).filter(f=>!q||fexp(f).toUpperCase().includes(q)||String((f.meta&&f.meta.nombre)||"").toUpperCase().includes(q)).sort((a,b)=>fileTime(b)-fileTime(a)).slice(0,60); let i=0;
-    const w=async()=>{ while(i<fs.length){ const f=fs[i++]; try{ await loadDet(f); }catch(_){} $s("stPacMsg")&&($s("stPacMsg").textContent=`Leyendo ${Math.min(i,fs.length)} de ${fs.length}…`); } };
-    await Promise.all([w(),w(),w()]); if($s("stPacMsg")) $s("stPacMsg").textContent=""; if($s("stPacTbl")) pacRows(); };
-  pacRows();
+  pacRows(); drawDup(); drawPacStats(); analyzeAll((d,t)=>{ drawPacStats(`· analizando ${d} de ${t}…`); if($s("stPacTbl")) pacRows(); }).then(()=>{ drawPacStats(); if($s("stPacTbl")) pacRows(); });
 }
+const pendInfo=it=>{ let o=null; try{ o=JSON.parse(it.content||""); }catch(_){}
+  if(!o) return {kind:"ilegible",by:"",bad:"JSON ilegible"};
+  const kinds=[]; ["notas","indicaciones","altas"].forEach(x=>{ if(Array.isArray(o[x])&&o[x].length) kinds.push(x+" "+o[x].length); }); if(o.datos&&typeof o.datos==="object") kinds.push("datos");
+  let by=o.usuario||o.autor||o.creadoPor||o.por||o.residente||"";
+  if(!by){ for(const x of ["notas","indicaciones","altas"]){ for(const r of (Array.isArray(o[x])?o[x]:[])){ by=(r&&(r.by||r.residente||r.autor||(r.p&&(r.p.residente||r.p.autor||r.p.medico||r.p.por))))||""; if(by) break; } if(by) break; } }
+  let bad=""; if(o.app!=="solicitudes-hjm-pendiente") bad="no es un pendiente de la app"; else if(!kinds.length) bad="sin contenido reconocido";
+  return {kind:kinds.join(", ")||"—",by:String(by||""),bad,exp:o.expediente,hasAltas:Array.isArray(o.altas)&&o.altas.length>0,hasOther:kinds.some(k=>!k.startsWith("altas"))}; };
 async function scanPend(msg){
-  const exps=[...new Set(uniqueFiles(DRIVE_FILES).map(fexp).filter(Boolean))], nm={}; uniqueFiles(DRIVE_FILES).forEach(f=>nm[fexp(f)]=(f.meta&&f.meta.nombre)||"");
+  const fs=uniqueFiles(DRIVE_FILES), exps=[...new Set(fs.map(fexp).filter(Boolean))], nm={}; fs.forEach(f=>nm[fexp(f)]=(f.meta&&f.meta.nombre)||"");
   let i=0,fail=0,unsupported=false; const out=[];
-  const w=async()=>{ while(i<exps.length&&!unsupported){ const e=exps[i++]; try{ const r=await gcall("hjmPendientes",e); if(Array.isArray(r)&&r.length) out.push({exp:e,nombre:nm[e],items:r}); }catch(err){ fail++; if(isOldServer(err)||err.code==="accion") unsupported=true; }
-      msg.textContent=`Revisando ${Math.min(i,exps.length)} de ${exps.length}…`; } };
+  try{ const all=await G("hjmPendientes",""); if(Array.isArray(all)&&all.length){ const g={}; all.forEach(it=>{ let e=""; try{ e=String((JSON.parse(it.content||"")||{}).expediente||""); }catch(_){} if(!e){ const m=/^JCF(\w+?)[.\-_]/i.exec(String(it.name||"")); e=m?m[1]:"(sin expediente)"; } (g[e]=g[e]||[]).push(it); }); Object.entries(g).forEach(([e,items])=>out.push({exp:e,nombre:nm[e]||"",items})); } }catch(_){}
+  const have=new Set(out.map(o=>o.exp)); const todo=exps.filter(e=>!have.has(e)); exps.length=0; todo.forEach(e=>exps.push(e));
+  const w=async()=>{ while(i<exps.length&&!unsupported){ const e=exps[i++]; try{ const r=await G("hjmPendientes",e); if(Array.isArray(r)&&r.length) out.push({exp:e,nombre:nm[e],items:r}); }catch(err){ fail++; if(isOldServer(err)||err.code==="accion") unsupported=true; }
+      if(msg) msg.textContent=`Revisando ${Math.min(i,exps.length)} de ${exps.length}…`; } };
   await Promise.all([w(),w(),w()]);
+  out.sort((a,b)=>b.items.length-a.items.length);
   return {out,fail,unsupported,total:exps.length};
 }
-const pendKind=c=>{ let o=null; try{ o=JSON.parse(c||""); }catch(_){ return "ilegible"; } if(!o) return "ilegible"; const k=[]; ["notas","indicaciones","altas"].forEach(x=>{ if(Array.isArray(o[x])&&o[x].length) k.push(x+" "+o[x].length); }); if(o.datos&&typeof o.datos==="object") k.push("datos"); return k.join(", ")||"sin contenido reconocido"; };
+async function refreshExp(exp){ if(!pendData) return; try{ const r=await G("hjmPendientes",exp); const row=pendData.out.find(p=>p.exp===exp); const items=Array.isArray(r)?r:[]; if(row){ row.items=items; } if(!items.length) pendData.out=pendData.out.filter(p=>p.exp!==exp); }catch(_){} }
+async function integrarExp(exp){
+  if(!pendData) pendData={out:[],fail:0,unsupported:false,total:0}; const f=uniqueFiles(DRIVE_FILES).find(x=>fexp(x)===exp); if(!f) return "sin archivo de paciente";
+  if(hasSelectedPatient()&&String($("expediente").value||"").trim()===exp) return "paciente abierto en pantalla";
+  try{ const r=await integrarPendientes(f.id,{datos:{expediente:exp}}); await refreshExp(exp);
+    const left=(pendData.out.find(p=>p.exp===exp)||{items:[]}).items.length;
+    if(r&&r.n) return "ok:"+r.n+(left?" (quedan "+left+")":"");
+    return left?"no se integró (alta, contenido no reconocido o conflicto); quedan "+left:"ok:0"; }
+  catch(e){ return "error: "+friendly(e); } }
 function pendHtml(){ if(!pendData) return ""; const d=pendData;
+  const nf=d.out.reduce((s,p)=>s+p.items.length,0);
   return (d.unsupported?'<div class="st-msg">El servidor no reconoce la consulta de pendientes (Codigo.gs antiguo).</div>':"")+(d.fail&&!d.unsupported?`<div class="st-msg">${d.fail} expediente(s) no se pudieron consultar.</div>`:"")+
-  (d.out.length?d.out.map(p=>`<div class="st-card" style="margin-top:8px"><h3>Exp. ${esc(p.exp)} · ${esc(p.nombre||"")} <small style="font-weight:500;color:#6A7D93">${p.items.length} pendiente(s)</small></h3>${p.items.map(it=>`<div class="cam-row" style="grid-template-columns:1fr auto auto"><span>${esc(it.name||"")}<br><small style="color:#6A7D93">${esc(pendKind(it.content))}</small></span><small>${kb(String(it.content||"").length)}</small><button type="button" class="st-btn st-sm" data-pdel="${esc(it.id)}">Borrar</button></div>`).join("")}</div>`).join(""):(d.unsupported?"":`<div class="st-msg">Ningún expediente con pendientes (${d.total} revisados).</div>`)); }
+  (d.out.length?`<div class="st-msg" style="margin:8px 0"><b>${d.out.length}</b> expediente(s) con pendientes · <b>${nf}</b> archivo(s)</div><div class="st-tw"><table><thead><tr><th>Expediente</th><th>Paciente</th><th>Pend.</th><th>Contenido</th><th>Creó</th><th></th></tr></thead><tbody>${d.out.map(p=>{ const inf=p.items.map(pendInfo), kinds=[...new Set(inf.map(x=>x.kind))].join(" · "), by=[...new Set(inf.map(x=>x.by).filter(Boolean))].join(", ")||"—", bad=inf.some(x=>x.bad), alt=inf.some(x=>x.hasAltas)&&!inf.some(x=>x.hasOther);
+    return `<tr><td class="nm">${esc(p.exp)}</td><td>${esc(String(p.nombre||"").slice(0,34))}</td><td>${p.items.length}</td><td style="text-align:left">${esc(kinds)}${bad?' <span class="lv warn">revisar</span>':""}${alt?' <span class="lv warn">alta: se arma al abrir al paciente</span>':""}</td><td style="text-align:left">${esc(by)}</td><td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-pint="${esc(p.exp)}">Integrar</button> <button type="button" class="st-btn st-sm" data-pdelx="${esc(p.exp)}">Borrar</button></td></tr>`; }).join("")}</tbody></table></div>`:(d.unsupported?"":`<div class="st-msg">Ningún expediente con pendientes (${d.total} revisados).</div>`)); }
 function renderPend(body){
-  body.innerHTML=`<div class="st-card"><h3>Pendientes (carpeta PendientesJCF)</h3><div class="st-msg" style="margin:0 0 8px">Revisa por expediente qué notas o indicaciones siguen esperando integrarse (se integran solas al abrir al paciente). Solo se consultan los expedientes que ya tienen archivo en la lista.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stPendGo">Revisar todos los expedientes</button><input class="st-in" id="stPendQ" style="max-width:220px" placeholder="o un expediente…"><button type="button" class="st-btn" id="stPendOne">Revisar</button><span class="st-msg" id="stPendMsg" style="margin:0"></span></div><div id="stPendOut">${pendHtml()}</div></div>`;
-  const bind=()=>{ $s("stPendOut").innerHTML=pendHtml(); $s("stPendOut").querySelectorAll("[data-pdel]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return;
-    if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); return; }
-    try{ await gcall("hjmBorrarPendiente",b.dataset.pdel); pendData.out.forEach(p=>p.items=p.items.filter(it=>it.id!==b.dataset.pdel)); pendData.out=pendData.out.filter(p=>p.items.length); bind(); }catch(e){ $s("stPendMsg").textContent="No se pudo borrar: "+friendly(e); } }); };
+  body.innerHTML=`<div class="st-card"><h3>Pendientes (carpeta PendientesJCF)</h3><div class="st-msg" style="margin:0 0 8px">Notas, indicaciones y cambios de datos que esperan integrarse al expediente. «Integrar» los suma al archivo del paciente y borra el pendiente solo si el guardado salió bien. Las altas se arman al abrir al paciente. Se revisan todos los expedientes de la lista automáticamente al abrir esta pestaña.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stPendGo">Actualizar</button><button type="button" class="st-btn" id="stPendAll">Integrar todos</button><span class="st-msg" id="stPendMsg" style="margin:0"></span></div><div id="stPendOut">${pendHtml()}</div></div>`;
+  const msg=()=>$s("stPendMsg");
+  const bind=()=>{ const o=$s("stPendOut"); if(!o) return; o.innerHTML=pendHtml();
+    o.querySelectorAll("[data-pint]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return; b.disabled=true; b.textContent="…"; const r=await integrarExp(b.dataset.pint); msg().textContent=`Exp. ${b.dataset.pint}: ${r}`; bind(); });
+    o.querySelectorAll("[data-pdelx]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return;
+      if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Borrar"; b.classList.remove("st-danger"); } },4000); return; }
+      const row=pendData.out.find(p=>p.exp===b.dataset.pdelx); b.disabled=true; let n=0;
+      for(const it of (row?row.items:[])){ try{ await G("hjmBorrarPendiente",it.id); n++; }catch(e){ msg().textContent="No se pudo borrar: "+friendly(e); } }
+      await refreshExp(b.dataset.pdelx); if(n) msg().textContent=`Se borraron ${n} pendiente(s) del Exp. ${b.dataset.pdelx}.`; bind(); }); };
   bind();
-  $s("stPendGo").onclick=async()=>{ $s("stPendGo").disabled=true; pendData=await scanPend($s("stPendMsg")); $s("stPendMsg").textContent=""; $s("stPendGo").disabled=false; bind(); };
-  $s("stPendOne").onclick=async()=>{ const e=$s("stPendQ").value.trim(); if(!e) return; try{ const r=await gcall("hjmPendientes",e); pendData={out:(Array.isArray(r)&&r.length)?[{exp:e,nombre:"",items:r}]:[],fail:0,unsupported:false,total:1}; }catch(err){ pendData={out:[],fail:1,unsupported:isOldServer(err)||err.code==="accion",total:1}; } bind(); };
+  $s("stPendGo").onclick=async()=>{ $s("stPendGo").disabled=true; pendData=await scanPend(msg()); msg().textContent=""; $s("stPendGo").disabled=false; bind(); };
+  $s("stPendAll").onclick=async()=>{ if(!isAdmin()) return; if(!pendData){ pendData=await scanPend(msg()); }
+    const list=pendData.out.map(p=>p.exp); if(!list.length){ msg().textContent="No hay pendientes por integrar."; bind(); return; }
+    $s("stPendAll").disabled=true; let ok=0,skip=[]; let i=0;
+    await bg(async()=>{ for(const e of list){ i++; msg().textContent=`Integrando ${i} de ${list.length}… (Exp. ${e})`; const r=await integrarExp(e); if(r.startsWith("ok")) ok++; else skip.push(e+": "+r); bind(); } });
+    $s("stPendAll").disabled=false; msg().textContent=`Listo: ${ok} expediente(s) integrados.`+(skip.length?"\nSin integrar: "+skip.join("; "):""); };
+  if(!pendData&&!PEND_AUTO){ PEND_AUTO=true; $s("stPendGo").click(); }
+}
+let PEND_AUTO=false, badFiles=null;
+async function scanBad(msg){
+  const bad=[]; await ensureFolder(); const raw=await G("hjmList",FOLDER.id); const all=Array.isArray(raw)?raw:[];
+  const names=all.filter(f=>f&&!/^_/.test(String(f.name||"").trim()));
+  names.filter(f=>!/\.json$/i.test(String(f.name||"").trim())).forEach(f=>bad.push({where:"Pacientes",id:f.id,name:f.name,why:"no es .json (extensión: "+((/\.([^.]+)$/.exec(String(f.name||""))||[])[1]||"ninguna")+")"}));
+  const js=names.filter(f=>/\.json$/i.test(String(f.name||"").trim())); let i=0;
+  const w=async()=>{ while(i<js.length){ const f=js[i++]; if(msg) msg.textContent=`Revisando archivos de pacientes ${i} de ${js.length}…`;
+    try{ const r=await G("hjmReadFull",f.id); const c=(r&&r.content)||""; let o=null; try{ o=JSON.parse(c); }catch(_){ bad.push({where:"Pacientes",id:f.id,name:f.name,why:"JSON ilegible o incompleto"}); continue; }
+      if(!o||o.app!=="solicitudes-hjm"){ bad.push({where:"Pacientes",id:f.id,name:f.name,why:"no es un expediente de la app"}); continue; }
+      const ex=o.datos&&String(o.datos.expediente||"").trim(); if(!ex){ bad.push({where:"Pacientes",id:f.id,name:f.name,why:"sin número de expediente"}); continue; }
+      const me=f.meta&&f.meta.exp&&String(f.meta.exp).trim(); if(me&&expKey(me)!==expKey(ex)) bad.push({where:"Pacientes",id:f.id,name:f.name,why:`expediente del archivo (${ex}) distinto al de la lista (${me})`});
+      if(c.length>1500000) bad.push({where:"Pacientes",id:f.id,name:f.name,why:`archivo muy grande (${kb(c.length)}, límite ≈1.9 MB)`});
+    }catch(e){ bad.push({where:"Pacientes",id:f.id,name:f.name,why:"no se pudo leer: "+friendly(e)}); } } };
+  await Promise.all([w(),w(),w()]);
+  if(!pendData){ try{ pendData=await scanPend(msg); }catch(_){} }
+  if(pendData) pendData.out.forEach(p=>p.items.forEach(it=>{ const inf=pendInfo(it); const why=inf.bad||(inf.exp&&expKey(inf.exp)!==expKey(p.exp)?`expediente interno (${inf.exp}) distinto`:""); if(why) bad.push({where:"Pendientes",id:it.id,name:it.name,why}); }));
+  return bad;
 }
 function renderErr(body){
   const all=[]; Object.entries((remoteCache&&remoteCache.errs)||{}).forEach(([d,l])=>{ if(d!==dev&&Array.isArray(l)) l.forEach(x=>all.push(Object.assign({d},x))); }); errLocal.forEach(x=>all.push(Object.assign({d:dev},x)));
   all.sort((a,b)=>b.ts-a.ts); const sh=all.slice(0,100);
   body.innerHTML=`<div class="st-card"><h3>Errores y avisos registrados <small style="font-weight:500;color:#6A7D93">· ${all.length} en total (se guardan los últimos 100 por equipo)</small></h3>${sh.length?`<div class="st-tw"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Mensaje</th><th>Equipo</th></tr></thead><tbody>${sh.map(x=>`<tr><td>${new Date(x.ts).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}</td><td>${esc(x.u||"")}</td><td><span class="lv ${x.lvl==="warn"?"warn":""}">${x.lvl==="warn"?"aviso":"error"}</span></td><td style="text-align:left">${esc(x.msg||"")}</td><td>${esc(x.d)}</td></tr>`).join("")}</tbody></table></div><div style="margin-top:9px"><button type="button" class="st-btn" id="stErrClr">Borrar registro de errores</button></div>`:'<div class="st-msg">Sin errores registrados.</div>'}</div>`;
   const c=$s("stErrClr"); if(c) c.onclick=async()=>{ errLocal=[]; LS.set("hjm-err-log","[]"); dirty=true; await syncRemote({clearErrs:true}); render(); };
+  const card=document.createElement("div"); card.className="st-card"; body.appendChild(card);
+  const rm=async x=>{ await G(x.where==="Pendientes"?"hjmBorrarPendiente":"hjmBorrarDuplicado",x.id); DRIVE_FILES=DRIVE_FILES.filter(f=>f.id!==x.id); };
+  const drawBad=(busy)=>{ card.innerHTML=`<h3>Archivos no viables ${badFiles?`<small style="font-weight:500;color:#6A7D93">· ${badFiles.length} encontrado(s)</small>`:""}</h3><div class="st-msg" style="margin:0 0 8px">Se revisan solos al abrir esta pestaña: archivos dañados, de otro formato (.bak, .doc, .error…) o que no corresponden a la app, en pacientes y pendientes.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="st-btn" id="stBadGo" ${busy?"disabled":""}>Volver a revisar</button>${badFiles&&badFiles.length?'<button type="button" class="st-btn" id="stBadAll">Eliminar todos</button>':""}<span class="st-msg" id="stBadMsg" style="margin:0">${busy?"Revisando…":""}</span></div>${badFiles?(badFiles.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Carpeta</th><th>Nombre del archivo</th><th>Problema</th><th></th></tr></thead><tbody>${badFiles.map((x,i)=>`<tr><td>${x.where}</td><td style="text-align:left;word-break:break-all">${esc(x.name||"")}</td><td style="text-align:left">${esc(x.why)}</td><td><button type="button" class="st-btn st-sm" data-bdel="${i}">Eliminar</button></td></tr>`).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Todos los archivos revisados son viables.</div>'):""}`;
+    const go=$s("stBadGo"); go.onclick=run;
+    const all=$s("stBadAll"); if(all) all.onclick=async()=>{ if(!isAdmin()) return;
+      if(!all.dataset.ok){ all.dataset.ok="1"; all.textContent=`¿Eliminar los ${badFiles.length}?`; all.classList.add("st-danger"); setTimeout(()=>{ if(all.isConnected){ delete all.dataset.ok; all.textContent="Eliminar todos"; all.classList.remove("st-danger"); } },5000); return; }
+      all.disabled=true; const fails=[]; let i=0; await bg(async()=>{ for(const x of [...badFiles]){ i++; $s("stBadMsg").textContent=`Eliminando ${i} de ${badFiles.length+fails.length}…`; try{ await rm(x); badFiles=badFiles.filter(y=>y!==x); }catch(e){ fails.push(x.name+": "+friendly(e)); } } });
+      try{ renderPP(); }catch(_){} drawBad(); $s("stBadMsg").textContent=fails.length?"No se pudieron eliminar: "+fails.join("; "):"Listo."; };
+    card.querySelectorAll("[data-bdel]").forEach(b=>b.onclick=async()=>{ const x=badFiles[+b.dataset.bdel]; if(!isAdmin()) return;
+      if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar"; b.classList.remove("st-danger"); } },4000); return; }
+      try{ await rm(x); badFiles.splice(+b.dataset.bdel,1); try{ renderPP(); }catch(_){} drawBad(); }catch(e){ drawBad(); $s("stBadMsg").textContent="No se pudo eliminar: "+friendly(e); } }); };
+  const run=async()=>{ drawBad(true); try{ badFiles=await scanBad($s("stBadMsg")); drawBad(); }catch(e){ drawBad(); $s("stBadMsg").textContent="No se pudo revisar: "+friendly(e); } };
+  if(badFiles===null){ run(); } else drawBad();
 }
 async function render(){
   const body=$s("stBody");
-  const tabs=[["stats","Estadísticas"],["pac","Pacientes (archivos)"],["pend","Pendientes"],["err","Errores"]];
+  const npac=uniqueFiles(DRIVE_FILES).length, tabs=[["stats","Estadísticas"],["pac",`Pacientes <span class="st-cnt">${npac}</span>`],["pend","Pendientes"],["err","Errores"]];
   let bar=body.querySelector(".st-tabs"); 
   body.innerHTML='<div class="st-tabs">'+tabs.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${tab===k}">${l}</button>`).join("")+'</div><div id="stTab"></div>';
   body.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; render(); });
   const host=$s("stTab"); host.style.display="grid"; host.style.gap="14px";
   if(tab==="stats") await renderStats(host); else if(tab==="pac") renderPac(host); else if(tab==="pend") renderPend(host); else renderErr(host);
 }
+
+/* ---------- Liberación automática de camas ---------- */
+let autoBusy=false, autoLast=0;
+async function autoLiberar(){
+  if(autoBusy||!driveOK()||$s("dlgStats").open) return; if($("dlgResidentGate").open||typeof IDLE_LOCKED!=="undefined"&&IDLE_LOCKED) return;
+  if(!userName()||!DRIVE_FILES.length||Date.now()-PP_LAST>15*60000||Date.now()-autoLast<30*60000) return;
+  autoBusy=true; autoLast=Date.now();
+  try{ const c=candidates(); if(!c.length) return; const r=await liberar(c,{textContent:""}); if(r.done.length) toast(`Se liberaron ${r.done.length} cama(s) sin uso en ${INACT_H} h`); }
+  catch(_){} finally{ autoBusy=false; }
+}
+setInterval(()=>{ try{ autoLiberar(); }catch(_){} },20000);
 async function openStats(){
   if(!isAdmin()) return;
   const dlg=$s("dlgStats"); $s("stSub").textContent="Solo visible para "+userName();
+  if(!JOBS){ badFiles=null; pendData=null; PEND_AUTO=false; }
   $s("stBody").innerHTML='<div class="st-msg">Cargando…</div>'; if(!dlg.open) dlg.showModal();
   if(dirty) await syncRemote(); else await loadRemote();
   render();
