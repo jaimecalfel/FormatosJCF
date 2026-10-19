@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.134">
+<meta name="application-version" content="2.135">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2989,7 +2989,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.134 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.135 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
   </footer>
@@ -8134,6 +8134,27 @@ setInterval(()=>{ if(!document.hidden) sync(); },300000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&!OFF.on&&LIST&&Date.now()-((LIST&&LIST.at)||0)>600000) sync(); });
 loaded.then(async()=>{ if(!USER&&ready()&&(navigator.onLine===false||!(await probe()))) enter(); setTimeout(()=>{ if(USER&&!USER.offline) sync(); },10000); });
 window.__hjmOffSync=sync; window.__hjmOffFlush=flushQueue;
+
+/* v2.135 · Sin conexión con copia local: la vista y el buscador de pacientes funcionan igual que con conexión.
+   El botón «Trabajar sin conexión» ya no cambia a «Este equipo» si el expediente está en la copia local (eso apagaba la tabla y el buscador). */
+(function(){
+  const gb=document.getElementById("residentGateOffline"); if(!gb) return; const prev=gb.onclick;
+  gb.onclick=function(ev){
+    if(window.__hjmOff&&LIST&&FILES().length){
+      const name=resolveGateUser(); if(!name) return;
+      if(!apiKey()) LS.set("hjm-key","__sin-conexion__");   /* marca temporal: si luego Drive la rechaza, vuelve a pedir la clave real */
+      applyGateUser(name); IDLE_LOCKED=false; document.getElementById("dlgResidentGate").close();
+      OFF.on=false; enter(); try{ expCheck(); }catch(_){}
+      toast("Sin conexión · usando la copia de pacientes de este equipo"); return;
+    }
+    return prev&&prev.call(this,ev);
+  };
+  const _de=window.driveError;
+  window.driveError=function(err){
+    if(err&&err.code==="offline"){ notify("Ese expediente no está en la copia sin conexión de este equipo; se podrá abrir cuando haya conexión.","warn"); return; }
+    return _de.apply(this,arguments);
+  };
+})();
 })();
 </script>
 
