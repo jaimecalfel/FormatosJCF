@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.147">
+<meta name="application-version" content="2.148">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2998,7 +2998,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.147 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.148 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -3284,7 +3284,8 @@ const HJM_STAFF=Object.freeze({
     "LUCERO SOLARES R7CO",
     "DANIELA HERNANDEZ R5OM",
     "MARIA JOSE BARRUETA R5OCYC",
-    "CAROLINA RAMIREZ R5OM"
+    "CAROLINA RAMIREZ R5OM",
+    "DR. BYRON SIMMONS"
   ])
 });
 function normalizeStaffName(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Z0-9]+/gi," ").trim().toUpperCase();}
@@ -5492,7 +5493,7 @@ addEventListener("hashchange",()=>{ if(takeHashKey()&&typeof initDrive==="functi
 
 /* Especialidad del residente según la terminación de su nombre (R5CO, R6GO, R5OM, R5OCYC…) */
 const RESIDENT_SPECIALTY={CO:"Cirugía Oncológica",GO:"Ginecología Oncológica",OCYC:"Oncología Cabeza y Cuello",OM:"Oncología Médica"};
-function residentSpecialty(value){const m=/\bR[1-9]\s*(OCYC|CO|GO|OM)\b\s*$/i.exec(normalizeStaffName(value));return m?RESIDENT_SPECIALTY[m[1].toUpperCase()]:"";}
+function residentSpecialty(value){if(normalizeStaffName(value)==="DR BYRON SIMMONS")return "Fellow de Laparoscopia Avanzada";const m=/\bR[1-9]\s*(OCYC|CO|GO|OM)\b\s*$/i.exec(normalizeStaffName(value));return m?RESIDENT_SPECIALTY[m[1].toUpperCase()]:"";}
 /* Muestra debajo del usuario: la clínica (adscrito) o la especialidad (residente) */
 function updateGateClinic(){
   const box=$("residentGateClinic"),v=$("residentGateName").value.trim();
