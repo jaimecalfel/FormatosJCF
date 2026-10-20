@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.148">
+<meta name="application-version" content="2.149">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2998,7 +2998,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.148 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.149 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -6022,7 +6022,7 @@ async function driveSaveNow(opt={}){
     await ensureFolder();
     if(!DRIVE_FILES.length||Date.now()-PP_LAST>120000){ DRIVE_FILES=onlyJsonFiles(await gcall("hjmList",FOLDER.id)); PP_LAST=Date.now(); if(typeof renderPP==="function")renderPP(); }
     const twins=DRIVE_FILES.filter(f=>expKey(expOf(f))===key);         // más reciente primero
-    const target=twins.find(f=>f.name===name)||twins[0]||null;
+    const target=twins.find(f=>f.name===name)||twins[0]||null; window.__saveNew=!target;
     const mine=!!LOADED_EXP&&expKey(LOADED_EXP)===key;                  // es el paciente que abriste o guardaste en esta sesión
     const conflict=(id,nm)=>{ notify(`Ya existe en Drive el expediente ${d.expediente}${nm?" ("+nm+")":""}. Para no sobrescribir ni duplicar, ábrelo desde la lista o combina lo que capturaste aquí con lo que ya tiene.`,"warn",
         {ms:40000,center:true,actions:[{label:"Abrir el de Drive",fn:()=>openDriveFile(id).catch(driveError)},{label:"Combinar y guardar",fn:()=>driveSaveNow({combinar:true}).catch(driveError)}]}); return false; };
@@ -7430,6 +7430,13 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats td{padding:6px;text-align:right;border-bottom:1px solid #EEF3F8}
 #dlgStats td.nm{font-weight:700;color:#173B5E}
 #dlgStats .stars{color:#E0A526;letter-spacing:1px;white-space:nowrap}
+#dlgStats .st-scroll{overflow-x:auto}
+#dlgStats table.st-act{min-width:560px}
+#dlgStats table.st-act th{text-align:center;vertical-align:bottom;line-height:1.2}
+#dlgStats table.st-act td{text-align:center;font-variant-numeric:tabular-nums}
+#dlgStats table.st-act th:first-child,#dlgStats table.st-act td:first-child{text-align:left}
+#dlgStats table.st-act tfoot td{font-weight:800;color:#173B5E;border-top:2px solid #C9D7E6;border-bottom:0;background:#F4F8FC}
+#dlgStats .st-kpis .st-kpi{min-width:0}
 #dlgStats .bar{height:8px;border-radius:99px;background:#DCE9F5;overflow:hidden;min-width:60px}
 #dlgStats .bar i{display:block;height:100%;background:#4F86B8;border-radius:99px}
 #dlgStats .frow{display:grid;grid-template-columns:minmax(90px,1.2fr) 3fr 34px;gap:8px;align-items:center;font-size:12px;margin:5px 0}
@@ -7496,8 +7503,10 @@ wrap("applyGateUser",()=>{ bump("acc"); syncAdminClass(); autoLast=0; [1500,6000
 wrap("openFormat",a=>bump("fmt",a[0]));
 wrap("openClinical",a=>bump("fmt",a[0]));
 wrap("openDriveFile",()=>bump("opn"));
+/* v2.149 · Notas e indicaciones realizadas (registros nuevos guardados) */
+(function(){ const o=window.saveClinicalRecord; if(typeof o!=="function") return; window.saveClinicalRecord=function(...a){ const r=o.apply(this,a); try{ if(r&&a[3]!=="edit"){ const n=Array.isArray(r)?r.length:1; if(a[0]==="notas") bump("nts",null,n); else if(a[0]==="indicaciones") bump("ind",null,n); } }catch(_){} return r; }; })();
 wrap("notify",a=>{ if(a[1]==="err"||a[1]==="warn") logErr(a[1],a[0]); });
-(function(){ const o=window.driveSaveNow; if(typeof o!=="function") return; window.driveSaveNow=async function(...a){ const r=await o.apply(this,a); if(r===true) bump("sav"); return r; }; })();
+(function(){ const o=window.driveSaveNow; if(typeof o!=="function") return; window.driveSaveNow=async function(...a){ let k=""; try{ k=expKey(data().expediente); }catch(_){} window.__saveNew=null; const r=await o.apply(this,a); if(r===true){ bump("sav"); try{ if(window.__saveNew===true) bump("crt"); else bump("upd",k||"?"); }catch(_){} } return r; }; })();
 function syncAdminClass(){ document.body.classList.toggle("hjm-admin",isAdmin()); }
 setInterval(()=>{ try{ syncAdminClass(); if(document.visibilityState==="visible"&&Date.now()-LAST_ACTIVITY<60000&&userName()){ bump("min"); bump("hr",new Date().getHours()); }
   if(dirty&&Date.now()-lastSync>5*60000) syncRemote(); }catch(_){} },60000);
@@ -7537,8 +7546,9 @@ function agg(remote,days){
   const cutoff=days?dayKey(Date.now()-(days-1)*864e5):"0000-00-00", users={}, fmt={}, hr=Array(24).fill(0), perDay={};
   const devs=Object.assign({},(remote&&remote.dev)||{}); devs[dev]=local;
   Object.values(devs).forEach(dd=>Object.entries(dd||{}).forEach(([dk,us])=>{ if(dk<cutoff) return;
-    Object.entries(us||{}).forEach(([u,r])=>{ const o=users[u]=users[u]||{acc:0,sav:0,opn:0,min:0,lib:0};
-      ["acc","sav","opn","min","lib"].forEach(k=>o[k]+=r[k]||0);
+    Object.entries(us||{}).forEach(([u,r])=>{ const o=users[u]=users[u]||{acc:0,sav:0,opn:0,min:0,lib:0,crt:0,nts:0,ind:0,upd:0,_u:new Set()};
+      ["acc","sav","opn","min","lib","crt","nts","ind"].forEach(k=>o[k]+=r[k]||0);
+      Object.keys(r.upd||{}).forEach(x=>o._u.add(dk+"|"+x)); o.upd=o._u.size;
       Object.entries(r.fmt||{}).forEach(([f,n])=>fmt[f]=(fmt[f]||0)+n);
       Object.entries(r.hr||{}).forEach(([h,n])=>hr[+h]+=n);
       perDay[dk]=(perDay[dk]||0)+(r.sav||0)+(r.acc||0); }); }));
@@ -7580,8 +7590,9 @@ const $s=id=>document.getElementById(id)||(/(Msg|Go|All|Lib|One)$/.test(id)?{tex
 async function renderStats(body){
   const remote=remoteCache; const A=agg(remote,period), T=agg(remote,1);
   const tu=Object.values(T.users), tot=k=>tu.reduce((s,u)=>s+u[k],0);
-  const rows=Object.entries(A.users).map(([u,o])=>({u,o,p:pts(o)})).sort((a,b)=>b.p-a.p), top=rows.length?rows[0].p||1:1;
-  const stars=p=>{ const n=Math.max(1,Math.round(p/top*5)); return "★".repeat(n)+"☆".repeat(5-n); };
+  const COLS=[["acc","Accesos al sistema"],["opn","Pacientes abiertos"],["crt","Pacientes creados"],["upd","Pacientes actualizados"],["nts","Notas realizadas"],["ind","Indicaciones realizadas"]];
+  const rows=Object.entries(A.users).map(([u,o])=>({u,o,t:COLS.reduce((n,[k])=>n+(o[k]||0),0)})).filter(r=>r.t>0||r.o.sav>0).sort((a,b)=>b.t-a.t||a.u.localeCompare(b.u,"es"));
+  const sum=k=>rows.reduce((n,r)=>n+(r.o[k]||0),0);
   const fm=Object.entries(A.fmt).sort((a,b)=>b[1]-a[1]).slice(0,8), fmax=fm.length?fm[0][1]:1;
   const hmax=Math.max(1,...A.hr);
   const days=[...Array(14)].map((_,i)=>dayKey(Date.now()-(13-i)*864e5)), dmax=Math.max(1,...days.map(d=>A.perDay[d]||0));
@@ -7589,15 +7600,9 @@ async function renderStats(body){
   const camasLog=((remote&&remote.camas)||[]).slice(-6).reverse(), med=medios();
   body.innerHTML=`
   <div class="st-per">${[[1,"Hoy"],[7,"7 días"],[30,"30 días"],[0,"Todo"]].map(([d,l])=>`<button type="button" data-per="${d}" aria-pressed="${period===d}">${l}</button>`).join("")}<span class="st-note">${esc(syncMsg||(remote?"Datos de todos los equipos sincronizados":""))}</span></div>
-  <div class="st-kpis">
-    <div class="st-kpi"><b>${tot("acc")}</b><span>Accesos hoy</span></div>
-    <div class="st-kpi"><b>${tot("sav")}</b><span>Guardados hoy</span></div>
-    <div class="st-kpi"><b>${tu.filter(u=>u.acc||u.sav||u.min).length}</b><span>Usuarios activos hoy</span></div>
-    <div class="st-kpi"><b>${hm(tot("min"))}</b><span>Tiempo de uso hoy</span></div>
-    <div class="st-kpi"><b>${conCama}</b><span>Pacientes con cama</span></div>
-  </div>
-  <div class="st-card"><h3>Ranking de usuarios <small style="font-weight:500;color:#6A7D93">· puntos = guardados×3 + accesos×2 + pacientes abiertos + minutos÷10</small></h3>
-   ${rows.length?`<table><thead><tr><th>Usuario</th><th>Calif.</th><th>Puntos</th><th>Guardados</th><th>Accesos</th><th>Abiertos</th><th>Tiempo</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td class="nm">${i+1}. ${esc(r.u)}</td><td class="stars">${stars(r.p)}</td><td><b>${r.p}</b></td><td>${r.o.sav}</td><td>${r.o.acc}</td><td>${r.o.opn}</td><td>${hm(r.o.min)}</td></tr>`).join("")}</tbody></table>`:'<div class="st-msg">Aún no hay actividad registrada en este periodo.</div>'}</div>
+  <div class="st-kpis">${COLS.map(([k,l])=>`<div class="st-kpi"><b>${sum(k)}</b><span>${l}</span></div>`).join("")}</div>
+  <div class="st-card"><h3>Actividad por usuario <small style="font-weight:500;color:#6A7D93">· ${[[1,"hoy"],[7,"últimos 7 días"],[30,"últimos 30 días"],[0,"todo el historial"]].find(x=>x[0]===period)[1]} · ${rows.length} usuario(s) con actividad</small></h3>
+   ${rows.length?`<div class="st-scroll"><table class="st-act"><thead><tr><th>Usuario</th>${COLS.map(([k,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr><td class="nm">${esc(r.u)}</td>${COLS.map(([k])=>`<td>${r.o[k]||0}</td>`).join("")}</tr>`).join("")}</tbody><tfoot><tr><td class="nm">Total</td>${COLS.map(([k])=>`<td>${sum(k)}</td>`).join("")}</tr></tfoot></table></div><div class="st-msg" style="margin-top:8px">«Pacientes actualizados» cuenta cada paciente distinto con ediciones guardadas por día. Notas e indicaciones cuentan registros nuevos guardados. Los datos de creados, actualizados, notas e indicaciones se registran desde la versión 2.149.</div>`:'<div class="st-msg">Aún no hay actividad registrada en este periodo.</div>'}</div>
   <div class="st-grid2">
    <div class="st-card"><h3>Formatos más usados</h3>${fm.length?fm.map(([k,n])=>`<div class="frow"><span>${esc(fmtLabel(k))}</span><div class="bar"><i style="width:${Math.round(n/fmax*100)}%"></i></div><b>${n}</b></div>`).join(""):'<div class="st-msg">Sin datos.</div>'}</div>
    <div class="st-card"><h3>Horas de mayor actividad</h3><div class="hrs">${A.hr.map((n,h)=>`<i title="${h}:00 · ${n} min" style="height:${Math.max(2,Math.round(n/hmax*100))}%"></i>`).join("")}</div><div class="hrl">${A.hr.map((_,h)=>`<span>${h%3===0?h:""}</span>`).join("")}</div></div>
@@ -7763,7 +7768,9 @@ function startBad(force,deep){ if(BAD_RUN&&!force) return; BAD_RUN=true; BADERR=
   scanBad(sink("err","archivos"),!!deep).then(b=>{ badFiles=b; }).catch(e=>{ BADERR="No se pudo revisar: "+friendly(e); badFiles=[]; }).finally(()=>{ BAD_RUN=false; taskDone("err"); if(tab==="err"&&$s("stTab")) render(); }); }
 async function scanBad(msg,force){
   const bad=[]; await ensureFolder(); const raw=await G("hjmList",FOLDER.id); const all=Array.isArray(raw)?raw:[];
-  const names=all.filter(f=>f&&!/^_/.test(String(f.name||"").trim()));
+  /* v2.149 · Un pendiente por integrar (JCF<exp>.nota-AAAAMMDD-HHMM.json) no es un archivo inviable: se omite aquí y se integra al abrir al paciente */
+  const isPendName=f=>/^JCF(.+)\.nota-\d{8}-\d{4}\.json$/i.test(String(f.name||"").trim());
+  const names=all.filter(f=>f&&!/^_/.test(String(f.name||"").trim())&&!isPendName(f));
   names.filter(f=>!/\.json$/i.test(String(f.name||"").trim())).forEach(f=>bad.push({where:"Pacientes",id:f.id,name:f.name,why:"no es .json (extensión: "+((/\.([^.]+)$/.exec(String(f.name||""))||[])[1]||"ninguna")+")"}));
   const js=names.filter(f=>/\.json$/i.test(String(f.name||"").trim()));
   await analyzeAll(null,force);                                   // si la vuelta de análisis ya corre, se espera; no se vuelve a leer nada
@@ -7771,7 +7778,7 @@ async function scanBad(msg,force){
   const w=async()=>{ while(i<rest.length){ const f=rest[i++]; try{ await getEntry(f); }catch(_){} } }; await Promise.all([w(),w(),w()]);
   js.forEach(f=>{ const e=PCACHE[f.id]; if(e&&e.bad) bad.push({where:"Pacientes",id:f.id,name:f.name,why:e.bad}); else if(!e) bad.push({where:"Pacientes",id:f.id,name:f.name,why:READFAIL[f.id]||"no se pudo leer"}); });
   for(let k=0;PEND_RUN&&k<400;k++) await new Promise(r=>setTimeout(r,300));
-  if(pendData) pendData.out.forEach(p=>p.items.forEach(it=>{ const inf=pendInfo(it); const why=inf.bad||(inf.exp&&expKey(inf.exp)!==expKey(p.exp)?`expediente interno (${inf.exp}) distinto`:""); if(why) bad.push({where:"Pendientes",id:it.id,name:it.name,why}); }));
+  if(pendData) pendData.out.forEach(p=>p.items.forEach(it=>{ const inf=pendInfo(it); const why=inf.bad; if(why) bad.push({where:"Pendientes",id:it.id,name:it.name,why}); }));
   return bad;
 }
 function renderErr(body){
