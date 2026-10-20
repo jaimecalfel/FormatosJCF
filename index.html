@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.149">
+<meta name="application-version" content="2.150">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2998,7 +2998,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.149 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.150 · Fecha de publicación: 19.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -7431,7 +7431,8 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats td.nm{font-weight:700;color:#173B5E}
 #dlgStats .stars{color:#E0A526;letter-spacing:1px;white-space:nowrap}
 #dlgStats .st-scroll{overflow-x:auto}
-#dlgStats table.st-act{min-width:560px}
+#dlgStats table.st-act{min-width:620px}
+#dlgStats table.st-act th small{text-transform:none;letter-spacing:0;font-weight:600;display:block}
 #dlgStats table.st-act th{text-align:center;vertical-align:bottom;line-height:1.2}
 #dlgStats table.st-act td{text-align:center;font-variant-numeric:tabular-nums}
 #dlgStats table.st-act th:first-child,#dlgStats table.st-act td:first-child{text-align:left}
@@ -7602,7 +7603,7 @@ async function renderStats(body){
   <div class="st-per">${[[1,"Hoy"],[7,"7 días"],[30,"30 días"],[0,"Todo"]].map(([d,l])=>`<button type="button" data-per="${d}" aria-pressed="${period===d}">${l}</button>`).join("")}<span class="st-note">${esc(syncMsg||(remote?"Datos de todos los equipos sincronizados":""))}</span></div>
   <div class="st-kpis">${COLS.map(([k,l])=>`<div class="st-kpi"><b>${sum(k)}</b><span>${l}</span></div>`).join("")}</div>
   <div class="st-card"><h3>Actividad por usuario <small style="font-weight:500;color:#6A7D93">· ${[[1,"hoy"],[7,"últimos 7 días"],[30,"últimos 30 días"],[0,"todo el historial"]].find(x=>x[0]===period)[1]} · ${rows.length} usuario(s) con actividad</small></h3>
-   ${rows.length?`<div class="st-scroll"><table class="st-act"><thead><tr><th>Usuario</th>${COLS.map(([k,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr><td class="nm">${esc(r.u)}</td>${COLS.map(([k])=>`<td>${r.o[k]||0}</td>`).join("")}</tr>`).join("")}</tbody><tfoot><tr><td class="nm">Total</td>${COLS.map(([k])=>`<td>${sum(k)}</td>`).join("")}</tr></tfoot></table></div><div class="st-msg" style="margin-top:8px">«Pacientes actualizados» cuenta cada paciente distinto con ediciones guardadas por día. Notas e indicaciones cuentan registros nuevos guardados. Los datos de creados, actualizados, notas e indicaciones se registran desde la versión 2.149.</div>`:'<div class="st-msg">Aún no hay actividad registrada en este periodo.</div>'}</div>
+   ${rows.length?`<div class="st-scroll"><table class="st-act"><thead><tr><th>Usuario <small>(de mayor a menor uso)</small></th>${COLS.map(([k,l])=>`<th>${l}</th>`).join("")}<th>Total</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td class="nm">${i+1}. ${esc(r.u)}</td>${COLS.map(([k])=>`<td>${r.o[k]||0}</td>`).join("")}<td><b>${r.t}</b></td></tr>`).join("")}</tbody><tfoot><tr><td class="nm">Total</td>${COLS.map(([k])=>`<td>${sum(k)}</td>`).join("")}<td>${rows.reduce((n,r)=>n+r.t,0)}</td></tr></tfoot></table></div><div class="st-msg" style="margin-top:8px">«Pacientes actualizados» cuenta cada paciente distinto con ediciones guardadas por día. Notas e indicaciones cuentan registros nuevos guardados. Los datos de creados, actualizados, notas e indicaciones se registran desde la versión 2.149.</div>`:'<div class="st-msg">Aún no hay actividad registrada en este periodo.</div>'}</div>
   <div class="st-grid2">
    <div class="st-card"><h3>Formatos más usados</h3>${fm.length?fm.map(([k,n])=>`<div class="frow"><span>${esc(fmtLabel(k))}</span><div class="bar"><i style="width:${Math.round(n/fmax*100)}%"></i></div><b>${n}</b></div>`).join(""):'<div class="st-msg">Sin datos.</div>'}</div>
    <div class="st-card"><h3>Horas de mayor actividad</h3><div class="hrs">${A.hr.map((n,h)=>`<i title="${h}:00 · ${n} min" style="height:${Math.max(2,Math.round(n/hmax*100))}%"></i>`).join("")}</div><div class="hrl">${A.hr.map((_,h)=>`<span>${h%3===0?h:""}</span>`).join("")}</div></div>
@@ -7710,7 +7711,8 @@ function renderPac(body){
   $s("stPacQ").oninput=e=>{ pacQ=e.target.value; pacRows(); };
   pacRows(); drawPacStats(); analyzeAll((d,t)=>{ drawPacStats(`· analizando ${d} de ${t}…`); if($s("stPacTbl")) pacRows(); }).then(()=>{ drawPacStats(); if($s("stPacTbl")) pacRows(); });
 }
-const pendInfo=it=>{ let o=null; try{ o=JSON.parse(it.content||""); }catch(_){}
+const pendInfo=it=>{ if(typeof it.content!=="string") return {kind:"sin leer",by:"",bad:"",exp:"",hasAltas:false,hasOther:true};   /* v2.150 · sin contenido en la lista ≠ ilegible */
+  let o=null; try{ o=JSON.parse(it.content||""); }catch(_){}
   if(!o) return {kind:"ilegible",by:"",bad:"JSON ilegible"};
   const kinds=[]; ["notas","indicaciones","altas"].forEach(x=>{ if(Array.isArray(o[x])&&o[x].length) kinds.push(x+" "+o[x].length); }); if(o.datos&&typeof o.datos==="object") kinds.push("datos"); if(o.origen==="sin-conexion"&&Array.isArray(o.cambios)) kinds.push("sin conexión ("+o.cambios.length+" campos, "+Object.values(o.historial||{}).reduce((a,l)=>a+(l||[]).length,0)+" registros)");
   let by=o.usuario||o.autor||o.creadoPor||o.por||o.residente||"";
@@ -7718,9 +7720,11 @@ const pendInfo=it=>{ let o=null; try{ o=JSON.parse(it.content||""); }catch(_){}
   let bad=""; if(o.app!=="solicitudes-hjm-pendiente") bad="no es un pendiente de la app"; else if(!kinds.length) bad="sin contenido reconocido";
   return {kind:kinds.join(", ")||"—",by:String(by||""),bad,exp:o.expediente,hasAltas:Array.isArray(o.altas)&&o.altas.length>0,hasOther:kinds.some(k=>!k.startsWith("altas"))}; };
 async function scanPend(msg){
-  const fs=uniqueFiles(DRIVE_FILES), exps=[...new Set(fs.map(fexp).filter(Boolean))], nm={}; fs.forEach(f=>nm[fexp(f)]=(f.meta&&f.meta.nombre)||"");
+  const fs=uniqueFiles(DRIVE_FILES), exps=[...new Set(fs.map(fexp).filter(e=>e&&/[A-Za-z0-9]/.test(String(e))))], nm={}; fs.forEach(f=>nm[fexp(f)]=(f.meta&&f.meta.nombre)||"");
   let i=0,fail=0,unsupported=false; const out=[];
   try{ const all=await G("hjmPendientes",""); if(Array.isArray(all)&&all.length){ const g={}; all.forEach(it=>{ let e=""; try{ e=String((JSON.parse(it.content||"")||{}).expediente||""); }catch(_){} if(!e){ const m=/^JCF(\w+?)[.\-_]/i.exec(String(it.name||"")); e=m?m[1]:"(sin expediente)"; } (g[e]=g[e]||[]).push(it); }); Object.entries(g).forEach(([e,items])=>out.push({exp:e,nombre:nm[e]||"",items})); } }catch(_){}
+  /* v2.150 · La lista general del servidor trae solo nombres (sin contenido): se lee cada expediente con su contenido para no marcarlos «ilegibles» */
+  { let j=0; const need=out.filter(o=>o.items.some(it=>typeof it.content!=="string")); const wk=async()=>{ while(j<need.length){ const o=need[j++]; if(!/^\(sin/.test(o.exp)){ try{ const r=await G("hjmPendientes",o.exp); if(Array.isArray(r)&&r.length) o.items=r; }catch(_){} } if(msg) msg.textContent=`Leyendo pendientes ${Math.min(j,need.length)} de ${need.length}…`; } }; await Promise.all([wk(),wk(),wk()]); }
   const have=new Set(out.map(o=>o.exp)); const todo=exps.filter(e=>!have.has(e)); exps.length=0; todo.forEach(e=>exps.push(e));
   const w=async()=>{ while(i<exps.length&&!unsupported){ const e=exps[i++]; try{ const r=await G("hjmPendientes",e); if(Array.isArray(r)&&r.length) out.push({exp:e,nombre:nm[e],items:r}); }catch(err){ fail++; if(isOldServer(err)||err.code==="accion") unsupported=true; }
       if(msg) msg.textContent=`Revisando ${Math.min(i,exps.length)} de ${exps.length}…`; } };
