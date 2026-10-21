@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.150">
+<meta name="application-version" content="2.153">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2998,7 +2998,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.150 · Fecha de publicación: 19.10.26</div>
+  <div class="app-footer-version">Versión 2.153 · Fecha de publicación: 20.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -3227,67 +3227,75 @@ const inputs = [...form.querySelectorAll("input,select,textarea")];
 const $ = id => document.getElementById(id);
 
 /* ================================================================
-   DIRECTORIO HJM · ADSCRITOS Y RESIDENTES
-   Editar esta lista para agregar, corregir o retirar nombres.
-   Los campos que la usan siguen siendo texto libre: no es obligatoria.
+   USUARIOS · lista editable desde el panel del cangrejo (pestaña «Usuarios», solo Jaime Caldera)
+   La lista vigente se guarda en Drive en
+   _USUARIOS_HJM.json (misma carpeta de pacientes; los archivos que empiezan con «_» no son pacientes) y cada
+   equipo guarda una copia local para que la ventana de inicio la tenga antes de conectar.
+   Cada usuario: usuario (lo que se escribe al ingresar) · nombre completo (el que se imprime) · tipo · servicio/clínica.
    ================================================================ */
-const HJM_STAFF=Object.freeze({
-  adscritos:Object.freeze([
-    {clinica:"TUMORES MIXTOS",nombre:"DR. PAUL ERNESTO CHARIS TRUJILLO"},
-    {clinica:"TUMORES MIXTOS",nombre:"DR. ZIAD ABO HARP HASAN"},
-    {clinica:"TUMORES MIXTOS",nombre:"DR. ERIK EFRAIN SOSA DURAN"},
-    {clinica:"TUMORES MIXTOS",nombre:"DR. EDUARDO ROVELO LIMA"},
-    {clinica:"TUMORES MIXTOS",nombre:"DR. OSCAR ZENON ROSAS GUERRA"},
-    {clinica:"TUMORES MIXTOS",nombre:"DRA. STEPHANY DE LUNA JIMENEZ"},
-    {clinica:"ONCOLOGÍA MÉDICA",nombre:"DRA. CRISTINA ALVARADO SILVA"},
-    {clinica:"ONCOLOGÍA MÉDICA",nombre:"DR. EDUARDO REYES SANCHEZ"},
-    {clinica:"ONCOLOGÍA MÉDICA",nombre:"DR. OTONIEL LOPEZ RIVEROL"},
-    {clinica:"ONCOLOGÍA MÉDICA",nombre:"DRA. DIANA ALEJANDRA VILLEGAS OSORNO"},
-    {clinica:"ONCOLOGÍA MÉDICA",nombre:"DRA. LETICIA OLIVEROS HERRERA"},
-    {clinica:"ONCOLOGÍA MÉDICA",nombre:"DRA. ANA MARIA CALDERON ESCUTIA"},
-    {clinica:"TUMORES GINECOLÓGICOS",nombre:"DR. XICONTENCATL JIMENEZ"},
-    {clinica:"TUMORES GINECOLÓGICOS",nombre:"DR. JOSE FRANCISCO VARELAS ROJANO"},
-    {clinica:"MAMA",nombre:"DRA. ANGELA HERNANDEZ RUBIO"},
-    {clinica:"MAMA",nombre:"DR. ARMANDO RAMIREZ RAMIREZ"},
-    {clinica:"RADIO ONCOLOGÍA",nombre:"DR. ALFREDO MALDONADO"},
-    {clinica:"RADIO ONCOLOGÍA",nombre:"DR. GABRIEL SANCHEZ MARIN"},
-    {clinica:"RADIO ONCOLOGÍA",nombre:"DRA. REBECA GIL"},
-    {clinica:"CABEZA Y CUELLO",nombre:"DR. OMAR SOTO BECERRIL"},
-    {clinica:"CABEZA Y CUELLO",nombre:"DR. JORGE DEL BOSQUE MENDEZ"},
-    {clinica:"INTERVENCIONISMO",nombre:"DR. EDUARDO MARTINEZ ANTA"}
-  ]),
-  residentes:Object.freeze([
-    "JAIME CALDERA R5CO",
-    "MALENY RUIZ R5CO",
-    "ARIEL JOB DIAZ R5CO",
-    "NATHALIA GRISALES R5CO",
-    "VALERIA RAMIREZ R5CO",
-    "XIMENA VARGAS R5GO",
-    "GABRIELA ORTIZ R5GO",
-    "DAVID ROMERO R5GO",
-    "CARLOS QUINTERO R5GO",
-    "TANIA ACEVEDO R5GO",
-    "ROSA NELLY HERRERA R6GO",
-    "BLANCA MACIAS R6GO",
-    "ESTEFANIA TASCON R6GO",
-    "EDGAR PADILLA R7GO",
-    "ELIZABETH ESCALANTE R7GO",
-    "ZABDIEL SANCHEZ R6GO",
-    "JONATHAN MORENO R5OM",
-    "CLAUDIA ALMENDAREZ R6CO",
-    "DIEGO CARVAJAL R6CO",
-    "JUAN MANUEL NARVAEZ R6CO",
-    "JHON ERIK SANABRIA R6OCYC",
-    "CARLOS PEREZ R6CO",
-    "JENNIFFER PLAZA R6CO",
-    "URIEL REYES R7CO",
-    "LUCERO SOLARES R7CO",
-    "DANIELA HERNANDEZ R5OM",
-    "MARIA JOSE BARRUETA R5OCYC",
-    "CAROLINA RAMIREZ R5OM",
-    "DR. BYRON SIMMONS"
-  ])
-});
+const HJM_USERS_FILE="_USUARIOS_HJM.json",HJM_USERS_LS="hjm-usuarios-v1";
+const HJM_STAFF={adscritos:[],residentes:[]};
+let HJM_USERS=[],HJM_USERS_MOD="",HJM_USERS_LMOD="",HJM_USERS_TS=0;
+/* LISTA DE USUARIOS INCRUSTADA EN EL HTML (única lista de origen): es la que usa un equipo nuevo o sin internet.
+   La pestaña «Usuarios» tiene el botón «Descargar index.html con esta lista» que reescribe SOLO esta línea.
+   Prioridad al iniciar: lo más reciente entre la copia de este equipo y esta; al conectar, manda Drive. */
+const HJM_USERS_BASE=/*USUARIOS_BASE_INI*/{"ts":0,"usuarios":[{"usuario":"DR. PAUL ERNESTO CHARIS TRUJILLO","nombre":"DR. PAUL ERNESTO CHARIS TRUJILLO","tipo":"adscrito","servicio":"TUMORES MIXTOS"},{"usuario":"DR. ZIAD ABO HARP HASAN","nombre":"DR. ZIAD ABO HARP HASAN","tipo":"adscrito","servicio":"TUMORES MIXTOS"},{"usuario":"DR. ERIK EFRAIN SOSA DURAN","nombre":"DR. ERIK EFRAIN SOSA DURAN","tipo":"adscrito","servicio":"TUMORES MIXTOS"},{"usuario":"DR. EDUARDO ROVELO LIMA","nombre":"DR. EDUARDO ROVELO LIMA","tipo":"adscrito","servicio":"TUMORES MIXTOS"},{"usuario":"DR. OSCAR ZENON ROSAS GUERRA","nombre":"DR. OSCAR ZENON ROSAS GUERRA","tipo":"adscrito","servicio":"TUMORES MIXTOS"},{"usuario":"DRA. STEPHANY DE LUNA JIMENEZ","nombre":"DRA. STEPHANY DE LUNA JIMENEZ","tipo":"adscrito","servicio":"TUMORES MIXTOS"},{"usuario":"DRA. CRISTINA ALVARADO SILVA","nombre":"DRA. CRISTINA ALVARADO SILVA","tipo":"adscrito","servicio":"ONCOLOGÍA MÉDICA"},{"usuario":"DR. EDUARDO REYES SANCHEZ","nombre":"DR. EDUARDO REYES SANCHEZ","tipo":"adscrito","servicio":"ONCOLOGÍA MÉDICA"},{"usuario":"DR. OTONIEL LOPEZ RIVEROL","nombre":"DR. OTONIEL LOPEZ RIVEROL","tipo":"adscrito","servicio":"ONCOLOGÍA MÉDICA"},{"usuario":"DRA. DIANA ALEJANDRA VILLEGAS OSORNO","nombre":"DRA. DIANA ALEJANDRA VILLEGAS OSORNO","tipo":"adscrito","servicio":"ONCOLOGÍA MÉDICA"},{"usuario":"DRA. LETICIA OLIVEROS HERRERA","nombre":"DRA. LETICIA OLIVEROS HERRERA","tipo":"adscrito","servicio":"ONCOLOGÍA MÉDICA"},{"usuario":"DRA. ANA MARIA CALDERON ESCUTIA","nombre":"DRA. ANA MARIA CALDERON ESCUTIA","tipo":"adscrito","servicio":"ONCOLOGÍA MÉDICA"},{"usuario":"DR. XICONTENCATL JIMENEZ","nombre":"DR. XICONTENCATL JIMENEZ","tipo":"adscrito","servicio":"TUMORES GINECOLÓGICOS"},{"usuario":"DR. JOSE FRANCISCO VARELAS ROJANO","nombre":"DR. JOSE FRANCISCO VARELAS ROJANO","tipo":"adscrito","servicio":"TUMORES GINECOLÓGICOS"},{"usuario":"DRA. ANGELA HERNANDEZ RUBIO","nombre":"DRA. ANGELA HERNANDEZ RUBIO","tipo":"adscrito","servicio":"MAMA"},{"usuario":"DR. ARMANDO RAMIREZ RAMIREZ","nombre":"DR. ARMANDO RAMIREZ RAMIREZ","tipo":"adscrito","servicio":"MAMA"},{"usuario":"DR. ALFREDO MALDONADO","nombre":"DR. ALFREDO MALDONADO","tipo":"adscrito","servicio":"RADIO ONCOLOGÍA"},{"usuario":"DR. GABRIEL SANCHEZ MARIN","nombre":"DR. GABRIEL SANCHEZ MARIN","tipo":"adscrito","servicio":"RADIO ONCOLOGÍA"},{"usuario":"DRA. REBECA GIL","nombre":"DRA. REBECA GIL","tipo":"adscrito","servicio":"RADIO ONCOLOGÍA"},{"usuario":"DR. OMAR SOTO BECERRIL","nombre":"DR. OMAR SOTO BECERRIL","tipo":"adscrito","servicio":"CABEZA Y CUELLO"},{"usuario":"DR. JORGE DEL BOSQUE MENDEZ","nombre":"DR. JORGE DEL BOSQUE MENDEZ","tipo":"adscrito","servicio":"CABEZA Y CUELLO"},{"usuario":"DR. EDUARDO MARTINEZ ANTA","nombre":"DR. EDUARDO MARTINEZ ANTA","tipo":"adscrito","servicio":"INTERVENCIONISMO"},{"usuario":"JAIME CALDERA R5CO","nombre":"JAIME CALDERA R5CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"MALENY RUIZ R5CO","nombre":"MALENY RUIZ R5CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"ARIEL JOB DIAZ R5CO","nombre":"ARIEL JOB DIAZ R5CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"NATHALIA GRISALES R5CO","nombre":"NATHALIA GRISALES R5CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"VALERIA RAMIREZ R5CO","nombre":"VALERIA RAMIREZ R5CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"XIMENA VARGAS R5GO","nombre":"XIMENA VARGAS R5GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"GABRIELA ORTIZ R5GO","nombre":"GABRIELA ORTIZ R5GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"DAVID ROMERO R5GO","nombre":"DAVID ROMERO R5GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"CARLOS QUINTERO R5GO","nombre":"CARLOS QUINTERO R5GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"TANIA ACEVEDO R5GO","nombre":"TANIA ACEVEDO R5GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"ROSA NELLY HERRERA R6GO","nombre":"ROSA NELLY HERRERA R6GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"BLANCA MACIAS R6GO","nombre":"BLANCA MACIAS R6GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"ESTEFANIA TASCON R6GO","nombre":"ESTEFANIA TASCON R6GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"EDGAR PADILLA R7GO","nombre":"EDGAR PADILLA R7GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"ELIZABETH ESCALANTE R7GO","nombre":"ELIZABETH ESCALANTE R7GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"ZABDIEL SANCHEZ R6GO","nombre":"ZABDIEL SANCHEZ R6GO","tipo":"residente","servicio":"Ginecología Oncológica"},{"usuario":"JONATHAN MORENO R5OM","nombre":"JONATHAN MORENO R5OM","tipo":"residente","servicio":"Oncología Médica"},{"usuario":"CLAUDIA ALMENDAREZ R6CO","nombre":"CLAUDIA ALMENDAREZ R6CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"DIEGO CARVAJAL R6CO","nombre":"DIEGO CARVAJAL R6CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"JUAN MANUEL NARVAEZ R6CO","nombre":"JUAN MANUEL NARVAEZ R6CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"JHON ERIK SANABRIA R6OCYC","nombre":"JHON ERIK SANABRIA R6OCYC","tipo":"residente","servicio":"Oncología Cabeza y Cuello"},{"usuario":"CARLOS PEREZ R6CO","nombre":"CARLOS PEREZ R6CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"JENNIFFER PLAZA R6CO","nombre":"JENNIFFER PLAZA R6CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"URIEL REYES R7CO","nombre":"URIEL REYES R7CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"LUCERO SOLARES R7CO","nombre":"LUCERO SOLARES R7CO","tipo":"residente","servicio":"Cirugía Oncológica"},{"usuario":"DANIELA HERNANDEZ R5OM","nombre":"DANIELA HERNANDEZ R5OM","tipo":"residente","servicio":"Oncología Médica"},{"usuario":"MARIA JOSE BARRUETA R5OCYC","nombre":"MARIA JOSE BARRUETA R5OCYC","tipo":"residente","servicio":"Oncología Cabeza y Cuello"},{"usuario":"CAROLINA RAMIREZ R5OM","nombre":"CAROLINA RAMIREZ R5OM","tipo":"residente","servicio":"Oncología Médica"},{"usuario":"DR. BYRON SIMMONS","nombre":"DR. BYRON SIMMONS","tipo":"residente","servicio":"Fellow de Laparoscopia Avanzada"}]}/*USUARIOS_BASE_FIN*/;
+function cleanUsers(list){
+  const out=[],seen=new Set();
+  (Array.isArray(list)?list:[]).forEach(x=>{
+    if(!x||typeof x!=="object")return;
+    const usuario=String(x.usuario||"").trim().toLocaleUpperCase("es-MX");if(!usuario)return;
+    const k=normalizeStaffName(usuario);if(!k||seen.has(k))return;seen.add(k);
+    const tipo=x.tipo==="adscrito"?"adscrito":"residente";
+    let servicio=String(x.servicio||"").trim();if(tipo==="adscrito")servicio=servicio.toLocaleUpperCase("es-MX");
+    out.push({usuario,nombre:String(x.nombre||"").trim().toLocaleUpperCase("es-MX")||usuario,tipo,servicio});
+  });
+  return out;
+}
+function applyUsers(list){
+  const u=cleanUsers(list);if(!u.length)return false;
+  HJM_USERS=u;
+  HJM_STAFF.adscritos.splice(0,HJM_STAFF.adscritos.length,...u.filter(x=>x.tipo==="adscrito").map(x=>({clinica:x.servicio,nombre:x.nombre})));
+  HJM_STAFF.residentes.splice(0,HJM_STAFF.residentes.length,...u.filter(x=>x.tipo==="residente").map(x=>x.nombre));
+  try{installStaffDatalists();}catch(_){}
+  try{PICKS.alta.forEach(p=>{
+    if(p.sync==="medico")p.opts.splice(0,p.opts.length,...HJM_STAFF.adscritos.map(x=>x.nombre));
+    else if(p.autoClinic)HJM_STAFF.adscritos.forEach(a=>{if(a.clinica&&!p.opts.includes(a.clinica))p.opts.push(a.clinica);});
+  });}catch(_){}
+  try{if(typeof syncAltaClinicFromAdscrito==="function"&&BUILT.alta)syncAltaClinicFromAdscrito();}catch(_){}
+  return true;
+}
+function usersCacheLoad(){
+  try{const o=JSON.parse(localStorage.getItem(HJM_USERS_LS)||"null");if(o&&Array.isArray(o.usuarios)&&o.usuarios.length)return o;}catch(_){}
+  return null;
+}
+function usersCacheSave(){try{localStorage.setItem(HJM_USERS_LS,JSON.stringify({usuarios:HJM_USERS,mod:HJM_USERS_MOD,lmod:HJM_USERS_LMOD,ts:HJM_USERS_TS}));}catch(_){}}
+(function(){
+  const c=usersCacheLoad(),b=HJM_USERS_BASE,bOk=!!(b&&Array.isArray(b.usuarios)&&b.usuarios.length);
+  if(c&&(!bOk||(+c.ts||0)>=(+b.ts||0))){HJM_USERS_MOD=c.mod||"";HJM_USERS_LMOD=c.lmod||"";HJM_USERS_TS=+c.ts||0;applyUsers(c.usuarios);}
+  else if(bOk){HJM_USERS_TS=+b.ts||0;applyUsers(b.usuarios);}
+  else applyUsers([]);
+})();
+function userRecord(v){
+  const t=normalizeStaffName(v);if(!t)return null;
+  return HJM_USERS.find(u=>normalizeStaffName(u.usuario)===t)||HJM_USERS.find(u=>normalizeStaffName(u.nombre)===t)||null;
+}
+/* Lee la lista de usuarios de Drive si cambió (se llama con la lista de archivos que ya trae la conexión) */
+async function usersRefreshFromFiles(files,force){
+  const f=(Array.isArray(files)?files:[]).find(x=>x&&String(x.name||"").trim()===HJM_USERS_FILE);if(!f)return false;
+  if(!force&&f.modified&&f.modified===HJM_USERS_LMOD)return false;
+  let r;try{r=await call("hjmReadFull",f.id);}catch(_){r={content:await call("hjmRead",f.id),modified:""};}
+  const o=JSON.parse((r&&r.content)||"null");if(!o||!Array.isArray(o.usuarios))return false;
+  if(!applyUsers(o.usuarios))return false;
+  HJM_USERS_MOD=(r&&r.modified)||f.modified||"";HJM_USERS_LMOD=f.modified||"";HJM_USERS_TS=+(o.actualizado&&o.actualizado.ts)||Date.parse(f.modified)||Date.now();usersCacheSave();return true;
+}
+let USERS_FETCH_T=0,USERS_BUSY=false;
+async function usersRefresh(force){
+  if(USERS_BUSY||(!force&&Date.now()-USERS_FETCH_T<60000))return false;
+  if(!apiUrl()||!apiKey())return false;
+  USERS_BUSY=true;USERS_FETCH_T=Date.now();
+  try{return await usersRefreshFromFiles(await call("hjmList",null,{}),force);}catch(_){return false;}finally{USERS_BUSY=false;}
+}
 function normalizeStaffName(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Z0-9]+/gi," ").trim().toUpperCase();}
 function staffAdscrito(value){const target=normalizeStaffName(value);return HJM_STAFF.adscritos.find(x=>normalizeStaffName(x.nombre)===target)||null;}
 function clinicForAdscrito(value){const item=staffAdscrito(String(value||"").split("/")[0]);return item?item.clinica:"";}
@@ -3725,6 +3733,7 @@ let current=null,currentClinical=null;
 const BUILT={};
 /* Listas desplegables dentro de los formatos */
 const PICKS={ alta:[{match:"TUMORES MIXTOS",opts:["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA","INTERVENCIONISMO"],editable:true,autoClinic:true,aria:"Mostrar clínicas disponibles"},{sync:"medico",opts:HJM_STAFF.adscritos.map(x=>x.nombre),editable:true,aria:"Mostrar adscritos disponibles"}] };
+try{applyUsers(HJM_USERS);}catch(_){}   /* v2.151 · refresca opciones con la lista de usuarios vigente */
 function closePick(){ const m=document.querySelector(".pickmenu"); if(m) m.remove(); }
 let _pickT=0;
 function openPick(sp,query=null){
@@ -5498,7 +5507,9 @@ function residentSpecialty(value){if(normalizeStaffName(value)==="DR BYRON SIMMO
 function updateGateClinic(){
   const box=$("residentGateClinic"),v=$("residentGateName").value.trim();
   let lbl="",val="";
-  if(v){const a=staffAdscritoLoose(v.toLocaleUpperCase("es-MX"));if(a){lbl="Clínica";val=a.clinica;}else{const sp=residentSpecialty(v);if(sp){lbl="Especialidad";val=sp;}}}
+  if(v){const rec=userRecord(v);
+    if(rec){lbl=rec.tipo==="adscrito"?"Clínica":"Servicio";val=rec.servicio;}
+    else{const a=staffAdscritoLoose(v.toLocaleUpperCase("es-MX"));if(a){lbl="Clínica";val=a.clinica;}else{const sp=residentSpecialty(v);if(sp){lbl="Especialidad";val=sp;}}}}
   box.hidden=!val;$("residentGateClinicLbl").textContent=lbl;$("residentGateClinicVal").textContent=val;
 }
 ["input","change"].forEach(t=>$("residentGateName").addEventListener(t,updateGateClinic));
@@ -5507,6 +5518,7 @@ function openResidentGate(opt={}){
   $("residentGateKeyRow").hidden=!needsKey;$("residentGateRequest").hidden=!needsKey;$("residentGateKey").required=false;
   $("residentGateKey").value="";$("residentGateName").value=opt.keepName?sessionUserName():"";$("residentGateMsg").textContent="";$("residentGateMsg").classList.remove("ok","info");
   hideGateSuggestions();
+  try{usersRefresh();}catch(_){}
   if(!dlg.open)dlg.showModal();
   updateGateClinic();
   setTimeout(()=>$("residentGateName").focus(),80);
@@ -5529,8 +5541,9 @@ $("residentGateForm").addEventListener("submit",e=>{
 });
 /* Aplica el usuario elegido en la ventana inicial (residente, adscrito o nombre libre = residente) */
 function applyGateUser(name){
-  const entered=String(name||"").trim().toLocaleUpperCase("es-MX"),adscrito=staffAdscritoLoose(entered);
-  SESSION_ADSCRITO=adscrito?adscrito.nombre:"";SESSION_RESIDENT=adscrito?"":entered;applySessionResident();
+  const entered=String(name||"").trim().toLocaleUpperCase("es-MX"),rec=userRecord(entered),adscrito=rec?(rec.tipo==="adscrito"?{nombre:rec.nombre}:null):staffAdscritoLoose(entered);
+  /* Registrado: queda en sesión su NOMBRE COMPLETO (el que se imprime). Nombre libre: se usa tal cual. */
+  SESSION_ADSCRITO=adscrito?adscrito.nombre:"";SESSION_RESIDENT=adscrito?"":(rec?rec.nombre:entered);applySessionResident();
   if(BUILT.alta&&typeof syncAltaClinicFromAdscrito==="function")syncAltaClinicFromAdscrito();
   refresh();
   if(currentClinical&&typeof renderClinicalRecents==="function")renderClinicalRecents(currentClinical);
@@ -5909,7 +5922,7 @@ $("infoClose").onclick=$("infoOk").onclick=()=>$("dlgInfo").close();
 /* v2.52 · Conexión inicial en UNA llamada (hjmInit = carpeta + lista de pacientes). Con el Codigo.gs anterior usa las llamadas de antes. */
 function applyInit(r){
   USER=(r&&r.user)||{shared:true}; FOLDER=(r&&r.folder)||FOLDER;
-  if(r&&Array.isArray(r.files)){ DRIVE_FILES=onlyJsonFiles(r.files); PP_LAST=Date.now(); LIST_FULL=Date.now(); LIST_STAMP=r.stamp==null?null:r.stamp; }
+  if(r&&Array.isArray(r.files)){ DRIVE_FILES=onlyJsonFiles(r.files); PP_LAST=Date.now(); LIST_FULL=Date.now(); LIST_STAMP=r.stamp==null?null:r.stamp; try{ usersRefreshFromFiles(r.files).catch(()=>{}); }catch(_){} }
 }
 async function driveHandshake(fn){
   try{ applyInit(await fn("hjmInit")); }
@@ -7292,7 +7305,8 @@ function prepareClinicalPagination(host){
 function hideGateSuggestions(){const input=$("residentGateName"),list=$("residentGateSuggestions");list.hidden=true;list.replaceChildren();input.setAttribute("aria-expanded","false");input.removeAttribute("aria-activedescendant");}
 function gateUserMatches(value){
  const q=normalizeStaffName(value);if(q.replace(/[^A-Z]/g,"").length<3)return [];
- return [...new Set([...HJM_STAFF.residentes,...HJM_STAFF.adscritos.map(x=>x.nombre)])].filter(name=>q.split(/\s+/).every(term=>normalizeStaffName(name).includes(term)));
+ const terms=q.split(/\s+/),ord=u=>u.tipo==="residente"?0:1;
+ return [...new Set(HJM_USERS.filter(u=>{const h=normalizeStaffName(u.usuario+" "+u.nombre);return terms.every(t=>h.includes(t));}).sort((a,b)=>ord(a)-ord(b)).map(u=>u.usuario))];
 }
 /* Resuelve al enviar el formulario, incluso si el clic cerró la lista al perder el foco. */
 function resolveGateUser(){
@@ -7307,10 +7321,12 @@ function resolveGateUser(){
  }
  chooseGateUser(entered);return entered;
 }
+/* Subtítulo de cada resultado: la clínica (adscrito) o el servicio (residente) */
+function gateSubtitle(name){const r=userRecord(name);return r?(r.servicio||(r.tipo==="adscrito"?"Adscrito":"Residente")):"";}
 function renderGateSuggestions(){
  const input=$("residentGateName"),list=$("residentGateSuggestions"),matches=gateUserMatches(input.value);
  hideGateSuggestions();if(!matches.length)return;
- list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>${matches.length===1?"Clic, Enter o Ingresar para entrar":"Clic para ingresar · Enter para elegir"}</small></button>`).join("");
+ list.innerHTML=matches.map((name,i)=>`<button type="button" role="option" aria-selected="${matches.length===1}" tabindex="-1" id="gate-user-option-${i}" data-gate-user="${esc(name)}"><strong>${esc(name)}</strong><small>${esc(gateSubtitle(name))}</small></button>`).join("");
  list.hidden=false;input.setAttribute("aria-expanded","true");if(matches.length===1)input.setAttribute("aria-activedescendant","gate-user-option-0");
 }
 function chooseGateUser(name){const input=$("residentGateName");input.value=name;hideGateSuggestions();input.dispatchEvent(new Event("change",{bubbles:true}));input.focus();input.setSelectionRange(input.value.length,input.value.length);}
@@ -7461,6 +7477,27 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats .lv{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:800;background:#FDE7E5;color:#B3261E}
 #dlgStats .lv.warn{background:#FFF1D6;color:#8A5A00}
 #dlgStats .st-msg{font-size:12px;margin-top:8px;color:#41556d;white-space:pre-line}
+
+#dlgStats .usr-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+#dlgStats .usr-bar .st-in{flex:1 1 200px;width:auto;min-width:0}
+#dlgStats .usr-bar select.st-in{flex:0 0 auto}
+#dlgStats .usr-head,#dlgStats .usr-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.7fr) 118px minmax(0,1.2fr) 84px;gap:8px;align-items:center}
+#dlgStats .usr-head{font-size:10.5px;font-weight:800;color:#6A7D93;text-transform:uppercase;letter-spacing:.04em;padding:0 8px 4px}
+#dlgStats .usr-list{display:grid;gap:6px;max-height:52vh;overflow:auto;padding-right:2px}
+#dlgStats .usr-row{padding:6px 8px;border:1px solid #EEF3F8;border-radius:12px;background:#fff}
+#dlgStats .usr-row.is-new{border-color:#4F86B8;background:#F3F8FD}
+#dlgStats .usr-row label{display:block;min-width:0;margin:0}
+#dlgStats .usr-row .st-in{padding:7px 9px;font-size:12.5px}
+#dlgStats .usr-row [data-f="usuario"],#dlgStats .usr-row [data-f="nombre"],#dlgStats .usr-row[data-t="adscrito"] [data-f="servicio"]{text-transform:uppercase}
+#dlgStats .usr-del{justify-self:end}
+#dlgStats .u-lbl{display:none;font-size:10.5px;font-weight:800;color:#6A7D93;margin:0 0 2px;text-transform:uppercase;letter-spacing:.03em}
+@media(max-width:720px){
+  #dlgStats .usr-head{display:none}
+  #dlgStats .usr-row{grid-template-columns:112px minmax(0,1fr);gap:8px}
+  #dlgStats .usr-row label:nth-child(1),#dlgStats .usr-row label:nth-child(2){grid-column:1/-1}
+  #dlgStats .usr-del{grid-column:1/-1}
+  #dlgStats .u-lbl{display:block}
+}
 </style>
 <dialog id="dlgStats" aria-labelledby="stTitle"><div class="st-wrap"><div class="st-head"><div style="flex:1"><h2 id="stTitle">Estadísticas de uso</h2><small id="stSub"></small></div><span class="st-stat" id="stStatus"></span><button type="button" class="st-x" id="stClose" aria-label="Cerrar">✕</button></div><div class="st-body" id="stBody"></div></div></dialog>
 <script id="hjm-stats-js">
@@ -7491,7 +7528,8 @@ let dirty=Object.keys(local).length>0, remoteCache=null, period=7, lastSync=0, s
 const pad=n=>String(n).padStart(2,"0");
 const dayKey=t=>{ const d=new Date(t); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
 const userName=()=>String(sessionUserName()||"").toLocaleUpperCase("es-MX").trim();
-const isAdmin=()=>{ const n=normalizeStaffName(sessionUserName()); return (n.includes("JAIME")&&n.includes("CALDERA"))||(n.includes("ROVELO")&&n.includes("LIMA"))||(n.includes("SOSA")&&n.includes("DURAN")); };
+/* v2.151 · Panel del cangrejo: SOLO Jaime Caldera, y solo si su usuario está registrado en la lista de usuarios */
+const isAdmin=()=>{ const n=normalizeStaffName(sessionUserName()); return !!n&&n.includes("JAIME")&&n.includes("CALDERA")&&HJM_USERS.some(u=>normalizeStaffName(u.nombre)===n); };
 function persist(){ try{ const keep=dayKey(Date.now()-400*864e5); Object.keys(local).forEach(k=>{ if(k<keep) delete local[k]; }); LS.set(KEY,JSON.stringify(local)); }catch(_){} }
 function bump(metric,sub,n){ try{ const u=userName(); if(!u) return; const d=(local[dayKey(Date.now())]=local[dayKey(Date.now())]||{}), r=(d[u]=d[u]||{}); n=n||1;
   if(sub!=null){ const o=(r[metric]=r[metric]||{}); o[sub]=(o[sub]||0)+n; } else r[metric]=(r[metric]||0)+n; dirty=true; persist(); }catch(_){} }
@@ -7879,14 +7917,146 @@ function drawBakCard(body){
   };
   draw(); if(bakData===null&&!bakBusy&&!bakMsg) loadBak().then(draw);
 }
+
+/* ---------- v2.151 · Pestaña «Usuarios»: altas, bajas y cambios de adscritos y residentes ---------- */
+let usrDraft=null, usrQ="", usrTipo="", usrMsg="", usrMsgOk=false, usrBusy=false, usrDirty=false, usrSeq=0;
+const USR_CLIN=["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA","INTERVENCIONISMO"];
+const USR_SERV=["Cirugía Oncológica","Ginecología Oncológica","Oncología Cabeza y Cuello","Oncología Médica"];
+const upc=v=>String(v||"").toLocaleUpperCase("es-MX");
+const usrRow=u=>({id:"u"+(++usrSeq),usuario:u.usuario,nombre:u.nombre,tipo:u.tipo,servicio:u.servicio,linked:u.nombre===u.usuario,isNew:false});
+const usrById=id=>(usrDraft||[]).find(r=>r.id===id);
+function usrFromSaved(){ usrDraft=HJM_USERS.map(usrRow); usrDirty=false; }
+function usrOpts(tipo){ const set=new Set(tipo==="adscrito"?USR_CLIN:USR_SERV); HJM_USERS.filter(u=>u.tipo===tipo&&u.servicio).forEach(u=>set.add(u.servicio)); (usrDraft||[]).filter(r=>r.tipo===tipo&&r.servicio.trim()).forEach(r=>set.add(tipo==="adscrito"?upc(r.servicio.trim()):r.servicio.trim())); return [...set]; }
+function usrSorted(){
+  const rows=usrDraft.filter(r=>(!usrTipo||r.tipo===usrTipo)&&(!usrQ||normalizeStaffName(r.usuario+" "+r.nombre+" "+r.servicio).includes(normalizeStaffName(usrQ))));
+  const key=r=>[r.isNew?0:1,r.tipo==="adscrito"?0:1,normalizeStaffName(r.servicio),normalizeStaffName(r.tipo==="adscrito"?r.nombre:r.usuario)];
+  return rows.sort((a,b)=>{ const x=key(a),y=key(b); for(let i=0;i<x.length;i++){ if(x[i]<y[i]) return -1; if(x[i]>y[i]) return 1; } return 0; });
+}
+function usrRowHtml(r){
+  const ad=r.tipo==="adscrito";
+  return `<div class="usr-row${r.isNew?" is-new":""}" data-id="${r.id}" data-t="${r.tipo}">
+    <label><span class="u-lbl">Usuario</span><input class="st-in" data-f="usuario" value="${esc(r.usuario)}" placeholder="Usuario" autocomplete="off" spellcheck="false" aria-label="Usuario"></label>
+    <label><span class="u-lbl">Nombre completo (el que se imprime en los formatos)</span><input class="st-in" data-f="nombre" value="${esc(r.nombre)}" placeholder="Nombre completo" autocomplete="off" spellcheck="false" aria-label="Nombre completo"></label>
+    <label><span class="u-lbl">Tipo</span><select class="st-in" data-f="tipo" aria-label="Adscrito o residente"><option value="adscrito"${ad?" selected":""}>Adscrito</option><option value="residente"${ad?"":" selected"}>Residente</option></select></label>
+    <label><span class="u-lbl" data-slbl>${ad?"Clínica":"Servicio"}</span><input class="st-in" data-f="servicio" value="${esc(r.servicio)}" list="${ad?"usrListAds":"usrListRes"}" placeholder="${ad?"Clínica":"Servicio"}" autocomplete="off" aria-label="Clínica o servicio"></label>
+    <button type="button" class="st-btn st-sm usr-del" data-del="${r.id}">Eliminar</button>
+  </div>`;
+}
+function usrCount(){ const a=usrDraft.filter(r=>r.tipo==="adscrito").length; return `${usrDraft.length} usuarios · ${a} adscritos · ${usrDraft.length-a} residentes`; }
+function usrStatus(){
+  const m=$s("stUsrMsg"),sv=$s("stUsrSave"),rl=$s("stUsrReload"),c=$s("stUsrCount"); if(!m||!sv) return;
+  m.textContent=usrMsg; m.style.color=usrMsgOk?"#2E8B57":""; sv.disabled=usrBusy||!usrDirty; rl.disabled=usrBusy; if(c) c.textContent=usrCount();
+  sv.textContent=usrBusy?"Guardando…":"Guardar cambios";
+}
+function usrDrawList(){
+  const box=$s("stUsrList"); if(!box) return; const rows=usrSorted();
+  box.innerHTML=rows.length?rows.map(usrRowHtml).join(""):'<div class="st-msg">Ningún usuario coincide.</div>'; usrStatus();
+}
+function usrRefreshLists(){
+  const mk=(id,t)=>{ const l=$s(id); if(l) l.innerHTML=usrOpts(t).map(x=>`<option value="${esc(x)}"></option>`).join(""); };
+  mk("usrListAds","adscrito"); mk("usrListRes","residente");
+}
+async function usrReload(silent){
+  if(usrBusy) return; usrBusy=true; usrStatus();
+  try{ if(driveOK()) await usersRefresh(true); }catch(_){}
+  usrBusy=false; usrFromSaved(); if(!silent){ usrMsg="Lista recargada desde Drive."; usrMsgOk=true; }
+  if($s("stUsrList")){ usrRefreshLists(); usrDrawList(); }
+}
+async function usrSave(){
+  if(usrBusy||!usrDirty) return;
+  const rows=usrDraft.map(r=>({usuario:upc(r.usuario).trim(),nombre:upc(r.nombre).trim(),tipo:r.tipo,servicio:(r.tipo==="adscrito"?upc(r.servicio):String(r.servicio||"")).trim()}));
+  rows.forEach(r=>{ if(!r.nombre) r.nombre=r.usuario; });
+  const fail=t=>{ usrMsg=t; usrMsgOk=false; usrStatus(); };
+  if(rows.some(r=>!r.usuario)) return fail("Hay un renglón sin usuario. Complétalo o elimínalo.");
+  const seen=new Map(); for(const r of rows){ const k=normalizeStaffName(r.usuario); if(seen.has(k)) return fail("El usuario «"+r.usuario+"» está repetido. Cada usuario debe ser único."); seen.set(k,1); }
+  if(!rows.some(r=>{ const n=normalizeStaffName(r.nombre); return n.includes("JAIME")&&n.includes("CALDERA"); })) return fail("La lista debe conservar el usuario administrador (Jaime Caldera).");
+  if(!driveOK()) return fail("Sin conexión con Drive: los cambios siguen aquí, pero no se pueden guardar hasta que haya conexión.");
+  usrBusy=true; usrMsg="Guardando en Drive…"; usrMsgOk=false; usrStatus();
+  try{
+    await ensureFolder();
+    const ex=((await G("hjmList",FOLDER.id))||[]).find(f=>f&&String(f.name||"").trim()===HJM_USERS_FILE);
+    if(ex&&!HJM_USERS_MOD){ await usersRefreshFromFiles([ex],true); usrBusy=false; usrFromSaved(); usrRefreshLists(); usrDrawList(); return fail("Ya existía una lista en Drive que este equipo no había cargado. Se cargó; vuelve a hacer tus cambios."); }
+    const wire={app:"solicitudes-hjm",tipo:"hjm-usuarios",v:1,datos:{expediente:"_USUARIOS",nombres:"Usuarios HJM"},usuarios:rows,actualizado:{ts:Date.now(),por:userName()}};
+    const tsNew=wire.actualizado.ts;
+    const res=await G("hjmSave",FOLDER.id,HJM_USERS_FILE,JSON.stringify(wire),JSON.stringify({app:"hjm-usuarios",nombre:"Usuarios HJM",exp:"_usuarios",cama:"",dx:""}),JSON.stringify({forzar:true,base:HJM_USERS_MOD||""}));
+    if(res&&res.conflicto){ await usersRefresh(true); usrBusy=false; usrFromSaved(); usrRefreshLists(); usrDrawList(); return fail("Otro equipo cambió la lista mientras editabas. Se cargó la versión nueva; vuelve a hacer tus cambios."); }
+    applyUsers(rows); HJM_USERS_MOD=(res&&res.modified)||""; HJM_USERS_LMOD=""; HJM_USERS_TS=tsNew; usersCacheSave();
+    usrBusy=false; usrFromSaved(); usrMsg="Guardado en Drive. Los demás equipos lo verán al abrir la app o la ventana de inicio."; usrMsgOk=true;
+    const t=document.querySelector('#dlgStats [data-tab="usr"]'); if(t) t.innerHTML=`Usuarios <span class="st-cnt">${HJM_USERS.length}</span>`;
+    usrRefreshLists(); usrDrawList();
+  }catch(e){ usrBusy=false; fail("No se pudo guardar: "+friendly(e)); }
+}
+/* Respaldo sin internet: baja el index.html con la lista guardada incrustada (para subirlo a GitHub). Solo cambia la línea marcada. */
+async function usrExport(){
+  const note=(t,ok)=>{ usrMsg=t; usrMsgOk=!!ok; usrStatus(); };
+  if(usrDirty) return note("Guarda primero los cambios y luego descarga el index.html.");
+  try{
+    const r=await fetch(location.href.split("#")[0].split("?")[0],{cache:"no-store"}); if(!r.ok) throw new Error("http");
+    const t=await r.text(), A="/*USUARIOS"+"_BASE_INI*/", B="/*USUARIOS"+"_BASE_FIN*/", i=t.indexOf(A), j=t.indexOf(B);
+    if(i<0||j<i) throw new Error("marca");
+    const json=JSON.stringify({ts:HJM_USERS_TS||Date.now(),usuarios:HJM_USERS}).replace(/<\//g,"<\\/");
+    const out=t.slice(0,i+A.length)+json+t.slice(j);
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([out],{type:"text/html"})); a.download="index.html"; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },3000);
+    note("Descargado: sube ese index.html a GitHub para que la lista quede incrustada en la app.",true);
+  }catch(e){ note("No se pudo preparar el archivo desde esta ventana (¿abriste el HTML desde un archivo local?). Ábrelo desde el enlace de GitHub Pages."); }
+}
+function renderUsr(host){
+  if(!usrDraft){ usrFromSaved(); if(driveOK()) usrReload(true); }
+  host.innerHTML=`<div class="st-card"><h3>Usuarios de la app</h3>
+    <div class="st-msg" style="margin:0 0 10px">Aquí se agregan, editan y borran adscritos y residentes. <b>Usuario</b> es lo que se escribe al ingresar; <b>Nombre completo</b> es el que se llena e imprime en los formatos (al escribir el usuario se copia solo, salvo que edites el nombre a mano). Los cambios se aplican al presionar <b>Guardar cambios</b>.</div>
+    <div class="usr-bar"><input class="st-in" id="stUsrQ" type="search" placeholder="Buscar usuario, nombre o servicio…" value="${esc(usrQ)}" autocomplete="off" aria-label="Buscar usuario">
+      <select class="st-in" id="stUsrTipo" aria-label="Filtrar por tipo"><option value="">Todos</option><option value="adscrito"${usrTipo==="adscrito"?" selected":""}>Adscritos</option><option value="residente"${usrTipo==="residente"?" selected":""}>Residentes</option></select>
+      <button type="button" class="st-btn" id="stUsrAdd">+ Agregar usuario</button></div>
+    <div class="usr-bar"><small id="stUsrCount" style="color:#6A7D93"></small><span class="st-msg" id="stUsrMsg" style="margin:0 0 0 auto"></span>
+      <button type="button" class="st-btn" id="stUsrExport" title="Baja una copia del index.html que lleva esta lista incrustada, para subirla a GitHub">Descargar index.html con esta lista</button><button type="button" class="st-btn" id="stUsrReload">Descartar y recargar</button><button type="button" class="st-btn" id="stUsrSave" style="background:#173B5E;border-color:#173B5E;color:#fff">Guardar cambios</button></div>
+    <div class="usr-head" aria-hidden="true"><span>Usuario</span><span>Nombre completo</span><span>Tipo</span><span>Clínica / Servicio</span><span></span></div>
+    <div class="usr-list" id="stUsrList"></div>
+    <datalist id="usrListAds"></datalist><datalist id="usrListRes"></datalist></div>`;
+  usrRefreshLists(); usrDrawList();
+  const list=$s("stUsrList");
+  $s("stUsrQ").oninput=e=>{ usrQ=e.target.value; usrDrawList(); };
+  $s("stUsrTipo").onchange=e=>{ usrTipo=e.target.value; usrDrawList(); };
+  $s("stUsrAdd").onclick=()=>{
+    const r={id:"u"+(++usrSeq),usuario:"",nombre:"",tipo:usrTipo||"residente",servicio:"",linked:true,isNew:true};
+    usrDraft.unshift(r); usrDirty=true; usrQ=""; $s("stUsrQ").value=""; usrMsg=""; usrDrawList();
+    const i=list.querySelector(`[data-id="${r.id}"] [data-f="usuario"]`); if(i){ list.scrollTop=0; i.focus(); }
+  };
+  $s("stUsrReload").onclick=()=>{ if(usrDirty&&!confirm("Se descartarán los cambios sin guardar. ¿Continuar?")) return; usrReload(false); };
+  $s("stUsrSave").onclick=usrSave;
+  $s("stUsrExport").onclick=usrExport;
+  list.addEventListener("input",e=>{
+    const el=e.target.closest("[data-f]"); if(!el) return; const row=el.closest(".usr-row"), r=usrById(row.dataset.id); if(!r) return; const f=el.dataset.f;
+    if(f==="usuario"){ r.usuario=el.value; if(r.linked){ r.nombre=upc(el.value); row.querySelector('[data-f="nombre"]').value=r.nombre; } }
+    else if(f==="nombre"){ r.nombre=el.value; r.linked=upc(r.nombre.trim())===upc(r.usuario.trim()); }
+    else if(f==="servicio"){ r.servicio=el.value; }
+    usrDirty=true; usrMsg=""; usrStatus();
+  });
+  list.addEventListener("change",e=>{
+    const el=e.target.closest("[data-f]"); if(!el) return; const row=el.closest(".usr-row"), r=usrById(row.dataset.id); if(!r) return; const f=el.dataset.f;
+    if(f==="tipo"){
+      r.tipo=el.value; row.dataset.t=r.tipo; const s=row.querySelector('[data-f="servicio"]'), ad=r.tipo==="adscrito";
+      s.setAttribute("list",ad?"usrListAds":"usrListRes"); s.placeholder=ad?"Clínica":"Servicio"; row.querySelector("[data-slbl]").textContent=ad?"Clínica":"Servicio";
+      if(ad){ r.servicio=upc(r.servicio); s.value=r.servicio; } usrDirty=true; usrMsg=""; usrStatus();
+    }else if(f==="usuario"||f==="nombre"){
+      r.usuario=upc(r.usuario); r.nombre=upc(r.nombre); row.querySelector('[data-f="usuario"]').value=r.usuario; row.querySelector('[data-f="nombre"]').value=r.nombre;
+    }else if(f==="servicio"&&r.tipo==="adscrito"){ r.servicio=upc(r.servicio); el.value=r.servicio; }
+    if(f==="servicio") usrRefreshLists();
+  });
+  list.addEventListener("click",e=>{
+    const b=e.target.closest("[data-del]"); if(!b) return;
+    if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar"; b.classList.remove("st-danger"); } },4000); return; }
+    usrDraft=usrDraft.filter(r=>r.id!==b.dataset.del); usrDirty=true; usrMsg=""; usrDrawList();
+  });
+}
 async function render(){
   const body=$s("stBody");
-  const npac=uniqueFiles(DRIVE_FILES).length, nerr=errCount(), tabs=[["stats","Estadísticas"],["pac",`Pacientes <span class="st-cnt">${npac}</span>`],["pend","Pendientes"],["err","Errores"+(nerr?` <span class="st-cnt st-bad" title="Hay elementos con error">${nerr}</span>`:"")]];
+  const npac=uniqueFiles(DRIVE_FILES).length, nerr=errCount(), tabs=[["stats","Estadísticas"],["pac",`Pacientes <span class="st-cnt">${npac}</span>`],["pend","Pendientes"],["err","Errores"+(nerr?` <span class="st-cnt st-bad" title="Hay elementos con error">${nerr}</span>`:"")],["usr",`Usuarios <span class="st-cnt">${HJM_USERS.length}</span>`]];
   let bar=body.querySelector(".st-tabs"); 
   body.innerHTML='<div class="st-tabs">'+tabs.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${tab===k}">${l}</button>`).join("")+'</div><div id="stTab"></div>';
   body.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; render(); });
   const host=$s("stTab"); host.style.display="grid"; host.style.gap="14px";
-  if(tab==="stats") await renderStats(host); else if(tab==="pac") renderPac(host); else if(tab==="pend") renderPend(host); else renderErr(host);
+  if(tab==="stats") await renderStats(host); else if(tab==="pac") renderPac(host); else if(tab==="pend") renderPend(host); else if(tab==="usr") renderUsr(host); else renderErr(host);
 }
 
 /* ---------- Liberación automática de camas ---------- */
@@ -7902,6 +8072,7 @@ async function autoLiberar(){
 setInterval(()=>{ try{ autoLiberar(); }catch(_){} },5000);
 async function openStats(){
   if(!isAdmin()) return;
+  usrDraft=null; usrMsg=""; usrQ=""; usrTipo="";
   const dlg=$s("dlgStats"); $s("stSub").textContent="Solo visible para "+userName();
   if(!PEND_RUN) pendData=null; if(!BAD_RUN) badFiles=null; TASK={stats:false,pac:false,pend:false,err:false}; PROG={}; updStatus();
   $s("stBody").innerHTML='<div class="st-msg">Cargando…</div>'; if(!dlg.open) dlg.showModal();
