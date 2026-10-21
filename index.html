@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.156">
+<meta name="application-version" content="2.157">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2998,7 +2998,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.156 · Fecha de publicación: 20.10.26</div>
+  <div class="app-footer-version">Versión 2.157 · Fecha de publicación: 20.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -7560,9 +7560,15 @@ body.hjm-admin .top > .seal.crab{cursor:pointer}
 #dlgStats .usr-bar .st-in{flex:1 1 220px;width:auto;min-width:0}
 #dlgStats .usr-state{font-size:11.5px;color:#2E8B57;font-weight:600;margin:0 0 10px;min-height:16px}
 #dlgStats .usr-state.warn{color:#B26A00}
+#dlgStats .usr-tabs{display:flex;gap:6px;margin:0 0 10px;border-bottom:1px solid #E3EBF3}
+#dlgStats .usr-tab{font:inherit;font-size:13px;font-weight:800;padding:8px 14px;border:0;border-bottom:3px solid transparent;background:none;color:#6A7D93;cursor:pointer;margin-bottom:-1px}
+#dlgStats .usr-tab.on{color:#173B5E;border-bottom-color:#173B5E}
+#dlgStats .usr-dot{display:inline-block;min-width:16px;padding:0 5px;border-radius:9px;background:#D93025;color:#fff;font-size:10.5px;font-weight:800;text-align:center;line-height:16px}
+#dlgStats .usr-pend{display:inline-block;margin:0 0 3px;padding:1px 8px;border-radius:9px;background:#FFF1D6;color:#8A5A00;font-size:10px;font-weight:800}
+#dlgStats .usr-item.usr-pd{border-color:#F2D79A;background:#FFFBF1}
 #dlgStats .usr-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
 #dlgStats .usr-cols h4{margin:0 0 8px;font-size:13px;color:#173B5E;font-weight:800}
-#dlgStats .usr-list{display:grid;gap:6px;max-height:50vh;overflow:auto;padding-right:2px;align-content:start}
+#dlgStats .usr-list{display:grid;gap:6px;max-height:58vh;overflow:auto;padding-right:2px;align-content:start}
 #dlgStats .usr-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #EEF3F8;border-radius:12px;background:#fff}
 #dlgStats .usr-nm{flex:1;min-width:0}
 #dlgStats .usr-nm b{display:block;font-size:12.5px;color:#173B5E;overflow-wrap:anywhere}
@@ -8013,25 +8019,31 @@ function drawBakCard(body){
 }
 
 /* ---------- v2.154 · Pestaña «Usuarios»: lista por Residentes y Adscritos; Editar abre una ventana encima; todo se guarda solo ---------- */
-let usrQ="";
+let usrQ="",usrSub="residente";
 const USR_CLIN=["TUMORES MIXTOS","MAMA","TUMORES GINECOLÓGICOS","ONCOLOGÍA MÉDICA","CABEZA Y CUELLO","RADIO ONCOLOGÍA","INTERVENCIONISMO"];
 const USR_SERV=["Cirugía Oncológica","Ginecología Oncológica","Oncología Cabeza y Cuello","Oncología Médica"];
 const upc=v=>String(v||"").toLocaleUpperCase("es-MX");
 const usrSortKey=u=>normalizeStaffName(u.nombre).replace(/^DRA? /,"");
 function usrGroup(tipo){
   const q=normalizeStaffName(usrQ);
-  return HJM_USERS.filter(u=>u.tipo===tipo&&(!q||normalizeStaffName(u.usuario+" "+u.nombre+" "+u.servicio).includes(q))).sort((a,b)=>usrSortKey(a).localeCompare(usrSortKey(b),"es"));
+  return HJM_USERS.filter(u=>u.tipo===tipo&&(!q||normalizeStaffName(u.usuario+" "+u.nombre+" "+u.servicio).includes(q))).sort((a,b)=>(usrPend(b)?1:0)-(usrPend(a)?1:0)||usrSortKey(a).localeCompare(usrSortKey(b),"es"));
 }
+/* v2.157 · Usuario aún no integrado al index (solo en este equipo / Drive): "nuevo" si no está en el HTML, "edit" si cambia uno que sí está */
+function usrPend(u){ const k=ukey(u.usuario), o=HJM_OPS[k]; if(!o||o.op!=="set") return ""; const b=BASE_MAP.get(k); return b?(sameUser(b,u)?"":"edit"):"nuevo"; }
 function usrItem(u){
   const k=ukey(u.usuario);
-  return `<div class="usr-item" data-k="${esc(k)}"><div class="usr-nm"><b>${esc(u.nombre)}</b><small>${esc(u.servicio||"Sin servicio")}${u.usuario!==u.nombre?" · Usuario: "+esc(u.usuario):""}</small></div><div class="usr-act"><button type="button" class="st-btn st-sm" data-edit="${esc(k)}">Editar</button><button type="button" class="st-btn st-sm" data-del="${esc(k)}">Borrar</button></div></div>`;
+  const pd=usrPend(u), tag=pd?`<span class="usr-pend" title="Está guardado en este equipo y en Drive, pero el HTML (index) todavía no lo trae: descarga el Index actualizado y súbelo a GitHub.">${pd==="nuevo"?"Nuevo · sin integrar al Index":"Editado · sin integrar al Index"}</span>`:"";
+  return `<div class="usr-item${pd?" usr-pd":""}" data-k="${esc(k)}"><div class="usr-nm">${tag}<b>${esc(u.nombre)}</b><small>${esc(u.servicio||"Sin servicio")}${u.usuario!==u.nombre?" · Usuario: "+esc(u.usuario):""}</small></div><div class="usr-act"><button type="button" class="st-btn st-sm" data-edit="${esc(k)}">Editar</button><button type="button" class="st-btn st-sm" data-del="${esc(k)}">Borrar</button></div></div>`;
 }
 function usrDraw(){
-  const r=$s("stUsrRes"),a=$s("stUsrAds"); if(!r||!a) return;
-  const R=usrGroup("residente"),A=usrGroup("adscrito");
-  r.innerHTML=R.length?R.map(usrItem).join(""):'<div class="st-msg">Sin resultados.</div>';
-  a.innerHTML=A.length?A.map(usrItem).join(""):'<div class="st-msg">Sin resultados.</div>';
-  const nr=$s("stUsrNR"),na=$s("stUsrNA"); if(nr) nr.textContent=HJM_USERS.filter(u=>u.tipo==="residente").length; if(na) na.textContent=HJM_USERS.filter(u=>u.tipo==="adscrito").length;
+  const l=$s("stUsrList"); if(!l) return;
+  const L=usrGroup(usrSub);
+  l.innerHTML=L.length?L.map(usrItem).join(""):'<div class="st-msg">Sin resultados.</div>';
+  [["residente","stUsrTR","Residentes"],["adscrito","stUsrTA","Adscritos"]].forEach(([t,id,nm])=>{
+    const b=$s(id); if(!b) return; const all=HJM_USERS.filter(u=>u.tipo===t), np=all.filter(usrPend).length;
+    b.innerHTML=`${nm} <span class="st-cnt">${all.length}</span>${np?` <span class="usr-dot" title="${np} sin integrar al Index">${np}</span>`:""}`;
+    b.classList.toggle("on",usrSub===t); b.setAttribute("aria-selected",usrSub===t?"true":"false");
+  });
   const t=document.querySelector('#dlgStats [data-tab="usr"]'); if(t) t.innerHTML=`Usuarios <span class="st-cnt">${HJM_USERS.length}</span>`;
   usersStateDraw();
 }
@@ -8069,7 +8081,7 @@ function usrEditor(key,tipoNuevo){
     if(HJM_USERS.some(x=>ukey(x.usuario)===k&&ukey(x.usuario)!==key)) return fail("Ya existe un usuario «"+u+"».");
     const ch=[]; if(key&&k!==key) ch.push({k:key,op:"del"}); ch.push({k,op:"set",u:{usuario:u,nombre:n,tipo:t,servicio:sv}});
     if(!usersChange(ch)) return fail("La lista debe conservar al usuario administrador (Jaime Caldera).");
-    dlg.close(); usrDraw();
+    usrSub=t; dlg.close(); usrDraw();
   };
   dlg.showModal(); U.focus();
 }
@@ -8078,14 +8090,13 @@ function renderUsr(host){
     <div class="st-msg" style="margin:0 0 10px">Los cambios se guardan solos (no hay botón de guardar): quedan en este equipo al instante y se suben a Drive en segundo plano. <b>Usuario</b> es lo que se escribe al ingresar; <b>Nombre completo</b> es el que se llena e imprime en los formatos.</div>
     <div class="usr-bar"><input class="st-in" id="stUsrQ" type="search" placeholder="Buscar por nombre, usuario o servicio…" value="${esc(usrQ)}" autocomplete="off" aria-label="Buscar usuario"><button type="button" class="st-btn" id="stUsrAdd">+ Agregar usuario</button></div>
     <div class="usr-state" id="stUsrState" role="status"></div>
-    <div class="usr-cols">
-      <section><h4>Residentes <span class="st-cnt" id="stUsrNR"></span></h4><div class="usr-list" id="stUsrRes"></div></section>
-      <section><h4>Adscritos <span class="st-cnt" id="stUsrNA"></span></h4><div class="usr-list" id="stUsrAds"></div></section>
-    </div></div>`;
+    <div class="usr-tabs" role="tablist"><button type="button" role="tab" class="usr-tab" id="stUsrTR" data-sub="residente"></button><button type="button" role="tab" class="usr-tab" id="stUsrTA" data-sub="adscrito"></button></div>
+    <div class="usr-list" id="stUsrList"></div></div>`;
   usrDraw();
   $s("stUsrQ").oninput=e=>{ usrQ=e.target.value; usrDraw(); };
-  $s("stUsrAdd").onclick=()=>usrEditor(null);
+  $s("stUsrAdd").onclick=()=>usrEditor(null,usrSub);
   host.addEventListener("click",e=>{
+    const sb=e.target.closest("[data-sub]"); if(sb){ usrSub=sb.dataset.sub; usrDraw(); return; }
     const ed=e.target.closest("[data-edit]"); if(ed){ usrEditor(ed.dataset.edit); return; }
     const b=e.target.closest("[data-del]"); if(!b) return;
     if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Borrar"; b.classList.remove("st-danger"); } },4000); return; }
