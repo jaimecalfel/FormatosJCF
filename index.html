@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.157">
+<meta name="application-version" content="2.158">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2998,7 +2998,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.157 · Fecha de publicación: 20.10.26</div>
+  <div class="app-footer-version">Versión 2.158 · Fecha de publicación: 20.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -4970,13 +4970,13 @@ const PRESETS={
     {label:"Tiempos de Coagulación",mode:"add",color:"blue",cells:["A63","A64"]},
   ],
   labsUrg:[
-    {label:"COMBO",mode:"add",color:"amber",cells:["A27","A61","A17","A51","A25","A59","A22","A56","A19","A53","A20","A54","A14","A48","A21","A55","A23","A57","A24","A58","A12","A46","A13","A47","A18","A52","U10","U44","U11","U45"]},
+    {label:"COMBO",mode:"add",color:"amber",cells:["A27","A61","A17","A51","A25","A59","A22","A56","A19","A53","A20","A54","A14","A48","A21","A55","A23","A57","A24","A58","A12","A46","A13","A47","A18","A52","U10","U44","U11","U45","U13","U47"]},
     {label:"Biometría Hemática",mode:"add",color:"lav",cells:["A27","A61"]},
     {label:"Química Sanguínea",mode:"add",color:"red",cells:["A17","A51","A25","A59","A22","A56"]},
     {label:"Electrolitos Séricos",mode:"add",color:"red",cells:["A19","A53","A20","A54","A14","A48","A21","A55"]},
     {label:"Pruebas de Función Hepática",mode:"add",color:"red",cells:["A23","A57","A24","A58","A12","A46","A13","A47","A18","A52"]},
     {label:"Tiempos de Coagulación",mode:"add",color:"blue",cells:["U10","U44","U11","U45"]},
-    {label:"Gasometría",mode:"add",color:"amber",cells:["AP12","AP13"]},
+    {label:"Gasometría",mode:"add",color:"amber",cells:["U13","U47"]},
   ],
 };
 const ACTIVE={};
@@ -5437,7 +5437,7 @@ function printBlank(){
   window.print(); setTimeout(cleanBlank,600);
 }
 addEventListener("afterprint",cleanBlank);
-$("btnPrintBlank").onclick=printBlank;
+$("btnPrintBlank").onclick=printBlank; guardPrintBtn("btnPrintBlank");
 /* Al imprimir se guarda en segundo plano (solo con Drive): sin ventanas, solo un aviso */
 function autoSaveOnPrint(){
   if(LAST_REQUEST_KEYS.has(current)){
@@ -5450,6 +5450,23 @@ function autoSaveOnPrint(){
   if(STORE==="drive"&&CAN_DRIVE) driveSaveNow({silent:true}).catch(()=>{});
 }
 $("btnPrint").onclick=()=>{if(loadedFormatRecord()){if(current==="repCx"||!viewedClean(current))saveLoadedFormat("edit",true);else printFormatNow();return;}confirmAltaOverwrite(printFormatNow);};
+/* v2.158 · Aviso antes de imprimir con lo principal vacío: laboratorios sin ningún estudio marcado, Rayos X sin estudio, Interconsulta sin servicio */
+function emptyPrintWarning(){
+  try{
+    if(["labsUrg","folio","folioB"].includes(current)){
+      const root=BUILT[current]; if(root&&!root.querySelector('.cb:not([data-gen]) > span.on')) return "No has marcado ningún laboratorio en esta solicitud.";
+    }
+    if(current==="rx"&&!String(captureValue("rx","@study")||"").trim()) return "No has escrito el Estudio solicitado.";
+    if(current==="interconsulta"&&!String(captureValue("interconsulta","@icServicio")||"").trim()) return "No has escrito el Servicio consultado.";
+  }catch(_){}
+  return "";
+}
+function guardPrintBtn(id){
+  const b=$(id); if(!b||!b.onclick) return; const orig=b.onclick;
+  b.onclick=function(ev){ const m=emptyPrintWarning(); if(!m) return orig.call(this,ev);
+    notify(m+" ¿Quieres imprimir de todos modos?","warn",{center:true,ms:60000,actions:[{label:"Imprimir de todos modos",fn:()=>orig.call(b,ev)},{label:"Cancelar",fn:()=>{}}]}); };
+}
+guardPrintBtn("btnPrint");
 async function printFormatNow(alreadySaved=false){ document.activeElement&&document.activeElement.blur(); if(!alreadySaved)autoSaveOnPrint(); if(current==="alta") await prewarmAltaSupp(); addPrintCopies(); window.print(); setTimeout(removePrintCopies,1500); }
 addEventListener("resize",()=>{if(current)fitPaper()});
 
