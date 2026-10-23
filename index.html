@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.166">
+<meta name="application-version" content="2.167">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -3019,7 +3019,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.166 · Fecha de publicación: 20.10.26</div>
+  <div class="app-footer-version">Versión 2.167 · Fecha de publicación: 20.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -7961,13 +7961,12 @@ function dupGroups(){ const g={}; DRIVE_FILES.forEach(f=>{ const k=expKey(fexp(f
 async function drawDup(){
   if(!$s("stDup")) return; const gs=dupGroups();
   const draw=()=>{ const h=$s("stDup"); if(!h) return; const gs2=dupGroups();
-    h.innerHTML=`<h3>Pacientes duplicados <small style="font-weight:500;color:#6A7D93">· ${gs2.length} expediente(s) con más de un archivo</small></h3>${gs2.length?gs2.map(g=>`<div class="st-card" style="margin-top:8px;padding:8px 10px"><b style="color:#173B5E;font-size:12.5px">Exp. ${esc(fexp(g[0]))} · ${esc(String((g[0].meta&&g[0].meta.nombre)||""))}</b><table style="margin-top:4px"><thead><tr><th>Archivo</th><th>Última modificación</th><th>Peso</th><th>Modificó</th><th></th></tr></thead><tbody>${g.slice().sort((a,b)=>fileTime(b)-fileTime(a)).map(f=>{ const d=DET[f.id]; return `<tr><td style="text-align:left;word-break:break-all">${esc(f.name||"")}</td><td>${new Date(fileTime(f)).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}</td><td>${d?(d.size?kb(d.size):"—"):"…"}</td><td>${esc((d&&d.ed)||(f.meta&&f.meta.ed)||"—")}</td><td><button type="button" class="st-btn st-sm" data-ddel="${esc(f.id)}">Eliminar este</button></td></tr>`; }).join("")}</tbody></table></div>`).join(""):'<div class="st-msg">No hay pacientes duplicados.</div>'}${gs2.length?'<div class="st-msg" style="margin-top:8px">La app combina los duplicados sola al guardar a ese paciente. Si eliminas uno a mano, conserva el más reciente o el de mayor peso: lo que solo estaba en el otro se pierde (queda en la papelera de Drive).</div>':""}<div class="st-msg" id="stDupMsg"></div>`;
+    h.innerHTML=`<h3>Pacientes duplicados <small style="font-weight:500;color:#6A7D93">· ${gs2.length} expediente(s) con más de un archivo</small></h3>${gs2.length?gs2.map(g=>`<div class="st-card" style="margin-top:8px;padding:8px 10px"><b style="color:#173B5E;font-size:12.5px">Exp. ${esc(fexp(g[0]))} · ${esc(String((g[0].meta&&g[0].meta.nombre)||""))}</b><table style="margin-top:4px"><thead><tr><th>Archivo</th><th>Última modificación</th><th>Peso</th><th>Modificó</th><th></th></tr></thead><tbody>${g.slice().sort((a,b)=>fileTime(b)-fileTime(a)).map(f=>{ const d=DET[f.id]; return `<tr><td style="text-align:left;word-break:break-all">${esc(f.name||"")}</td><td>${new Date(fileTime(f)).toLocaleString("es-MX",{dateStyle:"short",timeStyle:"short"})}</td><td>${d?(d.size?kb(d.size):"—"):"…"}</td><td>${esc((d&&d.ed)||(f.meta&&f.meta.ed)||"—")}</td><td>${eqBusy("d"+f.id)?'<button type="button" class="st-btn st-sm" disabled>En cola…</button>':`<button type="button" class="st-btn st-sm" data-ddel="${esc(f.id)}">Eliminar este</button>`}</td></tr>`; }).join("")}</tbody></table></div>`).join(""):'<div class="st-msg">No hay pacientes duplicados.</div>'}${gs2.length?'<div class="st-msg" style="margin-top:8px">La app combina los duplicados sola al guardar a ese paciente. Si eliminas uno a mano, conserva el más reciente o el de mayor peso: lo que solo estaba en el otro se pierde (queda en la papelera de Drive).</div>':""}<div class="st-msg" id="stDupMsg"></div>`;
     h.querySelectorAll("[data-ddel]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()) return;
       if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar este"; b.classList.remove("st-danger"); } },4000); return; }
-      const f=DRIVE_FILES.find(x=>x.id===b.dataset.ddel); b.disabled=true; b.textContent="…";
-      try{ await G("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); try{ renderPP(); }catch(_){} await syncRemote({borrados:[{ts:Date.now(),by:userName(),exp:fexp(f),nombre:"(duplicado) "+String((f.meta&&f.meta.nombre)||"")}]}); }
-      catch(e){ const m=$s("stDupMsg"); if(m) m.textContent="No se pudo eliminar: "+friendly(e); }
-      draw(); if($s("stPacTbl")) pacRows(); }); };
+      const f=DRIVE_FILES.find(x=>x.id===b.dataset.ddel); if(!f) return;
+      eqAdd("d"+f.id,"Eliminar duplicado Exp. "+fexp(f),async()=>{ await G("hjmBorrarDuplicado",f.id); DRIVE_FILES=DRIVE_FILES.filter(x=>x.id!==f.id); await syncRemote({borrados:[{ts:Date.now(),by:userName(),exp:fexp(f),nombre:"(duplicado) "+String((f.meta&&f.meta.nombre)||"")}]}); },()=>{ try{ renderPP(); }catch(_){} draw(); if($s("stPacTbl")) pacRows(); });
+      draw(); }); };
   draw();
   const fs=gs.flat().filter(f=>!DET[f.id]); let i=0; const w=async()=>{ while(i<fs.length){ const f=fs[i++]; try{ await loadDet(f); }catch(_){ DET[f.id]={size:0,ed:"",edTs:0}; } draw(); } }; await Promise.all([w(),w(),w()]);
 }
@@ -8071,22 +8070,33 @@ async function scanBad(msg,force){
   catch(e){ if(noAccion(e)) BADERR="Para ver los archivos .error de PendientesJCF falta actualizar Codigo.gs a la versión 8."; }
   return bad;
 }
+/* ---------- v2.167 · Cola de acciones de la pestaña Errores: se pueden pedir varias (corregir, borrar, restaurar…) y se hacen una tras otra ---------- */
+const EQ={chain:Promise.resolve(),total:0,done:0,cur:"",fails:[],keys:new Set()};
+const eqBusy=k=>EQ.keys.has(k);
+function eqDraw(){ const h=document.getElementById("stEQ"); if(!h) return; const left=EQ.total-EQ.done;
+  h.style.display=EQ.total?"":"none"; if(!EQ.total){ h.innerHTML=""; return; }
+  h.innerHTML=`<h3>Cola de acciones <small style="font-weight:500;color:#6A7D93">· ${left?`${EQ.done} de ${EQ.total} hechas · ${left} pendiente(s)`:`${EQ.total} hecha(s)`}</small></h3><div class="st-msg" style="margin:0">${left?"Ahora: "+esc(EQ.cur||"…")+". Puedes seguir agregando acciones; se hacen en orden.":"Listo."}${EQ.fails.length?`<br><b>No se pudieron:</b> ${EQ.fails.map(esc).join("; ")}`:""}</div>`; }
+function eqAdd(key,label,fn,after){
+  if(EQ.keys.has(key)) return; if(EQ.total===EQ.done){ EQ.total=EQ.done=0; EQ.fails=[]; }
+  EQ.keys.add(key); EQ.total++; eqDraw();
+  EQ.chain=EQ.chain.then(async()=>{ EQ.cur=label; eqDraw(); let err=null; try{ await bg(fn); }catch(e){ err=e; EQ.fails.push(label+": "+friendly(e)); }
+    EQ.keys.delete(key); EQ.done++; try{ after&&after(err); }catch(_){} eqDraw(); });
+}
 function renderErr(body){
   const all=[]; Object.entries((remoteCache&&remoteCache.errs)||{}).forEach(([d,l])=>{ if(d!==dev&&Array.isArray(l)) l.forEach(x=>all.push(Object.assign({d},x))); }); errLocal.forEach(x=>all.push(Object.assign({d:dev},x)));
   all.sort((a,b)=>b.ts-a.ts); const sh=all.slice(0,100);
-  body.innerHTML=`<div class="st-card" id="stDup"></div>`;
-  drawDup();
+  body.innerHTML=`<div class="st-card" id="stEQ" style="display:none"></div><div class="st-card" id="stDup"></div>`;
+  eqDraw(); drawDup();
   const card=document.createElement("div"); card.className="st-card"; body.appendChild(card);
   const rm=async x=>{ await G(x.extra?"hjmBorrarPendienteExtra":(x.where==="Pendientes"?"hjmBorrarPendiente":"hjmBorrarDuplicado"),x.id); DRIVE_FILES=DRIVE_FILES.filter(f=>f.id!==x.id); };
-  const drawBad=(busy)=>{ card.innerHTML=`<h3>Archivos no viables ${badFiles?`<small style="font-weight:500;color:#6A7D93">· ${badFiles.length} encontrado(s)</small>`:""}</h3><div class="st-msg" style="margin:0 0 8px">Se revisan solos al abrir esta pestaña: archivos dañados, de otro formato (.bak, .doc, .error…) o que no corresponden a la app, en pacientes y pendientes. Los respaldos de la carpeta de respaldo se revisan abajo.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${badFiles&&badFiles.length?'<button type="button" class="st-btn" id="stBadAll">Eliminar todos</button>':""}<span class="st-msg" id="stBadMsg" style="margin:0">${busy?"Revisando…":esc(BADERR)}</span></div>${badFiles?(badFiles.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Carpeta</th><th>Nombre del archivo</th><th>Problema</th><th></th></tr></thead><tbody>${badFiles.map((x,i)=>`<tr><td>${x.where}</td><td style="text-align:left;word-break:break-all">${esc(x.name||"")}</td><td style="text-align:left">${esc(x.why)}</td><td><button type="button" class="st-btn st-sm" data-bdel="${i}">Eliminar</button></td></tr>`).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Todos los archivos revisados son viables.</div>'):""}`;
+  const drawBad=(busy)=>{ card.innerHTML=`<h3>Archivos no viables ${badFiles?`<small style="font-weight:500;color:#6A7D93">· ${badFiles.length} encontrado(s)</small>`:""}</h3><div class="st-msg" style="margin:0 0 8px">Se revisan solos al abrir esta pestaña: archivos dañados, de otro formato (.bak, .doc, .error…) o que no corresponden a la app, en pacientes y pendientes. Los respaldos de la carpeta de respaldo se revisan abajo.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${badFiles&&badFiles.length?'<button type="button" class="st-btn" id="stBadAll">Eliminar todos</button>':""}<span class="st-msg" id="stBadMsg" style="margin:0">${busy?"Revisando…":esc(BADERR)}</span></div>${badFiles?(badFiles.length?`<div class="st-tw" style="margin-top:8px"><table><thead><tr><th>Carpeta</th><th>Nombre del archivo</th><th>Problema</th><th></th></tr></thead><tbody>${badFiles.map((x,i)=>`<tr><td>${x.where}</td><td style="text-align:left;word-break:break-all">${esc(x.name||"")}</td><td style="text-align:left">${esc(x.why)}</td><td>${eqBusy("b"+x.id)?'<button type="button" class="st-btn st-sm" disabled>En cola…</button>':`<button type="button" class="st-btn st-sm" data-bdel="${i}">Eliminar</button>`}</td></tr>`).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Todos los archivos revisados son viables.</div>'):""}`;
 
-    const all=$s("stBadAll"); if(all) all.onclick=async()=>{ if(!isAdmin()) return;
-      if(!all.dataset.ok){ all.dataset.ok="1"; all.textContent=`¿Eliminar los ${badFiles.length}?`; all.classList.add("st-danger"); setTimeout(()=>{ if(all.isConnected){ delete all.dataset.ok; all.textContent="Eliminar todos"; all.classList.remove("st-danger"); } },5000); return; }
-      all.disabled=true; const fails=[]; let i=0; await bg(async()=>{ for(const x of [...badFiles]){ i++; $s("stBadMsg").textContent=`Eliminando ${i} de ${badFiles.length+fails.length}…`; try{ await rm(x); badFiles=badFiles.filter(y=>y!==x); }catch(e){ fails.push(x.name+": "+friendly(e)); } } });
-      try{ renderPP(); }catch(_){} drawBad(); $s("stBadMsg").textContent=fails.length?"No se pudieron eliminar: "+fails.join("; "):"Listo."; };
-    card.querySelectorAll("[data-bdel]").forEach(b=>b.onclick=async()=>{ const x=badFiles[+b.dataset.bdel]; if(!isAdmin()) return;
+    const all=$s("stBadAll"); if(all) all.onclick=()=>{ if(!isAdmin()) return; const todo=(badFiles||[]).filter(x=>!eqBusy("b"+x.id)); if(!todo.length) return;
+      if(!all.dataset.ok){ all.dataset.ok="1"; all.textContent=`¿Eliminar los ${todo.length}?`; all.classList.add("st-danger"); setTimeout(()=>{ if(all.isConnected){ delete all.dataset.ok; all.textContent="Eliminar todos"; all.classList.remove("st-danger"); } },5000); return; }
+      todo.forEach(x=>eqAdd("b"+x.id,"Eliminar "+(x.name||"archivo"),async()=>{ await rm(x); },err=>{ if(!err) badFiles=(badFiles||[]).filter(y=>y!==x); try{ renderPP(); }catch(_){} drawBad(); })); drawBad(); };
+    card.querySelectorAll("[data-bdel]").forEach(b=>b.onclick=()=>{ const x=badFiles[+b.dataset.bdel]; if(!x||!isAdmin()) return;
       if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Eliminar"; b.classList.remove("st-danger"); } },4000); return; }
-      try{ await rm(x); badFiles.splice(+b.dataset.bdel,1); try{ renderPP(); }catch(_){} drawBad(); }catch(e){ drawBad(); $s("stBadMsg").textContent="No se pudo eliminar: "+friendly(e); } }); };
+      eqAdd("b"+x.id,"Eliminar "+(x.name||"archivo"),async()=>{ await rm(x); },err=>{ if(!err) badFiles=(badFiles||[]).filter(y=>y!==x); try{ renderPP(); }catch(_){} drawBad(); }); drawBad(); }); };
   const run=()=>{ badFiles=null; startBad(true,true); drawBad(true); };
   if(badFiles===null&&!BAD_RUN) startBad(); drawBad(BAD_RUN||badFiles===null);
   drawAdsCard(body);
@@ -8121,20 +8131,23 @@ async function fixAdsFile(f,k,nuevo){
 }
 function drawAdsCard(body){
   const card=document.createElement("div"); card.className="st-card"; card.id="stAdsCard"; body.appendChild(card);
-  let msg="", busy=false;
+  let msg="", chosen={};
   const opts=(sel)=>{ const by=new Map(); HJM_USERS.filter(u=>u.tipo==="adscrito").forEach(u=>{ const c=u.servicio||"Sin clínica"; (by.get(c)||by.set(c,[]).get(c)).push(u.nombre); });
     return `<option value="">Elige el adscrito…</option>`+[...by.keys()].sort(ppClinCmp).map(c=>`<optgroup label="${esc(c)}">${by.get(c).sort((a,b)=>a.localeCompare(b,"es")).map(n=>`<option value="${esc(n)}"${n===sel?" selected":""}>${esc(n)}</option>`).join("")}</optgroup>`).join(""); };
   const draw=()=>{ if(!card.isConnected) return; const gs=adsGroups(), run=ANA_RUN;
+    const pend=o=>eqBusy("a"+o.k);
     card.innerHTML=`<h3>Adscritos que no coinciden <small style="font-weight:500;color:#6A7D93">· ${gs.length} nombre(s)</small></h3>
     <div class="st-msg" style="margin:0 0 8px">Pacientes cuyo adscrito está escrito distinto a los de la lista de Usuarios. Elige con quién coincide y presiona «Corregir»: se cambia en todos los pacientes de esa fila.</div>
     <div class="st-msg" id="stAdsMsg" style="margin:0 0 6px">${run?"Analizando pacientes… ":""}${esc(msg)}</div>
-    ${gs.length?`<div class="st-tw"><table><thead><tr><th>Nombre erróneo</th><th>Pacientes</th><th>Coincide con</th><th></th></tr></thead><tbody>${gs.map((o,i)=>`<tr><td style="text-align:left"><b>${esc(o.txt)}</b></td><td title="${esc(o.files.map(f=>fexp(f)).join(", "))}">${o.files.length}</td><td style="text-align:left"><select class="st-in" data-asel="${i}">${opts(o.sug)}</select></td><td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-afix="${i}">Corregir</button></td></tr>`).join("")}</tbody></table></div>`:(run?"":'<div class="st-msg">Todos los adscritos coinciden con la lista.</div>')}`;
-    card.querySelectorAll("[data-afix]").forEach(b=>b.onclick=async()=>{ if(!isAdmin()||busy) return; const o=gs[+b.dataset.afix], nuevo=(card.querySelector(`[data-asel="${b.dataset.afix}"]`)||{}).value||"";
+    ${gs.length?`<div class="st-tw"><table><thead><tr><th>Nombre erróneo</th><th>Pacientes</th><th>Coincide con</th><th></th></tr></thead><tbody>${gs.map((o,i)=>`<tr><td style="text-align:left"><b>${esc(o.txt)}</b></td><td title="${esc(o.files.map(f=>fexp(f)).join(", "))}">${o.files.length}</td><td style="text-align:left"><select class="st-in" data-asel="${i}"${pend(o)?" disabled":""}>${opts(chosen[o.k]||o.sug)}</select></td><td style="white-space:nowrap">${pend(o)?'<button type="button" class="st-btn st-sm" disabled>En cola…</button>':`<button type="button" class="st-btn st-sm" data-afix="${i}">Corregir</button>`}</td></tr>`).join("")}</tbody></table></div>`:(run?"":'<div class="st-msg">Todos los adscritos coinciden con la lista.</div>')}`;
+    card.querySelectorAll("[data-asel]").forEach(sel=>sel.onchange=()=>{ const o=gs[+sel.dataset.asel]; if(o) chosen[o.k]=sel.value; });
+    card.querySelectorAll("[data-afix]").forEach(b=>b.onclick=()=>{ if(!isAdmin()) return; const o=gs[+b.dataset.afix], nuevo=(card.querySelector(`[data-asel="${b.dataset.afix}"]`)||{}).value||"";
       if(!nuevo){ msg="Elige primero el adscrito correcto de la lista."; draw(); return; }
       if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent="Corregir"; b.classList.remove("st-danger"); } },4000); return; }
-      busy=true; b.disabled=true; let ok=0; const skip=[]; let i=0;
-      await bg(async()=>{ for(const f of o.files){ i++; $s("stAdsMsg").textContent=`Corrigiendo ${i} de ${o.files.length}…`; try{ const r=await fixAdsFile(f,o.k,nuevo); if(r==="ok") ok++; else skip.push(fexp(f)+" ("+(r==="abierto"?"abierto en pantalla":r==="conflicto"?"lo editaron mientras tanto":r)+")"); }catch(e){ skip.push(fexp(f)+" ("+friendly(e)+")"); } } });
-      busy=false; try{ renderPP(); }catch(_){} msg=`${o.txt} → ${nuevo}: ${ok} paciente(s) corregido(s).`+(skip.length?" Sin corregir: "+skip.join("; "):""); draw(); });
+      chosen[o.k]=nuevo; let ok=0; const skip=[];
+      eqAdd("a"+o.k,`Adscrito «${o.txt}» → ${nuevo} (${o.files.length} paciente(s))`,async()=>{ for(const f of o.files){ try{ const r=await fixAdsFile(f,o.k,nuevo); if(r==="ok") ok++; else skip.push(fexp(f)+" ("+(r==="abierto"?"abierto en pantalla":r==="conflicto"?"lo editaron mientras tanto":r)+")"); }catch(e){ skip.push(fexp(f)+" ("+friendly(e)+")"); } } },
+        ()=>{ try{ renderPP(); }catch(_){} msg=`${o.txt} → ${nuevo}: ${ok} corregido(s).`+(skip.length?" Sin corregir: "+skip.join("; "):""); draw(); });
+      draw(); });
   };
   draw(); if(ANA_RUN||!uniqueFiles(DRIVE_FILES).every(f=>PCACHE[f.id])) analyzeAll().then(()=>draw()).catch(()=>draw());
 }
@@ -8198,14 +8211,12 @@ function drawBakCard(body){
       return `<tr><td style="text-align:left"><b>${esc(x.exp||"—")}</b><br><small style="color:#6A7D93">${esc(String((o&&o.nombre)||"").slice(0,34))}</small></td>
       <td style="text-align:left;word-break:break-all">${o?`${esc(o.name)}<br><small style="color:#6A7D93">${when(o.modified)}</small>`:'<span class="lv warn">sin JSON original</span>'}</td><td>${o?kb(o.size):"—"}</td>
       <td style="text-align:left;word-break:break-all">${esc(x.name)}<br><small style="color:#6A7D93">${when(x.modified)}</small></td><td>${kb(x.size)}${mas?' <span class="lv warn" title="El respaldo pesa más que el JSON actual">mayor</span>':menos?' <small style="color:#6A7D93">menor</small>':""}</td>
-      <td style="white-space:nowrap"><button type="button" class="st-btn st-sm" data-brest="${i}">Restaurar respaldo</button> <button type="button" class="st-btn st-sm" data-bbak="${i}">Borrar respaldo</button></td></tr>`; }).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Sin respaldos'+(q?" que coincidan.":".")+'</div>'):""}`;
+      <td style="white-space:nowrap">${eqBusy("k"+x.id)||eqBusy("r"+x.id)?'<button type="button" class="st-btn st-sm" disabled>En cola…</button>':`<button type="button" class="st-btn st-sm" data-brest="${i}">Restaurar respaldo</button> <button type="button" class="st-btn st-sm" data-bbak="${i}">Borrar respaldo</button>`}</td></tr>`; }).join("")}</tbody></table></div>`:'<div class="st-msg" style="margin-top:8px">Sin respaldos'+(q?" que coincidan.":".")+'</div>'):""}`;
     const two=(b,label,fn)=>{ if(!isAdmin()) return; if(!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Seguro?"; b.classList.add("st-danger"); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.ok; b.textContent=label; b.classList.remove("st-danger"); } },4000); return; } fn(); };
-    card.querySelectorAll("[data-brest]").forEach(b=>b.onclick=()=>two(b,"Restaurar respaldo",async()=>{ const x=bakRows[+b.dataset.brest]; if(!x) return; b.disabled=true; bakMsg="Restaurando "+x.name+"…"; draw();
-      try{ await bg(async()=>{ await G("hjmRestaurarRespaldo",x.id); try{ PP_LAST=0; await loadPatients({fresco:true}); }catch(_){} await loadBak(); }); bakMsg="Respaldo restaurado: "+x.name; }
-      catch(e){ bakMsg=noAccion(e)?"Falta actualizar Codigo.gs a la versión 7.":"No se pudo restaurar: "+friendly(e); } draw(); }));
-    card.querySelectorAll("[data-bbak]").forEach(b=>b.onclick=()=>two(b,"Borrar respaldo",async()=>{ const x=bakRows[+b.dataset.bbak]; if(!x) return; b.disabled=true;
-      try{ await bg(async()=>{ await G("hjmBorrarRespaldo",x.id); }); bakData=bakData.filter(y=>y.id!==x.id); bakMsg="Respaldo enviado a la papelera: "+x.name; }
-      catch(e){ bakMsg=noAccion(e)?"Falta actualizar Codigo.gs a la versión 7.":"No se pudo borrar: "+friendly(e); } draw(); }));
+    card.querySelectorAll("[data-brest]").forEach(b=>b.onclick=()=>two(b,"Restaurar respaldo",()=>{ const x=bakRows[+b.dataset.brest]; if(!x) return;
+      eqAdd("r"+x.id,"Restaurar "+x.name,async()=>{ await G("hjmRestaurarRespaldo",x.id); try{ PP_LAST=0; await loadPatients({fresco:true}); }catch(_){} await loadBak(); },err=>{ bakMsg=err?(noAccion(err)?"Falta actualizar Codigo.gs a la versión 7.":"No se pudo restaurar: "+friendly(err)):"Respaldo restaurado: "+x.name; draw(); }); draw(); }));
+    card.querySelectorAll("[data-bbak]").forEach(b=>b.onclick=()=>two(b,"Borrar respaldo",()=>{ const x=bakRows[+b.dataset.bbak]; if(!x) return;
+      eqAdd("k"+x.id,"Borrar respaldo "+x.name,async()=>{ await G("hjmBorrarRespaldo",x.id); bakData=(bakData||[]).filter(y=>y.id!==x.id); },err=>{ bakMsg=err?(noAccion(err)?"Falta actualizar Codigo.gs a la versión 7.":"No se pudo borrar: "+friendly(err)):"Respaldo enviado a la papelera: "+x.name; draw(); }); draw(); }));
   };
   draw(); if(bakData===null&&!bakBusy&&!bakMsg) loadBak().then(draw);
 }
