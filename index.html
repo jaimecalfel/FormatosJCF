@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.165">
+<meta name="application-version" content="2.166">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -3019,7 +3019,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.165 · Fecha de publicación: 20.10.26</div>
+  <div class="app-footer-version">Versión 2.166 · Fecha de publicación: 20.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -3440,6 +3440,7 @@ $("medico").addEventListener("change",()=>clinSync(false));
   const input=$("clinica"), list=$("clinica-list"); if(!input||!list) return;
   const hide=()=>{ list.hidden=true; input.setAttribute("aria-expanded","false"); list.dataset.active="-1"; };
   const suggest=()=>{
+    if(document.activeElement!==input){ hide(); return; }
     const words=normalizeStaffName(clinicalOtherToken(input).query).split(" ").filter(Boolean);
     const already=new Set(input.value.split("/").map(p=>normalizeStaffName(p)));
     const items=clinCatalog().filter(c=>words.every(w=>c.k.includes(w))&&(!already.has(c.k)||words.join(" ")===c.k));
