@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Oncología · Hospital Juárez de México</title>
-<meta name="application-version" content="2.158">
+<meta name="application-version" content="2.159">
 <link rel="icon" type="image/png" sizes="32x32" href="data:," data-logo-link="crab">
 <link rel="icon" type="image/png" sizes="64x64" href="data:," data-logo-link="crab">
 <link rel="apple-touch-icon" sizes="180x180" href="data:," data-logo-link="crab">
@@ -2751,6 +2751,13 @@ body.pp-browse .pp-view-btns{display:inline-flex;align-items:center;gap:4px;marg
 .pp-actions .pp-view-btns button{width:auto;height:28px;padding:0 11px;border:1px solid rgba(128,148,170,.55);border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:700;line-height:1;display:inline-flex;align-items:center;white-space:nowrap}
 .pp-actions .pp-view-btns button[aria-pressed="true"]{background:var(--navy,#173B5E);border-color:var(--navy,#173B5E);color:#fff}
 .pp-actions .pp-view-btns button[aria-pressed="false"]:hover{background:rgba(128,148,170,.18)}
+.pp-filt{display:none}
+body.pp-browse .pp-filt{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:6px 14px;border-top:1px solid rgba(128,148,170,.3);font-size:12px;font-weight:700}
+.pp-filt label{display:inline-flex;align-items:center;gap:6px}
+.pp-filt select{font:inherit;font-size:12px;font-weight:600;max-width:min(60vw,260px);padding:4px 8px;border:1px solid rgba(128,148,170,.55);border-radius:8px;background:#fff;color:#1B2230}
+.pp-filt select.on{border-color:var(--navy,#173B5E);box-shadow:0 0 0 1px var(--navy,#173B5E)}
+.pp-filt button{height:26px;padding:0 10px;border:1px solid rgba(128,148,170,.55);border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:11.5px;font-weight:700;cursor:pointer}
+.pp-filt button:hover{background:rgba(128,148,170,.18)}
 </style>
 <style id="pp-grid-v2111">
 /* v2.111 · Buscar paciente (inicio): tarjetas dentro de la página, 6×5, círculo de cama (solo vista Cama) */
@@ -2880,6 +2887,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
           <button type="button" id="ppToggle" title="Mostrar u ocultar la lista" aria-label="Mostrar u ocultar la lista" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
         </span>
       </div>
+      <div class="pp-filt" id="ppFilt" role="group" aria-label="Filtros de la lista de pacientes"><label>Adscrito<select id="ppFAds" aria-label="Filtrar por adscrito"></select></label><label>Clínica<select id="ppFClin" aria-label="Filtrar por clínica"></select></label><button type="button" id="ppFClr" hidden title="Quitar el filtro de adscrito y clínica">✕ Borrar filtro</button></div>
       <div class="pp-body" id="ppBody"><div class="pp-list" id="ppList"><div class="dlg-empty">Cargando…</div></div><div class="pp-more-wrap"><button type="button" id="ppMore" class="pp-more" hidden>Ver más</button></div></div>
     </section>
     <nav class="secnav" id="secNav" aria-label="Ir a una sección de la hoja de datos"></nav>
@@ -2998,7 +3006,7 @@ body.pp-browse #pPanel.pp-xl .pp-list .dlg-item.has-bed{align-items:center;gap:1
   </div>
 
   <footer class="app-footer" aria-label="Información de la aplicación">
-  <div class="app-footer-version">Versión 2.158 · Fecha de publicación: 20.10.26</div>
+  <div class="app-footer-version">Versión 2.159 · Fecha de publicación: 20.10.26</div>
     <p>Página creada por Jaime Caldera Félix en colaboración con el Servicio de Oncología del Hospital Juárez de México.</p>
     <p>Los datos viajan por conexión segura (HTTPS) y se almacenan en la cuenta de Google Drive del Servicio de Oncología del Hospital Juárez de México; el acceso está protegido con clave.</p>
     <p id="hjmOffInfo" role="status" hidden></p>
@@ -5259,7 +5267,7 @@ async function goHome(){
           const ok=await driveSaveNow({silent:true}).catch(()=>false);
           if(!ok){ notify("No se pudo guardar al paciente. Los datos se conservaron para no perderlos.","warn"); return; }
         } else {
-          const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
+          const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100),adscrito:String(d.medico||"").trim().slice(0,80)};
           const baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null;
           outboxAdd(name,collect(),meta,baseSnap); bg=true;
         }
@@ -5643,7 +5651,7 @@ function idleLock(){
   if(Date.now()-LAST_ACTIVITY<IDLE_MS)return false;
   LAST_ACTIVITY=Date.now();
   if(current){try{captureCurrentRecent();}catch(_){}}
-  SESSION_ADSCRITO="";SESSION_RESIDENT="";IDLE_LOCKED=true;
+  SESSION_ADSCRITO="";SESSION_RESIDENT="";IDLE_LOCKED=true;try{ppFiltClear();}catch(_){}
   openResidentGate();
   gateStatus("La sesión se cerró por 10 minutos sin uso. Escribe el usuario actual para continuar.","info");
   return true;
@@ -5656,7 +5664,7 @@ addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"
 addEventListener("focus",()=>idleLock());
 addEventListener("afterprint",()=>{LAST_ACTIVITY=Date.now();});
 function gateStatus(text,state){const m=$("residentGateMsg");if(!m)return;m.textContent=text||"";m.classList.toggle("ok",state==="ok");m.classList.toggle("info",state==="info");}
-$("bandExit").onclick=async()=>{
+$("bandExit").onclick=async()=>{ try{ppFiltClear();}catch(_){}
   if(EXITING)return;EXITING=true;
   try{
     if(current){try{captureCurrentRecent();}catch(_){}}
@@ -6113,7 +6121,7 @@ async function driveSaveNow(opt={}){
   if(opt.silent&&(!apiUrl()||!apiKey())){ notify("No se guardó en Drive: falta conectar con la clave de acceso.","warn"); return false; }
   SAVING=true; renderSync();                                         // v2.52 · el estado se ve en la cinta del paciente (sin aviso emergente)
   const name=fileName(d), key=expKey(d.expediente), baseSnap=LOADED_BASE&&LOADED_BASE.k===key?jclone(LOADED_BASE):null; window.__savingKey=key;
-  const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100)};
+  const meta={app:"solicitudes-hjm",nombre:(d.nombreCompleto||"").slice(0,100),exp:d.expediente.slice(0,60),cama:(d.cama||"").trim().slice(0,20),dx:(d.diagnostico||"").slice(0,100),adscrito:String(d.medico||"").trim().slice(0,80)};
   let payload=null;
   try{
     if(outboxCount()) await flushOutbox({quiet:true});                 // primero lo pendiente de este navegador, para no perderlo
@@ -6364,8 +6372,9 @@ document.addEventListener("click",e=>{
   PP_VIEW=b.dataset.ppView; ppSyncViewBtns(); renderPP(); $("ppList").scrollTop=0;
 });
 const ppOn=()=>STORE==="drive"&&CAN_DRIVE&&!!USER&&!!apiKey();
-const ppBrowseWanted=()=>PP_BROWSE&&STORE==="drive"&&CAN_DRIVE&&!!apiKey()&&!CONNECT_FAIL;
-function ppVisibility(){ const el=$("pPanel"); if(el) el.hidden=!(ppOn()||(ppBrowseWanted()&&CONNECTING)); }
+/* v2.159 · La página de Pacientes es la principal: también se ve de fondo antes de ingresar la clave (la hoja de datos sigue disponible al abrir un paciente o Nuevo Paciente) */
+const ppBrowseWanted=()=>PP_BROWSE&&STORE==="drive"&&CAN_DRIVE&&!CONNECT_FAIL;
+function ppVisibility(){ const el=$("pPanel"); if(el){ el.hidden=!(ppOn()||ppBrowseWanted()); try{ if(!ppOn()&&ppBrowseWanted()&&!DRIVE_FILES.length&&$("ppList")&&!$("ppList").querySelector(".dlg-item")) $("ppList").innerHTML='<div class="dlg-empty">'+(apiKey()?"Cargando…":"Ingresa para ver los pacientes.")+"</div>"; }catch(_){} } }
 /* v2.70 · Tabla de pacientes en 3 tamaños: Ampliada (inicio, formularios ocultos) · Colapsada (paciente cargado o nuevo) · Actual (se despliega con los formularios visibles) */
 const bandPlaceholder=()=>document.body.classList.contains("pp-browse")?"Selecciona un Paciente":"Captura los datos del paciente";
 function ppLayout(){
@@ -6399,19 +6408,52 @@ function ppMarkCurrent(){
   const cur=($("expediente").value||"").trim();
   $("ppList").querySelectorAll(".dlg-item").forEach(b=>b.classList.toggle("cur",!!cur&&b.dataset.exp===cur));
 }
+/* v2.158 · Filtros Adscrito / Clínica de la lista de pacientes: viven en memoria (se pierden al recargar, al salir o a los 10 min sin uso) */
+let PP_FILT={ads:"",clin:""};
+const ppU=v=>String(v||"").toLocaleUpperCase("es-MX").trim();
+function ppAdsInfo(raw){ const rec=userRecord(raw), k=normalizeStaffName(raw); return {key:k,nombre:rec?rec.nombre:String(raw).trim(),clin:rec&&rec.tipo==="adscrito"?(rec.servicio||""):""}; }
+function ppFiltMatch(f){
+  if(!PP_FILT.ads&&!PP_FILT.clin) return true;
+  const a=String((f.meta&&f.meta.adscrito)||"").trim(); if(!a) return false; const i=ppAdsInfo(a);
+  if(PP_FILT.ads) return i.key===PP_FILT.ads;
+  return ppU(i.clin||"Sin clínica")===ppU(PP_FILT.clin);
+}
+function ppFiltDraw(){
+  const A=$("ppFAds"),C=$("ppFClin"); if(!A||!C) return;
+  const seen=new Map(); uniqueFiles(DRIVE_FILES).forEach(f=>{ const a=String((f.meta&&f.meta.adscrito)||"").trim(); if(!a) return; const i=ppAdsInfo(a); if(!seen.has(i.key)) seen.set(i.key,Object.assign(i,{clin:i.clin||"Sin clínica"})); });
+  const all=[...seen.values()], clins=[...new Set(all.map(x=>x.clin))].sort((a,b)=>a.localeCompare(b,"es"));
+  if(PP_FILT.ads&&!seen.has(PP_FILT.ads)) PP_FILT.ads="";
+  if(PP_FILT.clin&&!clins.some(c=>ppU(c)===ppU(PP_FILT.clin))) PP_FILT.clin="";
+  const list=(PP_FILT.clin?all.filter(x=>ppU(x.clin)===ppU(PP_FILT.clin)):all);
+  const groups=new Map(); list.forEach(x=>{ (groups.get(x.clin)||groups.set(x.clin,[]).get(x.clin)).push(x); });
+  const opt=(v,t,sel)=>`<option value="${esc(v)}"${sel?" selected":""}>${esc(t)}</option>`;
+  A.innerHTML=opt("","Todos",!PP_FILT.ads)+[...groups.keys()].sort((a,b)=>a.localeCompare(b,"es")).map(c=>`<optgroup label="${esc(c)}">${groups.get(c).sort((a,b)=>a.nombre.localeCompare(b.nombre,"es")).map(x=>opt(x.key,x.nombre,PP_FILT.ads===x.key)).join("")}</optgroup>`).join("");
+  C.innerHTML=opt("","Todas",!PP_FILT.clin)+clins.map(c=>opt(c,c,ppU(c)===ppU(PP_FILT.clin))).join("");
+  A.classList.toggle("on",!!PP_FILT.ads); C.classList.toggle("on",!!PP_FILT.clin);
+  const b=$("ppFClr"); if(b) b.hidden=!(PP_FILT.ads||PP_FILT.clin);
+}
+function ppFiltClear(){ PP_FILT={ads:"",clin:""}; try{ ppFiltDraw(); renderPP(); }catch(_){} }
+(function(){
+  const A=$("ppFAds"),C=$("ppFClin"),B=$("ppFClr"); if(!A||!C||!B) return;
+  A.onchange=()=>{ PP_FILT.ads=A.value; if(A.value){ const f=uniqueFiles(DRIVE_FILES).find(x=>ppAdsInfo((x.meta&&x.meta.adscrito)||"").key===A.value); PP_FILT.clin=f?(ppAdsInfo(f.meta.adscrito).clin||"Sin clínica"):""; } ppFiltDraw(); renderPP(); };
+  C.onchange=()=>{ PP_FILT.clin=C.value; if(PP_FILT.ads){ const cur=uniqueFiles(DRIVE_FILES).find(x=>ppAdsInfo((x.meta&&x.meta.adscrito)||"").key===PP_FILT.ads); const ac=cur?(ppAdsInfo(cur.meta.adscrito).clin||"Sin clínica"):""; if(ppU(ac)!==ppU(C.value)) PP_FILT.ads=""; } ppFiltDraw(); renderPP(); };
+  B.onclick=ppFiltClear;
+})();
 function renderPP(){
   const s=($("ppSearch").value||"").trim().toUpperCase();
   let items=uniqueFiles(DRIVE_FILES).filter(f=>{ const p=f.meta||{}; if(PP_AUTO&&!PP_MANUAL&&s)return ($("expediente").value.trim()?expOf(f):String(p.cama||"").trim()).toUpperCase().startsWith(s); return !s||(p.nombre||"").toUpperCase().includes(s)||(expOf(f)).toUpperCase().includes(s)||String(f.name||"").toUpperCase().includes(s)||("CAMA "+(p.cama||"")).toUpperCase().includes(s)||(p.cama||"").toUpperCase()===s||(p.dx||"").toUpperCase().includes(s); });
   const camaMode=document.body.classList.contains("pp-browse")&&!s&&PP_VIEW==="cama";
   if(camaMode){ const now=Date.now(); items=uniqueFiles(DRIVE_FILES).filter(f=>camaValida(f.meta&&f.meta.cama)&&now-fileTime(f)<=PP_RECENT_MS).sort(camaOrder); }
-  const ppHome=document.body.classList.contains("pp-browse"), ppKey=s+"|"+PP_VIEW+"|"+ppHome;
+  try{ ppFiltDraw(); }catch(_){}
+  const filtOn=!!(PP_FILT.ads||PP_FILT.clin); if(filtOn) items=items.filter(ppFiltMatch);
+  const ppHome=document.body.classList.contains("pp-browse"), ppKey=s+"|"+PP_VIEW+"|"+ppHome+"|"+PP_FILT.ads+"|"+PP_FILT.clin;
   if(window.PP_KEY!==ppKey){ window.PP_KEY=ppKey; window.PP_PAGES=0; }
   const ppCap=(s||camaMode)?200:60, ppShown=ppHome?Math.min(ppCap,ppPer()*(1+(window.PP_PAGES||0))):ppCap;
   try{ $("ppList").classList.toggle("by-cama",!!camaMode); const mb=$("ppMore"); if(mb) mb.hidden=!(ppHome&&Math.min(items.length,ppCap)>ppShown); }catch(_){}
   $("ppList").innerHTML=items.length?items.slice(0,ppShown).map(f=>{ const p=f.meta||{}, exp=p.exp||patientExpFromFileName(f.name), nm=p.nombre||exp;
     const bed=camaMode&&p.cama?`<span class="cama-badge${String(p.cama).trim().length>3?" long":""}" title="Cama ${esc(p.cama)}">${esc(String(p.cama).trim().replace(/^UCI\s*/i,"UCI "))}</span>`:"";
     return `<button type="button" class="dlg-item${bed?" has-bed":""}" data-id="${f.id}" data-exp="${esc(exp)}">${bed}<span class="pinfo"><b>${esc(nm)}</b><span class="tags"><span class="tag">Exp. ${esc(exp)}</span>${p.cama&&!bed?`<span class="tag cama">Cama ${esc(p.cama)}</span>`:""}</span>${p.dx?`<small class="dx">${esc(p.dx)}</small>`:""}</span></button>`; }).join("")
-    :camaMode?'<div class="dlg-empty">Sin pacientes hospitalizados modificados en las últimas 36 horas. Usa «Todos» o el buscador.</div>':`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
+    :filtOn?'<div class="dlg-empty">Ningún paciente con ese filtro en esta vista. Puedes borrar el filtro o cambiar a «Todos». Los pacientes se asocian al adscrito la próxima vez que se guardan.</div>':camaMode?'<div class="dlg-empty">Sin pacientes hospitalizados modificados en las últimas 36 horas. Usa «Todos» o el buscador.</div>':`<button type="button" class="dlg-item pp-new" data-pp-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H5v18h14V8l-5-5zM14 3v5h5M8 14h8M12 10v8"/></svg><b>Nuevo Paciente</b></button>`;
   ppMarkCurrent();
 }
 async function loadPatients(opt){
